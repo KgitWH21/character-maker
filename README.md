@@ -157,7 +157,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v9`, including both Right Now
+The service worker uses scope-specific cache version `v10`, including both Right Now
 files. To update an installed phone app, publish the updated files, open the app online,
 wait for the update-ready notice, close **all** tabs/windows for this app, and reopen.
 No reinstall or storage clearing is needed. Export a backup before clearing browser data.
@@ -278,7 +278,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v9` caches both new
+customized sketch selections remain intact. Service-worker version `v10` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -317,8 +317,21 @@ canvas operation. No runtime dependencies were added.
 4. Wait for deployment to finish, then open the existing Pages URL online.
 5. On your phone, open the installed app online. Wait for **App update ready**. Close **all**
    browser tabs and installed-app windows for this site, then reopen online to activate the
-   waiting service worker (`v9`). If it has already activated, opening shows the new Build a
+   waiting service worker (`v10`). If it has already activated, opening shows the new Build a
    Character navigation immediately.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
    clearing browser data is needed.
+
+## Copy fields to Google Docs
+
+Every foundation field, candidate, generated card, accepted characteristic, and My Sheet
+row has a Copy button. Paste normally into Google Docs to keep the field label as a
+level-three heading and its value as a paragraph, including line breaks. Plain text
+apps receive the label and value without HTML. Accepted cards and sheet rows copy
+their kept wording; generated cards copy the currently displayed value. Copy sheet
+uses the same heading/paragraph formatting for all kept details and notes.
+
+Rich copying uses the browser clipboard API with a formatted copy fallback for older
+browsers or local files. If formatting is unavailable, a plain text fallback is tried;
+a failed copy shows a message. Copying does not change focus, locks, or kept details.

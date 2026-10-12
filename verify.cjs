@@ -5,7 +5,7 @@ const source=f=>fs.readFileSync(require('node:path').join(__dirname,f),'utf8');
 const elements=new Map(),storage=new Map();
 function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,hidden:false,textContent:'',innerHTML:'',dataset:{},classList:{add(){},remove(){},toggle(){}},listeners:{},addEventListener(k,fn){this.listeners[k]=fn;},setAttribute(){},querySelectorAll(){return [];},showModal(){},close(){}});return elements.get(id);}
 const tabs=['build','quick','full','dialogue','now','sheet','saved'].map(tab=>{const e=element('tab-'+tab);e.dataset.tab=tab;return e;});
-const context=vm.createContext({console,Intl,Date,Math,JSON,document:{body:{classList:{toggle(){}}},getElementById:element,querySelectorAll:s=>s==='[data-tab]'?tabs:[]},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{},location:{protocol:'file:'},setTimeout(){},clearTimeout(){},confirm:()=>true,crypto:{randomUUID:()=>crypto.randomUUID()}});
+const context=vm.createContext({console,Intl,Date,Math,JSON,document:{addEventListener(){},body:{classList:{toggle(){}}},getElementById:element,querySelectorAll:s=>s==='[data-tab]'?tabs:[]},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{},location:{protocol:'file:'},setTimeout(){},clearTimeout(){},confirm:()=>true,crypto:{randomUUID:()=>crypto.randomUUID()}});
 context.window=context;context.addEventListener=()=>{};
 for(const f of ['original-data.js','additions.js','core.js','right-now-data.js','right-now.js','dialogue-data.js','dialogue.js','character-canvas.js','app.js'])vm.runInContext(source(f),context,{filename:f});
 const A=context.CharacterApp,R=context.RightNow,D=context.RightNowData,O=context.ORIGINAL_ELEMENTS,C=context.CharacterCore;
@@ -51,7 +51,7 @@ assert.deepEqual(clone(A.validSnapshot(clone(migrated))),clone(migrated));assert
 element('save').onclick();element('save').onclick();let saves=JSON.parse(storage.get('character-maker.saved.v1'));assert.equal(saves.length,2);assert.notEqual(saves[0].id,saves[1].id);assert.deepEqual(clone(A.validSnapshot(saves[0].character)),clone(saves[0].character));
 assert.equal(C.ageAt('2008-10-09',2026,'2026-10-08'),17);assert.equal(C.ageAt('2008-10-09',2026,'2026-10-09'),18);assert.equal(C.parseDate('2025-02-29'),null);assert(C.parseDate('2024-02-29'));assert(C.birthDetails('2000-01-01').stone);
 s.settings.adultEnabled=true;s.settings.storyYear=2026;s.settings.storyDate='2026-10-08';s.values.birthday.value='2008-10-09';assert.equal(A.adultAllowed(),false);s.settings.storyDate='2026-10-09';assert.equal(A.adultAllowed(),true);assert(defs.some(f=>f.id==='extra.name_initial'));
-const sw=source('sw.js');assert(sw.includes("PREFIX+'v9'"));assert(sw.includes('k.startsWith(PREFIX)'));for(const name of ['right-now-data.js','right-now.js','dialogue-data.js','dialogue.js','character-canvas.js'])assert(sw.includes("'./"+name+"'"));
+const sw=source('sw.js');assert(sw.includes("PREFIX+'v10'"));assert(sw.includes('k.startsWith(PREFIX)'));for(const name of ['right-now-data.js','right-now.js','dialogue-data.js','dialogue.js','character-canvas.js'])assert(sw.includes("'./"+name+"'"));
 console.log('PASS: original JSON equivalence; shared views; focus; locks; Keep; device gating; perspective; camera limits; connected rerolls; archetype probability; migration; save round trips; birthday/adult/naming; offline cache list. '+now.length+' Right Now fields.');
 
 // Dialogue state, curation, migration, and declared compatibility.
