@@ -95,7 +95,7 @@ Original baseline Git blob SHA: `b48148c3b6106edd33de367534e1d052495c9ba3`.
 
 The current JSON includes your expanded editable arrays. Entries retain their wording, capitalization and order; duplicates retain their weighting. The application does not rewrite or deduplicate your source arrays. `original-data.js` is a JSON-equivalent JavaScript wrapper so the app can also open directly from a local file without fetching JSON. Original lists remain available in the source files. The former family-status field now draws from the added family-connection pool instead of the original marital-status entries. The alive and deceased parent pools are combined for separate maternal and paternal rolls. Every original age range remains available. Tarot retains upright / reversed meanings and all layouts; arc rolls draw three different cards.
 
-Additions live in `additions.js`. Customize those lists freely. The `human_distinctive_features` array adds 64 human features to the existing Distinctive Features field, including facial details, hair, hands, scars, tattoos, accessories, and posture. Its roll and selection menu use the original entries followed by these additions; original duplicates retain their relative weighting. If you edit `character_elements.json`, regenerate the wrapper with:
+Additions live in `additions.js`. Customize those lists freely. The `human_distinctive_features` array adds 64 human features to the existing Distinctive Features field, including facial details, hair, hands, scars, tattoos, accessories, and posture. Its roll and selection menu use the original entries followed by these additions; original duplicates retain their relative weighting. After editing `character_elements.json`, run `python3 package-app.py`. Packaging automatically regenerates `original-data.js` from the JSON before building the ZIP. For a local preview without packaging, regenerate the wrapper with:
 
 ```sh
 node -e "const fs=require('fs');fs.writeFileSync('original-data.js','window.ORIGINAL_ELEMENTS = '+JSON.stringify(JSON.parse(fs.readFileSync('character_elements.json','utf8')))+';\\n')"
@@ -106,6 +106,8 @@ node -e "const fs=require('fs');fs.writeFileSync('original-data.js','window.ORIG
 `index.html`, `style.css`, `guided.css`, `guided-builder.js`, `guided-ui.js`, `app.js`, `core.js`, `life-data.js`, `character-life.js`, `criminal-history.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `medical.js`, `languages.js`, `character-tools.js`, `app-updates.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
 
 ## App updates
+
+Before publishing JSON pool edits, regenerate `original-data.js` using `python3 package-app.py`; the browser loads that JavaScript wrapper. Publish both files along with the updated service worker and release marker. Existing character results stay as saved until you reroll an unlocked field or choose an entry in Edit.
 
 When updating cached app files, bump `VERSION` in `sw.js` and `release` in `app-updates.js` together, rebuild the ZIP, and republish. Open online and use **Check updates**, then **Update & reload** when the notice appears. Apply open field edits before reloading. Your draft is persisted before reload, and saved characters remain in local storage.
 
@@ -169,7 +171,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v26`, including both Right Now
+The service worker uses scope-specific cache version `v27`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -291,7 +293,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v26` caches both new
+customized sketch selections remain intact. Service-worker version `v27` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -330,7 +332,7 @@ canvas operation. No runtime dependencies were added.
 4. Wait for deployment to finish, then open the existing Pages URL online.
 5. On your phone, open the installed app online and tap **Check updates**. When
    **App update ready** appears, apply open field edits, then tap **Update & reload**.
-   The current release is `v26`. If a pre-v15 app still shows **Install app**, wait for the
+   The current release is `v27`. If a pre-v15 app still shows **Install app**, wait for the
    update to download, close it from Recent apps, and reopen online once.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
@@ -392,7 +394,7 @@ Old workspaces and saved characters gain missing medical fields once while retai
 profile values, locks, notes, kept snapshots, and customized Quick Snapshot selections.
 All medical values persist through save, export, import, and offline use. Kept values
 remain accepted snapshots; changes to linked background values do not rewrite them.
-The updated ZIP includes `medical.js`, and service-worker cache `v26` installs it offline.
+The updated ZIP includes `medical.js`, and service-worker cache `v27` installs it offline.
 
 Reference material used for the prompts:
 
@@ -455,7 +457,7 @@ On the first load of an older character missing both additional fields, its unlo
 main language is synced to heritage, and Second/Third are initialized once. Existing
 locks, kept snapshots, notes, and Quick Snapshot choices survive. Subsequent loads keep
 the established values. Customize the mappings and named language pool in `languages.js`.
-Service-worker cache `v26` and the current downloadable ZIP include this file.
+Service-worker cache `v27` and the current downloadable ZIP include this file.
 
 Country-language reference examples: [Singapore Department of Statistics census language
 tables](https://www.singstat.gov.sg/publication-resources/singapore-census-of-population-2020-statistical-release-1-demographic-characteristics-education-language-and-religion)
@@ -553,7 +555,7 @@ being truncated. The complete brief remains visible for review before printing.
 workshop validation, and standalone brief renderer. Browser verification covers full
 undo/redo/restore journeys, generated and existing connected profiles, protected opening,
 scene responses, portrait validation, HTML/clipboard/PDF output, history reloads, JSON
-round trips, mobile layout, and offline use. Service-worker cache `v26` includes this file.
+round trips, mobile layout, and offline use. Service-worker cache `v27` includes this file.
 
 
 ## Installed phone app updates (v15)
