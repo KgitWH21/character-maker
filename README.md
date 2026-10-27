@@ -103,7 +103,7 @@ node -e "const fs=require('fs');fs.writeFileSync('original-data.js','window.ORIG
 
 ## Files
 
-`index.html`, `style.css`, `guided.css`, `guided-builder.js`, `guided-ui.js`, `app.js`, `core.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `medical.js`, `languages.js`, `character-tools.js`, `app-updates.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
+`index.html`, `style.css`, `guided.css`, `guided-builder.js`, `guided-ui.js`, `app.js`, `core.js`, `life-data.js`, `character-life.js`, `criminal-history.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `medical.js`, `languages.js`, `character-tools.js`, `app-updates.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
 
 ## App updates
 
@@ -169,7 +169,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v25`, including both Right Now
+The service worker uses scope-specific cache version `v26`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -291,7 +291,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v25` caches both new
+customized sketch selections remain intact. Service-worker version `v26` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -330,7 +330,7 @@ canvas operation. No runtime dependencies were added.
 4. Wait for deployment to finish, then open the existing Pages URL online.
 5. On your phone, open the installed app online and tap **Check updates**. When
    **App update ready** appears, apply open field edits, then tap **Update & reload**.
-   The current release is `v25`. If a pre-v15 app still shows **Install app**, wait for the
+   The current release is `v26`. If a pre-v15 app still shows **Install app**, wait for the
    update to download, close it from Recent apps, and reopen online once.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
@@ -392,7 +392,7 @@ Old workspaces and saved characters gain missing medical fields once while retai
 profile values, locks, notes, kept snapshots, and customized Quick Snapshot selections.
 All medical values persist through save, export, import, and offline use. Kept values
 remain accepted snapshots; changes to linked background values do not rewrite them.
-The updated ZIP includes `medical.js`, and service-worker cache `v25` installs it offline.
+The updated ZIP includes `medical.js`, and service-worker cache `v26` installs it offline.
 
 Reference material used for the prompts:
 
@@ -455,7 +455,7 @@ On the first load of an older character missing both additional fields, its unlo
 main language is synced to heritage, and Second/Third are initialized once. Existing
 locks, kept snapshots, notes, and Quick Snapshot choices survive. Subsequent loads keep
 the established values. Customize the mappings and named language pool in `languages.js`.
-Service-worker cache `v25` and the current downloadable ZIP include this file.
+Service-worker cache `v26` and the current downloadable ZIP include this file.
 
 Country-language reference examples: [Singapore Department of Statistics census language
 tables](https://www.singstat.gov.sg/publication-resources/singapore-census-of-population-2020-statistical-release-1-demographic-characteristics-education-language-and-religion)
@@ -553,7 +553,7 @@ being truncated. The complete brief remains visible for review before printing.
 workshop validation, and standalone brief renderer. Browser verification covers full
 undo/redo/restore journeys, generated and existing connected profiles, protected opening,
 scene responses, portrait validation, HTML/clipboard/PDF output, history reloads, JSON
-round trips, mobile layout, and offline use. Service-worker cache `v25` includes this file.
+round trips, mobile layout, and offline use. Service-worker cache `v26` includes this file.
 
 
 ## Installed phone app updates (v15)
@@ -738,3 +738,61 @@ kept content adds an **Updated** indicator and a subtle pulse until the sketch i
 opening it clears that indicator while retaining the gold styling. Screen readers receive
 an update announcement. Reduced-motion settings retain the color and text feedback without
 animation. These updates apply to both composed answers and individual kept details.
+
+
+## Criminal history (v26)
+
+Open **Browse all details → Criminal history** for a history overview, pattern of involvement,
+and one expandable incident. **Add incident** adds an empty incident; up to 20 can be kept.
+Each incident has its own stable field IDs. **Remove incident** removes its fields and Quick
+Snapshot selections; Undo restores them. Unlock an incident's fields before removing it.
+A new character starts with one incident again.
+
+The overview includes no criminal history, an isolated incident, repeated involvement,
+ongoing activity, or unknown history. Patterns include one bad decision, occasional
+opportunism, a former way of life, and a current livelihood. A record-free character can
+still have concealed wrongdoing. Actual involvement, the official account, and the
+character's own account are separate; an accusation, arrest, or conviction never forces
+an admission of responsibility.
+
+Each incident includes:
+
+- Offense or accusation, age, location, role, actual involvement, official record, and what
+  the character tells people.
+- Official consequence, present situation, feelings, and lasting effects.
+- Motive and circumstances: desperation, loyalty, profit, revenge, ideology, coercion,
+  and recklessness.
+- Boundaries: what they justified then, what they refuse to do now, and what could draw
+  them back.
+- Separate people fields for an accomplice, person harmed, investigator, lawyer, informant,
+  and someone who helped afterward. These are editable story prompts; they do not create
+  Connected characters automatically.
+- Who knows: public knowledge, close family only, employer unaware, someone knows a
+  distorted version, and other secrecy prompts.
+- Unresolved threads including unfinished restitution, resurfacing evidence, someone
+  seeking an apology, and the return of an old associate.
+
+Choose a history overview before rolling an incident. Editing or rerolling the overview
+refreshes unlocked dependent fields. Editing the official record refreshes its unlocked
+consequence and present situation. Editing involvement refreshes relevant motive prompts.
+**Reroll unlocked incident fields** changes that incident alone. None and Unknown are
+available alongside custom wording; incident ages accept whole years within the character's
+established age at the story date. A year-only setting uses the youngest possible current
+age. Birthday or story-date changes repair unlocked incident ages and flag preserved
+conflicts. Locked values and accepted Keep snapshots survive dependent rerolls.
+
+Generation uses editable fictional pools and authoring weights in `criminal-history.js`;
+these are not crime statistics or jurisdiction-specific legal rules. Automatic histories
+start at age 8 as a story convention; custom incident ages can start at 0. Generation does
+not use heritage, gender, occupation, personality, or other demographic traits.
+
+Every field supports the existing Focus, Lock, Keep, Copy, Edit, and Reroll controls,
+one-detail suggestions, Quick Snapshot selection, My Sheet, briefs, saves, undo/redo,
+JSON backups, and offline use. Older drafts and saves initialize missing history fields
+to **Unknown / not established**, preserving their existing details and accepted snapshots.
+
+Run `node verify-criminal.cjs` for module consistency checks and
+`node verify-criminal-browser.cjs` for the browser workflow, migration, multiple incidents,
+mobile layout, and offline reload. Browser checks use the same `PLAYWRIGHT_MODULE` and
+`CHROMIUM_EXECUTABLE` overrides as the other suites. The v26 service-worker cache and
+rebuilt ZIP include the new module.

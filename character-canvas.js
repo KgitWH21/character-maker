@@ -8,6 +8,7 @@ const categories=[
  {id:'appearance',label:'Appearance',matches:f=>f.group==='Appearance'},
  {id:'education',label:'Education & Training',matches:f=>f.group==='Education & Training'},
  {id:'relationship-details',label:'Relationship details',matches:f=>f.group==='Relationship details'},
+ {id:'criminal-history',label:'Criminal history',matches:f=>f.kind==='criminal'},
  {id:'medical',label:'Medical',matches:f=>f.group==='Medical'},
  {id:'dialogue',label:'Dialogue',matches:f=>f.kind==='dialogue'&&!f.wildcard||f.id==='CHARACTER_SPEECH'},
  {id:'right-now',label:'Right Now',matches:f=>f.kind==='rightNow'},

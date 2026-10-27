@@ -10,6 +10,7 @@ const exploreTopics=[
  {label:'Voice & dialogue',tab:'dialogue',description:'Find their voice',help:'Choose a voice or conversational habit. Imagine how they would ask someone for what they want.'},
  {label:'Medical',tab:'medical',description:'Health & physical details',help:'Explore a physical detail that could affect their daily routines, choices, or comfort.'},
  {label:'Education & Training',tab:'education',description:'Learning & practical skills',help:'Discover what they learned, how they learned it, and how they feel about that path.'},
+ {label:'Criminal history',tab:'criminal-history',description:'Secrets & consequences',help:'Explore what happened, what is on the record, and what still follows them.'},
  {label:'Relationship details',tab:'relationship-details',description:'Their personal connections',help:'Explore their relationship history, current situation, or how they behave with someone close.'},
  {label:'Right Now',tab:'now',description:'A moment in their life',help:'Picture them somewhere specific. Choose what they are doing, thinking, or about to do.'},
  {label:'Connections',tab:'connections',description:'People who shape their story',help:'Introduce an ally, a rival, or someone who remembers their past.'},
@@ -85,7 +86,7 @@ function renderSketch(){
 function render(){
  const s=state(),g=guided(),build=s.tab==='build';
  $('toolsView').hidden=s.tab!=='tools';
- const main=s.tab==='saved'?'saved':build||['quick','full','medical','sheet','education','relationship-details'].includes(s.tab)?'build':'tools';
+ const main=s.tab==='saved'?'saved':build||['quick','full','medical','sheet','education','relationship-details','criminal-history'].includes(s.tab)?'build':'tools';
  for(const button of document.querySelectorAll('[data-main]')){const selected=button.dataset.main===main;button.classList.toggle('selected',selected);button.setAttribute('aria-current',selected?'page':'false');}
  $('builderUndo').disabled=A.getHistory().index===0;
  $('iterationActions').hidden=!B.keys.every(key=>g.accepted[key]);

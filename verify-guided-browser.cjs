@@ -42,10 +42,10 @@ const trackDevelopmentScroll=()=>{const native=Element.prototype.scrollIntoView;
   await page.locator('#addDetail').click();await page.waitForTimeout(300);assert.equal(Object.keys((await read()).guided.accepted).length,3);assert(await page.locator('#deeperDevelopment').isVisible());assert.equal(await page.evaluate(()=>window.developmentScrolls.length),0,'Desktop completion should not scroll the page');
   assert(await page.locator('#saveAndStartAnother').isVisible());
   const beforeDecision=await read(),suggestions=()=>page.locator('#developmentChoices [data-explore]').evaluateAll(items=>items.map(item=>({id:item.dataset.explore,label:item.firstChild.textContent})));
-  const excluded=['quick','full','history','single'],allowed=['dialogue','medical','education','relationship-details','now','connections','pressure','sheet'];
+  const excluded=['quick','full','history','single'],allowed=['dialogue','medical','education','relationship-details','criminal-history','now','connections','pressure','sheet'];
   const firstChoices=await suggestions();assert.equal(firstChoices.length,4);assert.equal(new Set(firstChoices.map(t=>t.id)).size,4);assert(firstChoices.every(t=>allowed.includes(t.id)));
   await page.locator('#browseDetails').click();const menuTopics=await page.locator('#topicChoices [data-browse-tab]').evaluateAll(items=>items.map(item=>({id:item.dataset.browseTab,label:item.textContent})));assert.deepEqual(menuTopics.filter(t=>!excluded.includes(t.id)).map(t=>t.id).sort(),allowed.slice().sort());for(const choice of firstChoices)assert(menuTopics.some(t=>t.id===choice.id&&t.label===choice.label));await page.keyboard.press('Escape');
-  // A seeded sequence verifies all eight eligible categories can appear without duplicates.
+  // A seeded sequence verifies all nine eligible categories can appear without duplicates.
   const sampled=await page.evaluate(()=>{
    const s=CharacterApp.getState(),original=s.guided,random=Math.random,sets=[];let seed=20421;
    Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
