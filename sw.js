@@ -1,7 +1,7 @@
 'use strict';
 const PREFIX='character-maker-'+encodeURIComponent(self.registration.scope)+'-';
-const VERSION=PREFIX+'v10';
-const FILES=['./','./index.html','./style.css','./original-data.js','./additions.js','./core.js','./right-now-data.js','./right-now.js','./dialogue-data.js','./dialogue.js','./character-canvas.js','./app.js','./manifest.webmanifest','./icon.svg','./icons/icon-192.png','./icons/icon-512.png','./character_elements.json'];
+const VERSION=PREFIX+'v14';
+const FILES=['./','./index.html','./style.css','./original-data.js','./additions.js','./core.js','./right-now-data.js','./right-now.js','./languages.js','./dialogue-data.js','./dialogue.js','./medical.js','./character-canvas.js','./character-tools.js','./app.js','./manifest.webmanifest','./icon.svg','./icons/icon-192.png','./icons/icon-512.png','./character_elements.json'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(FILES)));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(PREFIX)&&k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 // Local development should reflect edits on reload, even with offline support installed.

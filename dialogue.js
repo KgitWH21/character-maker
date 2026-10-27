@@ -15,7 +15,7 @@ const defs=definitions(),field=id=>defs.find(f=>f.id===id),option=(f,id)=>f.pool
 const clean=s=>String(s??'').slice(0,1000),wordCount=s=>s.trim().split(/\s+/).filter(Boolean).length;
 function parameters(f,o,s,input={},random=false){
  const p={};
- const languageContext=()=>{p.languageOverride=input.languageOverride??!!input.languages;if(typeof p.languageOverride!=='boolean')throw Error('Invalid language-reference setting.');p.languages=clean((p.languageOverride?input.languages:s.values['extra.languages']?.value)||'No language established');};
+ const languageContext=()=>{p.languageOverride=input.languageOverride??!!input.languages;if(typeof p.languageOverride!=='boolean')throw Error('Invalid language-reference setting.');p.languages=clean((p.languageOverride?input.languages:root.Languages.context(s))||'No language established');};
  if(f.wildcard){p.scope=D.wildcard_scopes.includes(input.scope)?input.scope:'One conversation';p.reason=D.wildcard_reasons.includes(input.reason)?input.reason:D.wildcard_reasons[0];}
  for(const key of o.parameters||[]){
   if(key==='languages'){languageContext();continue;}
@@ -43,7 +43,7 @@ function prepare(f,s,o,input={},random=false){const p=parameters(f,o,s,input,ran
  const lines=[o.label,instruction];
  if(f.id==='dialogue.situation')lines.splice(1,0,'Selected habit: '+p.targetLabel+' — '+p.baseline+'. This is a situational exception to that generated habit; the baseline is preserved.');
  lines.push('Scope: '+(f.wildcard?p.scope:f.scope));
- if(p.languages){lines.push('Established language context: '+p.languages);lines.push('Use only languages the author has established. A second language must be specified before switching; heritage supplies no proficiency.');}
+ if(p.languages){lines.push('Established language context: '+p.languages);lines.push('Use only languages the author has established. A second language must be specified before switching.');}
  if(f.id==='dialogue.multilingual'&&o.id!=='switch.none')lines.push('Bracketed phrases in the example are author-fillable slots, not assigned languages.');
  if(o.id==='one-switch')lines.push('The English → Spanish example is illustrative only; adapt it after establishing two languages.');
  if(p.reason&&p.reason!==D.wildcard_reasons[0])lines.push('Optional fictional reason: '+p.reason);
@@ -71,6 +71,7 @@ function roll(f,s,{force=false}={}){const v=s.values[f.id];if(v.locked)return;if
  if(f.wildcard&&s.settings.dialogueCombine){const other=s.values[f.id.endsWith('1')?'dialogue.wildcard2':'dialogue.wildcard1'];choices=choices.filter(choice=>!conflict(choice,other));}
  Object.assign(v,pick(choices));v.focused=Math.random()<s.settings.focusDensity;
 }
+function refreshLanguages(s){for(const f of defs){const v=s.values[f.id],o=option(f,v?.optionId);if(!v||v.locked||v.parameters?.languageOverride||!o||!(f.id==='dialogue.multilingual'||o.parameters?.includes('languages')))continue;Object.assign(v,prepare(f,s,o,{...v.parameters,languageOverride:false}));}}
 function metadata(f,v){const o=option(f,v.optionId);if(!o)return {optionId:'',parameters:{}};
  // Parameter validation is independent of current profile details; never rebuild a saved value.
  const dummy={values:{'extra.languages':{value:v.parameters?.languages}}};return {optionId:o.id,parameters:parameters(f,o,dummy,v.parameters||{})};
@@ -84,5 +85,5 @@ function conflicts(s){const result=[];
 }
 function recipeEntries(s){return defs.filter(f=>s.values[f.id]?.kept).map(f=>({id:f.id,label:f.label,value:s.values[f.id].keptValue})).concat(s.values.CHARACTER_SPEECH?.kept?[{id:'CHARACTER_SPEECH',label:'Voice Sound',value:s.values.CHARACTER_SPEECH.keptValue}]:[]);}
 function recipeText(s){const entries=recipeEntries(s);return entries.length?(s.name||'Unnamed character')+' — Dialogue recipe\n\n'+entries.map(x=>x.label+': '+x.value.split('\nExample: ')[0].split('\n').filter(line=>!line.startsWith('Use only languages')&&!line.startsWith('Bracketed phrases')&&!line.startsWith('The English → Spanish')).join(' ')).join('\n\n'):'';}
-root.Dialogue={defaults,settings,definitions,prepare,roll,migrate,metadata,conflict,conflicts,recipeEntries,recipeText,wordCount};
+root.Dialogue={refreshLanguages,defaults,settings,definitions,prepare,roll,migrate,metadata,conflict,conflicts,recipeEntries,recipeText,wordCount};
 })(typeof window==='undefined'?globalThis:window);

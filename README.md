@@ -57,6 +57,7 @@ snapshot fields carry over. Save character always creates a new saved snapshot.
 
 - **Roll character:** rolls every unlocked field and shuffles focus.
 - **Shuffle focus:** changes highlighted fields while keeping every rolled value.
+- **Actions while scrolling:** a duplicate Actions menu stays at the bottom right on desktop and mobile. It has the same Roll character, Shuffle focus, and New character controls as the top menu. Tap outside or press Escape to close it.
 - **Build a Character / Quick Snapshot / Full Character:** views of the same character. Choose which fields appear in Quick Snapshot.
 - **Focus:** tap/click a field’s label, value, or card background to highlight or fade it, or use its Focus button. Buttons and editing controls keep their own actions. Faded results stay readable and usable.
 - **Lock:** keep a value during future rolls.
@@ -91,7 +92,7 @@ node -e "const fs=require('fs');fs.writeFileSync('original-data.js','window.ORIG
 
 ## Files
 
-`index.html`, `style.css`, `app.js`, `core.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
+`index.html`, `style.css`, `app.js`, `core.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `medical.js`, `languages.js`, `character-tools.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
 
 ## App updates
 
@@ -157,7 +158,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v10`, including both Right Now
+The service worker uses scope-specific cache version `v14`, including both Right Now
 files. To update an installed phone app, publish the updated files, open the app online,
 wait for the update-ready notice, close **all** tabs/windows for this app, and reopen.
 No reinstall or storage clearing is needed. Export a backup before clearing browser data.
@@ -209,14 +210,14 @@ something. My Sheet retains full kept values including examples. Rerolls never r
 kept snapshots. As with existing fields, applying an edit to a kept detail updates its
 kept snapshot.
 
-Multilingual behavior initially references the existing Language field, not heritage.
-On subsequent rolls it reads the current Language selection. Typing a language reference
-in Edit creates an explicit manual override which survives rerolls. The Language reference
-selector can return to using the character’s Language field. Switching still requires
-established proficiency in a second language; it never adds one automatically. Bracketed
-style examples are author-fillable templates. A situational card captures a baseline habit
-and gives an exception for anger, fear, comfort, or authority; Edit lets you select which
-habit it changes. Locks retain that captured baseline if other fields later change.
+Multilingual behavior references the main, second, and third Identity language fields.
+Identity language edits refresh unlocked dialogue references without changing the chosen
+habit. Typing a language reference in Edit creates an explicit manual override which
+survives rerolls. The Language reference selector can return to the character’s language
+fields. Switching requires two established languages. Bracketed style examples remain
+author-fillable templates. A situational card captures a baseline habit and gives an
+exception for anger, fear, comfort, or authority; Edit lets you select which habit it
+changes. Locks retain that captured baseline if other fields later change.
 
 ## Optional Dialogue Wildcards
 
@@ -278,7 +279,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v10` caches both new
+customized sketch selections remain intact. Service-worker version `v14` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -317,7 +318,7 @@ canvas operation. No runtime dependencies were added.
 4. Wait for deployment to finish, then open the existing Pages URL online.
 5. On your phone, open the installed app online. Wait for **App update ready**. Close **all**
    browser tabs and installed-app windows for this site, then reopen online to activate the
-   waiting service worker (`v10`). If it has already activated, opening shows the new Build a
+   waiting service worker (`v14`). If it has already activated, opening shows the new Build a
    Character navigation immediately.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
@@ -335,3 +336,209 @@ uses the same heading/paragraph formatting for all kept details and notes.
 Rich copying uses the browser clipboard API with a formatted copy fallback for older
 browsers or local files. If formatting is unavailable, a plain text fallback is tried;
 a failed copy shows a message. Copying does not change focus, locks, or kept details.
+
+
+## Medical
+
+Open **Explore / tools → Medical**, choose the **Medical** candidate category, or find
+Medical after Appearance in Full Character. Its eight fields share the normal Focus,
+Lock, Keep, Copy, Edit, and Reroll controls. The calculated weight category has Focus,
+Keep, and Copy; edit its source measurements to change it. Any medical field can be
+added to Quick Snapshot without changing existing selections.
+
+- **Precise height:** feet and inches (`5'7"`), total inches (`67 inches`), and centimeters
+  (`170.18 cm`) show one measurement. Edit in feet/inches, inches, or centimeters.
+  Appearance height rolls produce matching precise heights. Editing precise height
+  updates unlocked Appearance height. If precise height is locked, full rolls fit the
+  unlocked appearance description to it. Explicitly edited locked conflicts are
+  preserved and explained in Medical. Height ranges are broad narrative conventions,
+  scaled for children and teenagers, rather than population or clinical growth charts.
+- **Weight:** edit pounds or kilograms; both display together. Rolls use height to
+  produce a range of fictional weights, independently of appearance build.
+- **Weight category:** Underweight, At ideal weight, Overweight, or Obese, based on
+  unrounded BMI calculated from the stored measurements. “At ideal weight” names the
+  adult BMI reference range; it does not establish an individual ideal or overall
+  health. Adult human references apply only to Human characters with confirmed age
+  20+. Other species, unknown ages, and younger characters stay unclassified; a
+  year-only character turning 20 needs an exact story date.
+- **Condition / medical history** and **Medications:** common conditions include asthma,
+  seasonal allergies, hypothyroidism, and type 2 diabetes; rare prompts include sickle
+  cell disease, cystic fibrosis, Wilson disease, and myasthenia gravis. None and Unknown
+  are also available. Condition edits and rerolls update unlocked medication prompts;
+  locked medication details are retained for review. Edit both fields to write multiple
+  conditions or a custom history. Unknown custom conditions never infer a drug.
+- **Last ate**, **Hours since last eating**, and **How they feel about what they ate**
+  are independent scene details. Hours accept decimals, including zero.
+
+`medical.js` holds the editable pools and relationship rules. Condition grouping and
+random weights are storytelling choices, not prevalence estimates. Medication names
+are modern reference prompts with no doses or complete treatment plans; adapt them to
+the character’s age, circumstances, and story era. They do not assign symptoms,
+personality, medication effects, or feelings about food. No health data is accessed.
+
+Old workspaces and saved characters gain missing medical fields once while retaining
+profile values, locks, notes, kept snapshots, and customized Quick Snapshot selections.
+All medical values persist through save, export, import, and offline use. Kept values
+remain accepted snapshots; changes to linked background values do not rewrite them.
+The updated ZIP includes `medical.js`, and service-worker cache `v14` installs it offline.
+
+Reference material used for the prompts:
+
+- [CDC adult BMI categories](https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html)
+- [MedlinePlus: albuterol](https://medlineplus.gov/druginfo/meds/a607004.html),
+  [cetirizine](https://medlineplus.gov/druginfo/meds/a623043.html),
+  [levothyroxine](https://medlineplus.gov/druginfo/meds/a682461.html), and
+  [metformin](https://medlineplus.gov/druginfo/meds/a696005.html)
+- [NHLBI: sickle cell treatment](https://www.nhlbi.nih.gov/health/sickle-cell-disease/treatment)
+  and [cystic fibrosis treatment](https://www.nhlbi.nih.gov/health/cystic-fibrosis/treatment)
+- [NIDDK: Wilson disease treatment](https://www.niddk.nih.gov/health-information/liver-disease/wilson-disease/treatment)
+- [MedlinePlus: myasthenia gravis](https://medlineplus.gov/ency/article/000712.htm)
+
+
+## Identity languages
+
+**Main language** replaces the former Language label while retaining its stable
+`extra.languages` ID. It follows National heritage when that field is edited or rerolled,
+and rolls to the country default on a full character roll. For example, Japanese →
+Japanese, Mexican → Spanish, French → French, and Singaporean → English. Every original
+heritage entry has a mapping. Multilingual countries use one editable default selected
+from a widely used national language or lingua franca; it is not an exclusive or
+universal language assignment. US diaspora entries default to English; language learning
+and family-language details can be authored explicitly. Custom heritage text leaves an
+unlocked main language unestablished until you choose one.
+
+**Second language** (`extra.language2`) and **Third language** (`extra.language3`) show
+a distinct named language or **None**. A full roll with all three language fields unlocked
+uses one probability draw:
+
+| Languages | Chance |
+| --- | --- |
+| Main only | 55% |
+| Main + second | 32% |
+| Main + second + third | 13% |
+
+Thus **45%** have a second language overall, including the **13%** with a third language.
+The explicit requested 45% generation chance takes precedence over the separate 43%
+figure in the brief. These are generation settings, not demographic estimates. Each
+extra language is selected uniformly from the named language pool, excluding languages
+already assigned to the other slots. Vague language prompts from the older pool are
+excluded from automatic extra-language rolls.
+
+Rerolling Main returns to its heritage default. Rerolling Second refreshes the additional
+language pair with the same distribution; rerolling Third has a 13% chance of a language
+and creates an unlocked missing Second when necessary. Setting Second to None clears
+an unlocked Third. Selecting a Third fills an unlocked missing Second. Changes repair
+unlocked duplicates. Locked conflicts remain visible for review; locks take precedence
+over random probabilities. Manual language edits and locks allow a character to differ
+from their country default. Kept details remain accepted snapshots, including when a
+heritage edit updates the background main language.
+
+All three fields share Focus, Lock, Keep, Copy, Edit, and Reroll controls and are available
+in Quick Snapshot selection, My Sheet, saves, exports, imports, and offline use. Dialogue
+Style and language-based wildcard references use all established language slots, omitting
+None. Unlocked references follow Identity edits; manual dialogue overrides, locks, and
+kept recipes retain their captured text.
+
+On the first load of an older character missing both additional fields, its unlocked
+main language is synced to heritage, and Second/Third are initialized once. Existing
+locks, kept snapshots, notes, and Quick Snapshot choices survive. Subsequent loads keep
+the established values. Customize the mappings and named language pool in `languages.js`.
+Service-worker cache `v14` and the current downloadable ZIP include this file.
+
+Country-language reference examples: [Singapore Department of Statistics census language
+tables](https://www.singstat.gov.sg/publication-resources/singapore-census-of-population-2020-statistical-release-1-demographic-characteristics-education-language-and-religion)
+and [Swiss Federal Department of Foreign Affairs language overview](https://www.aboutswitzerland.eda.admin.ch/en/language).
+
+
+## Undo, roll history, and the character workshop
+
+Explore / tools now includes **Undo & roll history**, **Connected characters**,
+**Put them under pressure**, and **Finished character brief**. All four run locally and
+work offline. Character saves and JSON backups include relationships, pressure
+situations, scene responses, and brief settings / portrait.
+
+### Undo and roll history
+
+Both Actions menus include **Undo**, **Redo**, and **Roll history**. Undo restores the
+working draft, including rolled values, locks, focus, kept snapshots, notes, settings,
+and workshop content. It also recovers a draft replaced by New character or by opening
+a saved / connected character. Redo reapplies the change. Changes made after Undo begin
+a new branch. Field dependency updates are restored together, not rerolled.
+
+Use Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z or Ctrl+Y to redo when outside text inputs.
+Inside an input or textarea, normal text editing keeps its own undo behavior. Recent
+keystrokes in the same name, notes, relationship, or scene editor are grouped together.
+View changes and candidate browsing do not create history entries.
+
+The history panel separates **Recent rolls** from **Recent changes**. Character rolls,
+field rerolls, New character, and generated pressure situations appear under rolls.
+Restore opens that complete earlier draft, and the restoration itself can be undone.
+History retains up to 20 changes plus 8 roll snapshots, pruning older entries to stay
+within an approximate 1.8 MB serialized history budget. Large portraits or large casts
+can reduce that count. The working draft is stored separately.
+
+History survives reloading on this device. It is local recovery data and is not included
+in character JSON exports or backups; use Save character for permanent versions.
+Undo affects the draft only. Saving, importing, or deleting saved snapshots remains
+separate, so Undo never deletes a saved character or reverses a backup import.
+
+### Connected characters
+
+Choose Sibling, Rival, Partner / ally, Coworker, Friend, or Mentor; optionally name them;
+then generate a new character or select an existing saved snapshot. Each connection has
+a full independent character profile, a shared event, what each person remembers, and
+a current tension. These are editable story possibilities, not forced facts about a
+real person. A generated sibling shares the current character’s heritage and birthplace;
+a generated coworker shares occupation. Kept source snapshots take precedence over
+background rolls for those shared details. Generated personality differs independently.
+An existing saved source keeps its own identity and background.
+
+Expand **Shared history & two perspectives** to edit the relationship and name.
+**Copy relationship** copies a writing reference. **Save current & open** first saves a
+snapshot of the current character, then opens the connected profile as a new draft with
+its relationship notes. Undo returns to the original draft; the protective saved snapshot
+remains. Generating or editing a connection never edits its saved source. Connected
+profiles are captured copies, not live links. Up to 12 connections can be kept per draft.
+Nested casts are flattened inside copied connection profiles to keep backups finite.
+
+### Put them under pressure
+
+Generate a small dilemma with a concrete setup, a choice, possible stakes, and a question
+about the response. The generator captures up to three kept motivations, traits, flaws,
+or immediate goals / obstacles. It may suggest involving an existing connection.
+Background rolls are not silently treated as accepted personality. Without relevant kept
+details, the prompt remains open for the author to interpret. The app does not choose a
+reaction, change personality, or resolve the scene for you.
+
+Write their response, then **Keep situation** to retain it. Another situation replaces
+the candidate while preserving kept situations and their captured character details.
+Responses can still be edited after keeping. Copy a situation for a writing session or
+include kept situations in the brief. Up to 12 situations can be kept per draft.
+
+### Finished character brief
+
+The brief uses the identity foundation and kept snapshots, including earlier accepted
+wording after background rerolls. Add an optional one-line introduction and a PNG, JPEG,
+or WebP portrait up to 250 KB. Portraits remain local and travel with JSON character
+exports. SVGs and external image URLs are not accepted.
+
+Choose **All kept details** or **Compact reference**. Compact includes the first two
+kept details from each of the first eight represented groups, and explicitly reports
+how many details it omits. It never removes them from the character. Include or exclude
+notes, connected relationships, and kept pressure situations. Age-ineligible adult
+intimacy snapshots are omitted from the brief.
+
+- **Copy brief** provides formatted HTML and plain text for a document editor.
+- **Print / Save PDF** opens the browser’s print dialog with a clean paper layout.
+  The app navigation, form controls, and floating Actions menu are hidden when printing.
+- **Download HTML** creates a standalone printable document with its styles and portrait
+  embedded. It works without the app or a network connection.
+
+A short compact brief can fit on one page; longer kept text flows across pages without
+being truncated. The complete brief remains visible for review before printing.
+
+`character-tools.js` contains the history limits, relationship and pressure pools,
+workshop validation, and standalone brief renderer. Browser verification covers full
+undo/redo/restore journeys, generated and existing connected profiles, protected opening,
+scene responses, portrait validation, HTML/clipboard/PDF output, history reloads, JSON
+round trips, mobile layout, and offline use. Service-worker cache `v14` includes this file.

@@ -6,10 +6,11 @@ const foundation=['birthday','basic.gender','CHARACTER_NATIONAL_HERITAGE'];
 const categories=[
  {id:'personality',label:'Personality & background',matches:f=>['Personality','Background','Formative experiences','Relationships','Voice & behavior'].includes(f.group)},
  {id:'appearance',label:'Appearance',matches:f=>f.group==='Appearance'},
+ {id:'medical',label:'Medical',matches:f=>f.group==='Medical'},
  {id:'dialogue',label:'Dialogue',matches:f=>f.kind==='dialogue'&&!f.wildcard||f.id==='CHARACTER_SPEECH'},
  {id:'right-now',label:'Right Now',matches:f=>f.kind==='rightNow'},
  {id:'symbolism',label:'Symbolism & wildcards',matches:f=>['Birthday & symbolism','Tarot & story sparks'].includes(f.group)||f.wildcard},
- {id:'other',label:'Other character details',matches:f=>!categories.slice(0,5).some(c=>c.matches(f))}
+ {id:'other',label:'Other character details',matches:f=>!categories.slice(0,-1).some(c=>c.matches(f))}
 ];
 function availableCategories(fields){return categories.filter(c=>fields.some(f=>!foundation.includes(f.id)&&c.matches(f)));}
 function defaults(category='surprise'){return {category,seen:[],includeFaded:false,candidateId:null,suggesting:false};}
