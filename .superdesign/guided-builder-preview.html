@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#151b24">
+  <title>Character Maker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10151d;
+      --header: #151b24;
+      --surface: #19212c;
+      --control: #202a37;
+      --border: #303c4b;
+      --text: #edf2f6;
+      --secondary-text: #a4b2c3;
+      --blue: #9abce0;
+      --primary: #e4b45a;
+      --hover: #f0c87c;
+      --text-on-primary: #171b23;
+    }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-serif {
+      font-family: Georgia, serif;
+    }
+
+    /* Motion and interactions */
+    .btn-interactive {
+      transition: background-color 150ms ease, border-color 150ms ease, transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-interactive:active {
+      transform: scale(0.97) translateY(1px);
+      transition-duration: 90ms;
+    }
+    
+    /* Suggestion transitions */
+    .suggestion-enter {
+      animation: slideFadeIn 220ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    .suggestion-exit {
+      animation: slideFadeOut 180ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    @keyframes slideFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideFadeOut {
+      from { opacity: 1; transform: translateX(-6px); }
+      to { opacity: 0; transform: translateX(6px); }
+    }
+
+    .detail-added {
+      animation: highlightSettle 280ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes highlightSettle {
+      0% { transform: scale(1.05); background-color: rgba(228, 180, 90, 0.14); }
+      100% { transform: scale(1); background-color: transparent; }
+    }
+
+    /* Icon rotation */
+    .rotate-active {
+      animation: spinIcon 300ms ease-out;
+    }
+    @keyframes spinIcon {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(180deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn-interactive { transition: none !important; transform: none !important; }
+      .btn-interactive:active { transform: none !important; }
+      .suggestion-enter, .suggestion-exit, .detail-added, .rotate-active { animation: none !important; }
+    }
+
+    /* Custom utilities */
+    .bg-header { background-color: var(--header); }
+    .bg-surface { background-color: var(--surface); }
+    .bg-control { background-color: var(--control); }
+    .text-primary { color: var(--primary); }
+    .text-secondary { color: var(--secondary-text); }
+    .text-blue { color: var(--blue); }
+    .border-line { border-color: var(--border); }
+    .bg-accent { background-color: var(--primary); color: var(--text-on-primary); }
+    .bg-accent:hover { background-color: var(--hover); }
+    .focus-ring:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--secondary-text); }
+  </style>
+<style>
+/* Precise fixes to the generated preview: narrow layout, touch controls, dialogs and state. */
+body{margin:0}button,input,textarea{font:inherit}button{touch-action:manipulation;cursor:pointer}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--primary);outline-offset:3px}[hidden]{display:none!important}
+.character-heading{gap:16px;flex-wrap:wrap}.character-heading>div:first-child{min-width:0;flex:1}.character-heading input{min-width:0;max-width:100%}.character-controls{flex-wrap:wrap;gap:8px!important}#saveVersion{white-space:nowrap}.draft-indicator{background:var(--primary)}
+.chapter-current{color:var(--primary)!important;border-bottom-color:var(--primary)!important;font-weight:600}.chapter-kept::after{content:' ✓';font-size:11px}.nav-current{color:var(--primary)!important;background:#e4b45a14;border-color:#e4b45a55!important}.chapter-short{display:none}.question-actions,#sketchCard>div:first-child{border-color:var(--border)}
+#questionPanel{border-color:var(--border)}#questionTitle:focus{outline:none}.question-actions{flex-wrap:wrap}.question-actions>div{min-height:44px}.question-actions>button{min-height:48px}#writeOwn,#skipStep,#browseDetails,#previewExport{min-height:44px}.btn-interactive.is-pressed{transform:scale(.97) translateY(1px);transition-duration:90ms}button:not(.btn-interactive){transition:transform 180ms ease,background-color 150ms ease}button:not(.btn-interactive):active{transform:scale(.97) translateY(1px)}
+.sketch-entry{display:flex;align-items:flex-start;gap:12px;padding:8px 0;overflow-wrap:anywhere}.sketch-entry-copy{flex:1;min-width:0}.sketch-label{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:6px}.sketch-value{font:16px/1.6 Georgia,serif;white-space:pre-wrap}.sketch-edit{min-height:44px;min-width:44px;color:var(--secondary-text);font-size:12px}.sketch-empty{padding:24px 16px;border:1px dashed var(--border);border-radius:12px;color:var(--secondary-text);font-size:14px;line-height:1.6}.preview-secondary,.topic-choice{border:1px solid var(--border);background:var(--control);color:var(--text);border-radius:12px;padding:12px 16px;min-height:44px}.preview-primary{border:1px solid var(--primary);background:var(--primary);color:var(--text-on-primary);border-radius:12px;padding:12px 20px;min-height:44px;font-weight:650}.preview-primary:hover{background:var(--hover)}
+#toggleSketch{display:none}#editFoundation{opacity:1!important;min-width:44px;min-height:44px}#sketchAside h2{text-transform:none;letter-spacing:0}#sketchCard{min-height:0}#sketchContent{min-height:0}
+.preview-dialog{width:min(640px,calc(100vw - 32px));max-height:85dvh;overflow:auto;padding:24px;border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--text);box-shadow:0 16px 60px #0006}.preview-dialog::backdrop{background:#000a}.modal-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}.modal-heading h2{font-size:22px;font-weight:600}.modal-close{min-height:44px;min-width:44px;font-size:24px;color:var(--secondary-text);border-radius:10px}.modal-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}.preview-label{display:block;font-size:14px;color:var(--secondary-text);margin:16px 0 8px}.preview-input,.preview-textarea{display:block;width:100%;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);padding:12px;min-height:44px}.preview-textarea{resize:vertical;font:18px/1.6 Georgia,serif}.modal-note{font-size:14px;line-height:1.6;color:var(--secondary-text);margin:12px 0}.topic-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.topic-choice{text-align:left}.preview-view{width:100%;max-width:1000px}.preview-view h2{font-size:32px;line-height:1.2;margin:0 0 12px}.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}.tool-entry,.library-entry{border:1px solid var(--border);border-radius:20px;background:var(--surface);padding:24px}.tool-entry h3,.library-name{font-size:20px;margin-bottom:12px}.tool-entry button{margin-top:16px}.library-entry{margin-top:16px}.export-paper{background:#edf2f6;color:#171b23;border-radius:12px;padding:28px}.export-name{font:32px/1.2 Georgia,serif}.export-foundation{font-size:14px;margin:12px 0 24px}.export-label{font-size:13px;font-weight:650;margin:24px 0 8px}.export-value{font:18px/1.6 Georgia,serif;white-space:pre-wrap;overflow-wrap:anywhere}
+#previewNotice{position:fixed;left:50%;bottom:24px;transform:translate(-50%,8px);opacity:0;pointer-events:none;z-index:100;width:max-content;max-width:calc(100vw - 32px);padding:12px 20px;border:1px solid var(--border);border-radius:12px;background:var(--control);color:var(--text);box-shadow:0 6px 24px #0006;transition:opacity 140ms,transform 180ms;font-size:14px}#previewNotice.notice-visible{opacity:1;transform:translate(-50%,0)}
+@media(min-width:768px){#sketchAside{display:block}#sketchCard{display:block}.question-actions>div{flex-basis:100%;justify-content:flex-start;margin-left:0;margin-top:0}.question-actions #addDetail{order:1}.question-actions #tryAnother{order:2}.question-actions>div{order:3}}
+@media(max-width:767px){#workspace{padding-top:20px;gap:20px;padding-bottom:calc(96px + env(safe-area-inset-bottom))}.character-heading{margin-bottom:16px}.character-heading input{font-size:28px}.character-heading #draftStatus{font-size:12px}.character-heading>div:first-child{flex-basis:calc(100% - 140px)}.character-controls{max-width:140px}.character-controls button{font-size:12px;min-height:44px;padding:8px 10px}#undoDetail .undo-label{display:none}#undoDetail{min-width:44px}.chapter-long{display:none}.chapter-short{display:inline}#chapterNav{gap:0;margin-bottom:16px}#chapterNav button{flex:1;padding:8px 12px;min-height:44px}#questionPanel{padding:24px 20px;min-height:0}#questionTitle{font-size:28px;margin-bottom:24px}#suggestionContainer{margin-bottom:24px;min-height:100px}#suggestionText{font-size:25px;line-height:1.4}.question-actions{gap:8px;padding-top:16px}.question-actions>button{flex-basis:100%;padding:12px}.question-actions>div{margin-top:0;gap:16px}.question-actions #addDetail{order:1}.question-actions #tryAnother{order:2}#sketchAside{width:100%;margin-bottom:12px}#sketchAside>.sticky{position:static}#sketchAside .sketch-heading{margin-bottom:0;align-items:center}#sketchAside .sketch-heading h2{display:none}#toggleSketch{display:flex;align-items:center;min-height:44px;color:var(--blue);font-size:13px;text-align:left;gap:8px}#toggleSketch::after{content:'⌄';font-size:16px}#toggleSketch[aria-expanded=true]::after{content:'⌃'}#sketchCard{margin-top:8px}#sketchCard.mobile-sketch-closed{display:none}#sketchAside .sample-caption{display:none}#previewExport{font-size:12px;white-space:nowrap}#previewNotice{bottom:calc(84px + env(safe-area-inset-bottom))}#deeperDevelopment{margin-top:24px;padding-top:24px}.tool-grid{grid-template-columns:1fr;gap:16px}.preview-view h2{font-size:28px}.preview-dialog{padding:20px}.export-paper{padding:20px}#mobileNav button{min-height:64px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}button,button:active,.btn-interactive,.btn-interactive:active,.btn-interactive.is-pressed{transform:none!important}#previewNotice,#previewNotice.notice-visible{transform:translateX(-50%)!important}}
+@media(max-width:767px){#builderArea .character-heading{flex-wrap:nowrap;align-items:flex-start;margin-bottom:16px;gap:12px}#builderArea .character-heading>div:first-child{flex:1;flex-basis:auto;min-width:0}#builderArea .character-controls{flex-wrap:nowrap;max-width:none;flex-shrink:0;gap:6px!important}#builderArea .character-controls button{padding:8px;font-size:12px}#saveVersion{min-width:92px}#draftStatus{max-width:170px}#sketchAside .sketch-heading{margin-bottom:0}}
+
+</style>
+<style>.array-source{font:12px/1.5 system-ui;color:var(--blue);margin:0 0 12px}.sketch-provenance{font:11px/1.5 system-ui;color:var(--secondary-text);margin-top:6px}.long-array-value{font-size:18px!important;line-height:1.6!important;white-space:pre-line}#characterName::placeholder{color:var(--text);opacity:1}</style></head>
+<body>
+<div id="designApp" class="min-h-screen flex flex-col">
+
+  <!-- App Header -->
+  <header class="bg-header border-b border-line sticky top-0 z-50">
+    <div class="max-w-[1320px] mx-auto px-4 md:px-6 lg:px-8 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <img src="https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/93212c1a-619e-42e0-87cb-1cca94347e0d/brand-assets/icon.svg/icon.svg" alt="" class="w-10 h-10 md:w-11 md:h-11 rounded-full">
+        <div>
+          <h1 class="text-[1.15rem] leading-tight font-semibold">Character Maker</h1>
+          <span class="text-secondary text-[0.75rem] tracking-[0.12em] uppercase">Story Spinner Collection</span>
+        </div>
+      </div>
+      
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-2">
+        <button data-nav="character" class="btn-interactive px-4 py-2 rounded-lg bg-[#e4b45a14] text-primary border border-[#e4b45a55] font-semibold text-sm focus-ring">Character</button>
+        <button data-nav="tools" class="btn-interactive px-4 py-2 rounded-lg text-text hover:bg-control transition-colors font-medium text-sm focus-ring">Story tools</button>
+        <button data-nav="library" class="btn-interactive px-4 py-2 rounded-lg text-text hover:bg-control transition-colors font-medium text-sm focus-ring">Library</button>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <button data-menu="options" class="btn-interactive md:hidden p-2 rounded-lg text-secondary hover:text-text hover:bg-control focus-ring" aria-label="Menu">
+           <iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon>
+        </button>
+        <div class="hidden md:block relative">
+          <button data-menu="options" class="btn-interactive p-2 rounded-lg text-secondary hover:text-text hover:bg-control focus-ring" aria-label="More options" aria-expanded="false" aria-haspopup="true">
+            <iconify-icon icon="lucide:more-vertical" class="text-xl"></iconify-icon>
+          </button>
+          <!-- Overflow Menu (Hidden by default) -->
+          <div class="hidden absolute right-0 top-full mt-1 w-48 bg-surface border border-line rounded-lg shadow-xl overflow-hidden py-1 z-50">
+             <button class="w-full text-left px-4 py-2 text-sm hover:bg-control focus-ring">Install app</button>
+             <button class="w-full text-left px-4 py-2 text-sm hover:bg-control focus-ring">How to use</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main id="workspace" class="flex-1 w-full max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 flex flex-col md:flex-row gap-8 lg:gap-16 pb-24 md:pb-12">
+    
+    <!-- Left: Guided Builder Area (Takes majority width on desktop) -->
+    <div id="builderArea" class="flex-1 min-w-0 flex flex-col">
+      
+      <!-- Character Header -->
+      <div class="character-heading mb-8 flex justify-between items-start">
+        <div>
+           <input id="characterName" maxlength="150" type="text" value="" placeholder="Unnamed character" class="font-serif text-[1.75rem] md:text-[2.25rem] lg:text-[2.5rem] bg-transparent border-b border-transparent hover:border-line focus:border-primary focus-ring p-0 text-text w-full max-w-[400px] transition-colors leading-tight mb-1" aria-label="Character name">
+           <p class="text-secondary text-sm flex items-center gap-2">
+              <span class="draft-indicator w-2 h-2 rounded-full"></span><span id="draftStatus">Draft is open</span>
+           </p>
+        </div>
+        <div class="character-controls flex items-center gap-3">
+          <button id="undoDetail" class="btn-interactive text-sm font-medium px-3 py-1.5 rounded-lg border border-line bg-control hover:bg-[#2b3746] focus-ring flex items-center gap-2">
+            <iconify-icon icon="lucide:undo-2"></iconify-icon> <span class="undo-label">Undo</span>
+          </button>
+          <div class="relative">
+             <button id="saveVersion" class="btn-interactive text-sm font-medium px-4 py-2 rounded-lg border border-line bg-control hover:bg-[#2b3746] focus-ring flex items-center gap-2">
+               Save version 
+             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter Selector -->
+      <nav id="chapterNav" class="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide border-b border-line" aria-label="Builder chapters">
+        <button data-chapter="identity" class="btn-interactive px-4 py-2 text-sm font-semibold border-b-2 border-primary text-primary focus-ring whitespace-nowrap"><span class="chapter-long">Who are they?</span><span class="chapter-short">Who</span></button>
+        <button data-chapter="motivation" class="btn-interactive px-4 py-2 text-sm font-medium border-b-2 border-transparent text-secondary hover:text-text focus-ring whitespace-nowrap"><span class="chapter-long">What do they want?</span><span class="chapter-short">Want</span></button>
+        <button data-chapter="obstacle" class="btn-interactive px-4 py-2 text-sm font-medium border-b-2 border-transparent text-secondary hover:text-text focus-ring whitespace-nowrap"><span class="chapter-long">What gets in their way?</span><span class="chapter-short">Obstacle</span></button>
+      </nav>
+
+      <!-- Active Question Panel -->
+      <section id="questionPanel" class="bg-surface border border-primary/40 rounded-[20px] p-6 md:p-8 flex flex-col min-h-[320px] relative shadow-lg shadow-black/20">
+        <!-- Question -->
+        <h2 id="questionTitle" tabindex="-1" class="text-2xl md:text-[2rem] font-medium tracking-tight mb-6 leading-tight">Who are they?</h2>
+        
+        <!-- Suggestion Content -->
+        <div class="flex-1 flex flex-col justify-center mb-8 suggestion-enter" id="suggestionContainer">
+           <p id="suggestionSource" class="array-source"></p>
+<p id="suggestionText" class="font-serif text-[1.5rem] md:text-[1.75rem] text-text leading-snug">
+             Loading from your character arrays…
+           </p>
+        </div>
+
+        <!-- Primary Actions -->
+        <div class="question-actions flex flex-col sm:flex-row gap-3 sm:items-center mt-auto pt-4 border-t border-line/50">
+          <button id="addDetail" class="btn-interactive bg-accent px-6 py-3 rounded-xl font-bold text-[0.95rem] flex items-center justify-center gap-2 focus-ring order-1 sm:order-2 flex-1 sm:flex-none">
+            <iconify-icon icon="lucide:plus" class="text-xl"></iconify-icon> Add to character
+          </button>
+          
+          <button id="tryAnother" class="btn-interactive border border-line bg-control hover:bg-[#2b3746] px-5 py-3 rounded-xl font-medium text-[0.95rem] flex items-center justify-center gap-2 focus-ring order-2 sm:order-1 flex-1 sm:flex-none text-blue">
+            <iconify-icon icon="lucide:refresh-cw" class="text-lg" id="tryAnotherIcon"></iconify-icon> Try another
+          </button>
+          
+          <div class="flex items-center justify-center gap-4 mt-2 sm:mt-0 sm:ml-auto order-3">
+             <button id="writeOwn" class="text-sm text-secondary hover:text-text transition-colors focus-ring p-1">Write my own</button>
+             <span class="text-line">|</span>
+             <button id="skipStep" class="text-sm text-secondary hover:text-text transition-colors focus-ring p-1">Skip for now</button>
+          </div>
+        </div>
+      </section>
+      
+      <div class="mt-4"><button id="browseDetails" class="btn-interactive text-sm text-secondary hover:text-blue focus-ring px-2 py-2">Browse all details →</button></div>
+<!-- Deeper Development (Initially hidden, revealed after core questions) -->
+      <section id="deeperDevelopment" class="mt-10 pt-8 border-t border-line hidden">
+        <h3 class="text-xl font-medium mb-4 text-blue">What would help you picture them next?</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+           <button data-topic="appearance" class="btn-interactive bg-surface border border-line rounded-xl p-4 flex flex-col items-center text-center gap-2 hover:border-blue/50 focus-ring">
+             <iconify-icon icon="lucide:eye" class="text-2xl text-secondary"></iconify-icon>
+             <span class="text-sm font-medium">See them</span>
+           </button>
+           <button data-topic="voice" class="btn-interactive bg-surface border border-line rounded-xl p-4 flex flex-col items-center text-center gap-2 hover:border-blue/50 focus-ring">
+             <iconify-icon icon="lucide:mic" class="text-2xl text-secondary"></iconify-icon>
+             <span class="text-sm font-medium">Hear them</span>
+           </button>
+           <button data-topic="background" class="btn-interactive bg-surface border border-line rounded-xl p-4 flex flex-col items-center text-center gap-2 hover:border-blue/50 focus-ring">
+             <iconify-icon icon="lucide:history" class="text-2xl text-secondary"></iconify-icon>
+             <span class="text-sm font-medium">Know their past</span>
+           </button>
+           <button data-topic="pressure" class="btn-interactive bg-surface border border-line rounded-xl p-4 flex flex-col items-center text-center gap-2 hover:border-blue/50 focus-ring">
+             <iconify-icon icon="lucide:play" class="text-2xl text-secondary"></iconify-icon>
+             <span class="text-sm font-medium">Watch them act</span>
+           </button>
+        </div>
+        
+      </section>
+
+    </div>
+
+    <!-- Right: Character Sketch (Sidebar on desktop, Collapsible summary on mobile) -->
+    <aside id="sketchAside" class="w-full md:w-[340px] flex-shrink-0">
+      <div class="sticky top-[88px]">
+        <div class="sketch-heading flex justify-between items-end mb-4">
+<button id="toggleSketch" class="btn-interactive focus-ring" type="button" aria-controls="sketchCard" aria-expanded="false">Your sketch · 0 details</button>
+          <h2 class="text-lg font-semibold uppercase tracking-wider text-blue">Your Character</h2>
+          <button id="previewExport" class="text-xs text-primary hover:text-hover font-medium focus-ring p-1 flex items-center gap-1">
+            <iconify-icon icon="lucide:external-link"></iconify-icon> Preview &amp; export
+          </button>
+        </div>
+        
+        <div id="sketchCard" class="bg-surface border border-line rounded-[20px] p-5">
+          <!-- Optional Foundation -->
+          <div class="mb-6 pb-4 border-b border-line/50">
+            <div class="flex justify-between items-start group">
+               <div>
+                 <p class="text-xs text-secondary font-medium uppercase tracking-wider mb-1">Identity Foundation</p>
+                 <p id="foundationValue" class="text-sm text-text">Female · 29 · Guyanese</p>
+               </div>
+               <button id="editFoundation" class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity text-secondary hover:text-text p-1 focus-ring" aria-label="Edit foundation">
+                 <iconify-icon icon="lucide:pencil" class="text-sm"></iconify-icon>
+               </button>
+            </div>
+          </div>
+          
+          <!-- Accepted Details Area -->
+          <div id="sketchContent" class="space-y-5 min-h-[150px]">
+             <p class="text-sm text-secondary italic text-center py-6 border border-dashed border-line rounded-lg">
+               Accept details to build their sketch.
+             </p>
+             <!-- Template for accepted items:
+             <div class="group relative pr-8">
+               <p class="text-xs text-blue font-medium uppercase tracking-wider mb-1">Who they are</p>
+               <p class="text-sm text-text font-serif leading-relaxed">Loading from your character arrays…</p>
+               <button class="absolute top-0 right-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity text-secondary hover:text-text p-1 focus-ring" aria-label="Edit">
+                 <iconify-icon icon="lucide:pencil" class="text-sm"></iconify-icon>
+               </button>
+             </div>
+             -->
+          </div>
+        </div>
+        
+        <div class="sample-caption mt-6 text-center">
+          <p class="text-xs text-secondary opacity-60">Design preview · Your character arrays</p>
+        </div>
+      </div>
+    </aside>
+
+  
+<section id="toolsView" class="preview-view" hidden>
+<h2>Give them a story to step into.</h2><p class="modal-note">Explore a moment, introduce someone important, or discover what happens under pressure.</p>
+<div class="tool-grid">
+<article class="tool-entry"><h3>Right Now</h3><p class="modal-note">Find a small moment in their life: a place, an action, a thought.</p><button data-topic="scene" class="preview-secondary btn-interactive focus-ring">Put them in a moment</button></article>
+<article class="tool-entry"><h3>Connected characters</h3><p class="modal-note">Give them an ally, a rival, or someone who remembers who they used to be.</p><button data-topic="relationship" class="preview-secondary btn-interactive focus-ring">Explore a connection</button></article>
+<article class="tool-entry"><h3>Put them under pressure</h3><p class="modal-note">Offer a difficult choice. You decide how they respond.</p><button data-topic="pressure" class="preview-secondary btn-interactive focus-ring">Try a dilemma</button></article>
+</div><p class="modal-note">Suggestions use your existing character arrays. The full generator controls remain in your current app during design review.</p></section>
+<section id="libraryView" class="preview-view" hidden><h2>Your library</h2><p class="modal-note">Versions you save in this preview stay on this device, separate from your production characters.</p><div id="libraryEntries"></div></section>
+
+</main>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav id="mobileNav" aria-label="Primary" class="md:hidden fixed bottom-0 left-0 right-0 bg-header border-t border-line z-40 pb-safe">
+    <div class="flex justify-around items-center h-16 px-2">
+      <button data-nav="character" class="flex flex-col items-center justify-center w-full h-full text-primary gap-1">
+        <iconify-icon icon="lucide:user" class="text-xl"></iconify-icon>
+        <span class="text-[10px] font-medium">Character</span>
+      </button>
+      <button data-nav="tools" class="flex flex-col items-center justify-center w-full h-full text-secondary hover:text-text gap-1">
+        <iconify-icon icon="lucide:wrench" class="text-xl"></iconify-icon>
+        <span class="text-[10px] font-medium">Tools</span>
+      </button>
+      <button data-nav="library" class="flex flex-col items-center justify-center w-full h-full text-secondary hover:text-text gap-1">
+        <iconify-icon icon="lucide:library" class="text-xl"></iconify-icon>
+        <span class="text-[10px] font-medium">Library</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Safe area padding for mobile nav -->
+  <style>
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  </style>
+
+<dialog id="previewDialog" class="preview-dialog" aria-labelledby="modalTitle"><div class="modal-heading"><h2 id="modalTitle"></h2><button id="closeModal" type="button" class="modal-close btn-interactive focus-ring" aria-label="Close dialog">×</button></div><div id="modalBody"></div></dialog><div id="previewNotice" role="status" aria-live="polite" aria-atomic="true"></div>
+<script id="characterArrayPools" type="application/json">{"schemaVersion":1,"content":{"identity":{"question":"Who are they?","label":"Who they are","fieldId":"background.occupation","fieldLabel":"occupation","values":["Adventurer","Alchemist","Arcane Researcher","Archaeologist","Aristocrat","Artisan","Artist","Assassin","Bard","Blacksmith","Bounty Hunter","Brewer","Carpenter","Chef","Cleric","Courier","Craftsperson","Criminal","Diplomat","Doctor","Druid","Engineer","Explorer","Farmer","Fighter","Fisher","Fortune Teller","Guard","Healer","Herbalist","Hermit","Hunter","Innkeeper","Investigator","Jeweler","Knight","Librarian","Mage","Merchant","Mercenary","Miner","Monk","Navigator","Noble","Nomad","Oracle","Paladin","Performer","Philosopher","Pirate","Priest/Priestess","Ranger","Rogue","Sailor","Scholar","Scout","Scribe","Servant","Shepherd","Shipwright","Smuggler","Soldier","Spy","Strategist","Student","Tailor","Teacher","Thief","Trader","Trapper","Warrior","Wizard","Steroid Dealer","Accountant","Actuary","Acupuncturist","Air Traffic Controller","Aircraft Mechanic","Ambulance Driver","Anesthesiologist","Antiques Appraiser","Architect","Archivist","Armorer","Arsonist for Hire","Astrologer","Auctioneer","Auto Body Technician","Bail Bondsman","Baker","Bank Teller","Barber","Bartender","Beekeeper","Biomedical Engineer","Black Market Surgeon","Blackmailer","Bodyguard","Boilermaker","Bookbinder","Bookkeeper","Border Patrol Agent","Botanist","Bricklayer","Broadcaster","Building Inspector","Bus Driver","Butcher","Cabinetmaker","Call Center Operator","Candlemaker","Cartographer","Casino Dealer","Catering Manager","Cemetery Caretaker","Chauffeur","Chemist","Chief Financial Officer","Chimney Sweep","Chiropractor","Civil Engineer","Claims Adjuster","Clockmaker","Cobbler","Commercial Diver","Compliance Officer","Composer","Con Artist","Concierge","Concrete Finisher","Conservation Officer","Construction Laborer","Cook","Coopersmith","Copywriter","Coroner","Corrections Officer","Counterfeiter","Crane Operator","Croupier","Curator","Customs Agent","Data Analyst","Database Administrator","Debt Collector","Demolition Specialist","Dental Hygienist","Dentist","Derrickhand","Detective","Diesel Mechanic","Digital Forensics Expert","Dispatch Operator","Dockworker","Dog Trainer","Dry Cleaner","Editor","Electrician","Elevator Mechanic","Embalmer","Emergency Medical Technician","Enforcer","Environmental Inspector","Estate Liquidator","Ethical Hacker","Eviction Specialist","Executioner","Fence (Stolen Goods Broker)","Financial Advisor","Firefighter","Fishmonger","Flight Attendant","Florist","Forensic Pathologist","Forestry Worker","Forgery Expert","Foundry Caster","Freight Conductor","Funeral Director","Garbage Collector","Gas Fitter","Geologist","Glassblower","Glazier","Graphic Designer","Grave Robber","Greengrocer","Gunsmith","HVAC Technician","Haberdasher","Hedge Fund Manager","Heavy Equipment Operator","High School Principal","Highway Patrol Officer","Home Health Aide","Homicide Detective","Horse Trainer","Horticulturist","Hospital Administrator","Human Resources Director","Hydrologist","Information Security Analyst","Insurance Fraud Investigator","Interior Designer","Investment Banker","Ironworker","Janitor","Journalist","Judge","Labor Union Organizer","Laboratory Technician","Land Surveyor","Landscaper","Law Clerk","Lineworker (Electrical)","Loan Shark","Locksmith","Locomotive Engineer","Logistics Coordinator","Lumberjack","Machine Operator","Machinist","Mail Carrier","Maintenance Supervisor","Makeup Artist","Management Consultant","Marine Biologist","Mason","Massage Therapist","Meat Inspector","Mechanical Drafter","Mediator","Medical Malpractice Attorney","Microbiologist","Midwife","Millwright","Money Launderer","Mortgage Broker","Mortician","Municipal Clerk","Museum Registrar","Network Administrator","Neurologist","Night Auditor","Nuclear Plant Operator","Nurse Practitioner","Occupational Therapist","Oil Rig Roughneck","Oncologist","Optometrist","Organic Chemist","Orthopedic Surgeon","Packer (Warehouse)","Painter (Commercial/Residential)","Paralegal","Paramedic","Parole Officer","Patent Examiner","Pawnshop Operator","Personal Trainer","Pest Control Technician","Petroleum Engineer","Pharmacist","Phlebotomist","Photographer","Physical Therapist","Pipelayer","Plumber","Podiatrist","Poisoner","Policy Analyst","Political Strategist","Private Investigator","Probation Officer","Process Server","Public Defender","Public Relations Manager","Quality Assurance Auditor","Quantity Surveyor","Quarry Worker","Radiologic Technologist","Ransom Negotiator","Real Estate Agent","Recording Engineer","Recruiter","Refinery Operator","Research Scientist","Rigger","Roofer","Safety Coordinator","Sales Representative","Salvage Diver","Sanitation Worker","Scaffolder","Scrap Metal Dealer","Security Guard","Ship Captain","Site Safety Manager","Smelter Tender","Software Architect","Soil Scientist","Solar Panel Installer","Sound Designer","Speech-Language Pathologist","Sports Agent","Steelworker","Stockbroker","Stonecutter","Structural Engineer","Supply Chain Analyst","Surgeon","Surveyor","System Administrator","Tax Auditor","Taxi Driver","Telecommunications Technician","Tile Setter","Toll Collector","Tool and Die Maker","Tower Climber","Toxicologist","Traffic Engineer","Translator","Tree Surgeon (Arborist)","Truck Driver (Long Haul)","Tutor","Typographer","Undercover Operative","Underwriter","Upholsterer","Urban Planner","Valet","Veterinarian","Vintner","Visual Effects Artist","Waste Management Dispatcher","Wastewater Operator","Waterproofer","Weapons Fabricator","Web Developer","Welder","Well Driller","Wholesale Broker","Wildlife Biologist","Wind Turbine Technician","Window Washer (High Rise)","Woodworker","X-Ray Technician","Yardmaster","Zoologist"],"sources":[{"file":"character_elements.json","arrayPath":"background.occupation","length":350}]},"motivation":{"question":"What do they want?","label":"What they want","fieldId":"personality.motivations","fieldLabel":"motivations","values":["Acceptance","Achievement","Acquisition","Adventure","Affection","Ambition","Approval","Autonomy","Balance","Belonging","Challenge","Change","Comfort","Connection","Control","Creativity","Curiosity","Duty","Enlightenment","Excitement","Fame","Family","Freedom","Friendship","Fun","Growth","Happiness","Harmony","Health","Honor","Idealism","Influence","Justice","Knowledge","Leadership","Legacy","Love","Loyalty","Mastery","Meaning","Order","Passion","Peace","Pleasure","Power","Prestige","Purpose","Recognition","Redemption","Respect","Revenge","Safety","Security","Self-expression","Service","Spirituality","Stability","Status","Success","Survival","Tradition","Truth","Understanding","Wealth","Well-being","Wisdom","Uncover the truth about their mysterious past","Save their hometown from an impending disaster","Find a cure for a rare disease plaguing their family","Overthrow a tyrannical ruler and restore peace","Master an ancient and powerful form of magic","Reunite with a long-lost sibling","Avenge the wrongful death of a loved one","Become the best in their chosen field or profession","Navigate and survive a post-apocalyptic world","Break a curse that has haunted their lineage for generations","Build a successful business from scratch","Explore uncharted territories and discover new worlds","Protect a coveted secret from falling into the wrong hands","Win a prestigious competition against all odds","Resolve a deep-seated family conflict","Invent something that changes the course of history","Escape from a life of poverty and hardship","Find true love in an unexpected place","Redeem themselves from a major mistake or crime","Communicate and make peace with an alien species","Break free from a controlling or abusive relationship","Restore their honor after being falsely accused","Survive a journey through a perilous wilderness","Solve a complex and ancient mystery","Become a renowned artist, musician, or writer","Lead a revolution against an oppressive system","Find inner peace and enlightenment","Protect a rare and endangered species","Overcome a debilitating fear or phobia","Navigate the complexities of court politics and intrigue","Find a way back home after being stranded far away","Learn the true meaning of friendship and loyalty","Make amends for past wrongdoings and find redemption","Break down social barriers and bring about change","Survive a brutal and unjust prison sentence","Confront and defeat a powerful and malevolent force","Discover the secret to immortality","Become a leader and role model in their community","Forge a legendary weapon or artifact","Rise from obscurity and become a celebrated hero","Navigate a political conspiracy and come out unscathed","Prove their worth in a society that undervalues them","Reclaim their rightful throne or position","Survive and adapt in a rapidly changing world","Decode an ancient prophecy and prevent its ominous outcome","Build a new life in a foreign land","Heal from a traumatic experience and find strength","Balance the demands of power with personal morals","Uncover a hidden talent or ability within themselves","Bring together a divided community or family","Stop the neighbor from making noise","Get some sleep","Win a bet no matter the cost","Secure a promotion by any means necessary","Sabotage a rival's success subtly","Hide a secret from a close friend","Borrow something without asking","Avoid responsibilities to have fun","Manipulate a situation to their advantage","Get out of a tedious task","Snoop into someone else's affairs","Keep a valuable find rather than returning it","Gain fame without working hard for it","Outsmart the law for personal gain","Infiltrate a group to learn their secrets","Convince someone to do their bidding","Get revenge for a minor slight","Gain control over a situation through deceit","Obtain a rare item, regardless of the means","Cut corners to finish a project","Get even with a coworker","Lie to protect their own interests","Cheat in a game or contest","Evade taxes or other financial obligations","Manipulate information for personal benefit","Use flattery to get what they want","Ignore rules that they find inconvenient","Feign illness to avoid an event","Exploit a loophole for personal gain","Spy on neighbors or colleagues","Take credit for someone elses work","Use someones weakness to their advantage","Blame others for their own mistakes","Pretend to be someone theyre not","Steal a friends idea and claim it as their own","Break a promise if it benefits them","Play both sides in a conflict","Hide their true intentions","Use emotional manipulation to get their way","Prioritize their comfort over others needs","Create a false identity online","Take advantage of a friend's generosity","Bend the truth to make a story more interesting","Sabotage someones plans discreetly","Collect a debt relentlessly","Influence others to make a risky decision","Fake an interest to gain favor","Use charm to avoid consequences","Gamble with high stakes","Bargain aggressively to get a better deal"],"sources":[{"file":"character_elements.json","arrayPath":"personality.motivations","length":166}]},"obstacle":{"question":"What gets in their way?","label":"What gets in their way","fieldId":"personality.flaws","fieldLabel":"flaws","values":["Aggressive","Anxious","Arrogant","Bitter","Blunt","Calculating","Callous","Careless","Cold","Compulsive","Conceited","Controlling","Cowardly","Cruel","Cynical","Deceitful","Defensive","Demanding","Dependent","Depressive","Dishonest","Disloyal","Disorganized","Distractible","Dogmatic","Domineering","Egocentric","Envious","Excessive pride","Fanatical","Fearful","Fickle","Flaky","Foolhardy","Forgetful","Greedy","Gullible","Hesitant","Hot-tempered","Humorless","Impatient","Impulsive","Inconsiderate","Indecisive","Insecure","Insensitive","Intolerant","Irresponsible","Jealous","Judgmental","Lazy","Manipulative","Materialistic","Melodramatic","Moody","Naive","Narcissistic","Narrow-minded","Neurotic","Obsessive","Opportunistic","Paranoid","Perfectionist","Pessimistic","Possessive","Prejudiced","Procrastinator","Reckless","Resentful","Rigid","Rude","Self-centered","Self-pitying","Selfish","Shallow","Skeptical","Sloppy","Stubborn","Suspicious","Temperamental","Timid","Unforgiving","Unpredictable","Unreliable","Vain","Vengeful","Workaholic","acrobatic","awkward","alienated","altruistic","ambitious","antisocial","arrogant","atheistic","artistic","athletic","attractive","biased","bigoted","boastful","boring","brave","brutal","burnt-out","calm","charismatic","clumsy","committed","compassionate","complacent","composed","conceited","conformist","confused","contemplative","corrupt","courageous","cowardly","crazy","creative","crippled","cruel","cunning","cynical","delusional","depressed","detached","disillusioned","distant","divorced","domineering","doomed","driven","drunken","educated","enduring","energetic","ethical","experienced","famous","fearful","fear-ridden","focused","forceful","friendly","frustrated","funny","generous","gentle","graceful","greedy","grim","happy","hateful","heroic","humble","hypocritical","hysterical","ignorant","ignored","illogical","indecisive","industrious","inhibited","infamous","innocent","insane","intelligent","intimidating","intuitive","irrational","kind","laid-back","lazy","logical","lonely","lucky","manipulative","materialistic","mean-spirited","melancholy","militant","miserable","miserly","misguided","misunderstood","mysterious","mystic","naive","narrow-minded","negative","neurotic","newlywed","nostalgic","nurturing","obedient","obscure","obsessive","old","open-minded","opinionated","opportunistic","optimistic","outgoing","overworked","patriotic","patronizing","peaceful","peace-loving","persistent","persuasive","pessimistic","philosophical","pious","plain","poised","poor","pragmatic","predictable","principled","plucky","rebellious","religious","romantic","ruthless","sadistic","scatterbrained","seasoned","secretive","serene","serious","short-tempered","sickly","silly","social","spendthrift","spiritual","stingy","stressed","strong","studious","stupid","suave","tired","ugly","unambitious","unathletic","unbalanced","uncreative","unethical","unfriendly","unhappy","unpredictable","unremarkable","unstable","unwise","vicious","violent","weak","wealthy","well-traveled","wise","withdrawn","youthful","foolish","vindictive","vengeful","horrible","eccentric","sarcastic","mischievous","stoic","observant","resourceful","manipulative","chaotic","impulsive","sassy","introspective","empathetic","snarky","analytical","skeptical","resilient","adaptable","sentimental","protective","spontaneous","disciplined","enigmatic","flirtatious","chivalrous","meticulous","whimsical","boisterous","frugal","gullible","diplomatic","sly","audacious","perceptive","cultured","inquisitive","honorable","refined","pompous","pretentious","quirky","paranoid","discreet","tactful","gallant","sophisticated","ostentatious","frivolous","vivacious","zealous","sensible","valiant","unflappable","incorruptible","tenacious","jovial","exuberant","pensive","fastidious","morbid","nonchalant","debonair","austere","gregarious","enigmatic","eloquent","unscrupulous","assertive","diffident","intrepid","imperturbable","capricious","amiable","irreverent","benevolent","inscrutable","acerbic","sagacious","petulant","vivacious","reticent","deferential","belligerent","sanguine","mercurial","obstinate","laconic","sardonic","droll","lugubrious","insouciant","feckless","truculent","indefatigable","punctilious","cavalier","sanctimonious","furtive","insipid","garrulous","obsequious","querulous","audacious","phlegmatic"],"sources":[{"file":"character_elements.json","arrayPath":"personality.flaws","length":372}]},"personality":{"question":"What are they like?","label":"Their personality","fieldId":"trait.0","fieldLabel":"Personality trait 1","values":["acrobatic","awkward","alienated","altruistic","ambitious","antisocial","arrogant","atheistic","artistic","athletic","attractive","biased","bigoted","boastful","boring","brave","brutal","burnt-out","calm","charismatic","clumsy","committed","compassionate","complacent","composed","conceited","conformist","confused","contemplative","corrupt","courageous","cowardly","crazy","creative","crippled","cruel","cunning","cynical","delusional","depressed","detached","disillusioned","distant","divorced","domineering","doomed","driven","drunken","educated","enduring","energetic","ethical","experienced","famous","fearful","fear-ridden","focused","forceful","friendly","frustrated","funny","generous","gentle","graceful","greedy","grim","happy","hateful","heroic","humble","hypocritical","hysterical","ignorant","ignored","illogical","indecisive","industrious","inhibited","infamous","innocent","insane","intelligent","intimidating","intuitive","irrational","kind","laid-back","lazy","logical","lonely","lucky","manipulative","materialistic","mean-spirited","melancholy","militant","miserable","miserly","misguided","misunderstood","mysterious","mystic","naive","narrow-minded","negative","neurotic","newlywed","nostalgic","nurturing","obedient","obscure","obsessive","old","open-minded","opinionated","opportunistic","optimistic","outgoing","overworked","patriotic","patronizing","peaceful","peace-loving","persistent","persuasive","pessimistic","philosophical","pious","plain","poised","poor","pragmatic","predictable","principled","plucky","rebellious","religious","romantic","ruthless","sadistic","scatterbrained","seasoned","secretive","serene","serious","short-tempered","sickly","silly","social","spendthrift","spiritual","stingy","stressed","strong","studious","stupid","suave","tired","ugly","unambitious","unathletic","unbalanced","uncreative","unethical","unfriendly","unhappy","unpredictable","unremarkable","unstable","unwise","vicious","violent","weak","wealthy","well-traveled","wise","withdrawn","youthful","foolish","vindictive","vengeful","horrible","eccentric","sarcastic","mischievous","stoic","observant","resourceful","manipulative","chaotic","impulsive","sassy","introspective","empathetic","snarky","analytical","skeptical","resilient","adaptable","sentimental","protective","spontaneous","disciplined","enigmatic","flirtatious","chivalrous","meticulous","whimsical","boisterous","frugal","gullible","diplomatic","sly","audacious","perceptive","cultured","inquisitive","honorable","refined","pompous","pretentious","quirky","paranoid","discreet","tactful","gallant","sophisticated","ostentatious","frivolous","vivacious","zealous","sensible","valiant","unflappable","incorruptible","tenacious","jovial","exuberant","pensive","fastidious","morbid","nonchalant","debonair","austere","gregarious","enigmatic","eloquent","unscrupulous","assertive","diffident","intrepid","imperturbable","capricious","amiable","irreverent","benevolent","inscrutable","acerbic","sagacious","petulant","vivacious","reticent","deferential","belligerent","sanguine","mercurial","obstinate","laconic","sardonic","droll","lugubrious","insouciant","feckless","truculent","indefatigable","punctilious","cavalier","sanctimonious","furtive","insipid","garrulous","obsequious","querulous","audacious","phlegmatic"],"sources":[{"file":"character_elements.json","arrayPath":"personality.traits","length":285}]},"appearance":{"question":"What makes them recognizable?","label":"A distinctive detail","fieldId":"appearance.distinctive_features","fieldLabel":"distinctive features","values":["Scar on face","Burn marks","Tattoos","Piercings","Birthmark","Freckles","Heterochromia","Missing limb","Cybernetic enhancements","Magical runes on skin","Pointed ears","Fangs","Horns","Tail","Wings","Scales","Fur patches","Glowing eyes","Unusual skin patterns","Extra fingers","Webbed fingers","Claws","Hooves","None","Crooked broken nose bridge","Eyebrow notch scar","Surgical keloid scar across throat","Cleft chin","Vitiligo patches","Albinism","Calloused knuckles and split palms","Cheek dimples","Missing front tooth / chipped tooth","Gold or silver replacement tooth","Prominent widow's peak","Sunken, hollow eye sockets","Milky, blind eye / corneal opacity","Monocular ocular implant / glowing prosthetic eye","Stitched surgical seams across skin","Chemical burn discoloration","Branded criminal / faction mark","Elongated neck or vertebrae ridge","Slit or reptilian pupils","Feather quills embedded along forearms","Bioluminescent veins beneath skin","Translucent, paper-thin skin exposing veins","Subdermal micro-beading / ridged implants","Metallic alloy teeth","Bifurcated (split) tongue","Gills along ribcage or jawline","Exoskeleton plating on shoulders","Spines along the spine and nape","Prehensile tail tip","Double jointed / unnervingly flexible joints","Missing fingertip or severed ear lobe","Intense copper or sulfur scent on skin","Mechanical heart port / chest valve","Ash-gray or necrotic fingertip tips","Chitinous carapace on forearms","Crystalline deposits growing from skin","Pitted acne / shrapnel pockmarks","Severe dark under-eye circles","Perpetual fine tremor in hands","Unnatural body temperature (frost or fever hot)","Hollow bird-like bone density / sunken cheeks","Veins that shift hue with emotional spikes","Third eye / vestigial parietal eye","Retractable bone spikes in wrists","Barcoded identification stamp on neck","Patched synthetic skin graft","Freckles clustered across the bridge of the nose","A single dimple in the left cheek","Deep dimples in both cheeks","A cleft chin","A small mole above the upper lip","A crescent-shaped birthmark near the jaw","A pale scar cutting through one eyebrow","A thin scar beneath the chin","A small gap between the front teeth","One slightly overlapping front tooth","A chipped front tooth","A gold tooth visible when they smile","A smile that lifts higher on one side","A pronounced cupid’s bow","A full lower lip and a narrow upper lip","One eyebrow that naturally sits higher than the other","Thick eyebrows that meet in the middle","Unusually long eyelashes","Eyes of two different colors","A small patch of brown in an otherwise blue iris","A prominent bump along the bridge of the nose","A nose that bends slightly to one side","A rounded nose with a small upward tilt","One ear that sticks out farther than the other","A notch in the rim of one ear","A small crease across one earlobe","A widow’s peak","A white streak at the front of otherwise dark hair","A stubborn cowlick at the crown","A low hairline with a pronounced point at one temple","A shaved head with a visible scar near the crown","A narrow strip of dyed hair behind one ear","A single long braid in otherwise short hair","A patch of gray in an otherwise dark beard","A mustache that curls upward at the ends","A small bare patch in one eyebrow","Freckles scattered over the backs of both hands","A large birthmark on one forearm","A pale scar across the back of one hand","One little finger that bends inward","Long fingers with prominent knuckles","Broad palms and short fingers","A thumbnail with a permanent ridge","A missing fingertip on one hand","A faint ring-shaped tan line on one finger","Callused fingertips on the left hand","A small tattoo behind one ear","A faded name tattoo on the wrist","A geometric tattoo around one forearm","A tiny tattoo between two fingers","A nose stud that catches the light","Three small hoops along one ear","A pair of noticeably mismatched earrings","Round glasses with very thick lenses","A hearing aid in a bright-colored casing","A visible prosthetic lower leg","A narrow scar running down one knee","A broad patch of lighter skin on one hand","One shoulder that rests higher than the other","A slight limp that becomes more noticeable when tired","A habit of tilting their head to one side while listening","A conspicuously straight-backed posture","A small tremor in one hand","A laugh that briefly shows their upper gums"],"sources":[{"file":"character_elements.json","arrayPath":"appearance.distinctive_features","length":70},{"file":"additions.js","arrayPath":"EXTRA_ELEMENTS.human_distinctive_features","length":64}]},"hair":{"question":"How do they wear their hair?","label":"Hair style","fieldId":"appearance.hair_style","fieldLabel":"hair style","values":["Short","Medium","Long","Curly","Wavy","Straight","Braided","Dreadlocks","Mohawk","Shaved","Bald","Ponytail","Bun","Afro","Fade","Undercut","Pixie Cut","Buzz Cut","Crew Cut","High and Tight","Pompadour","Quiff","Slicked Back","Side Part","Comb Over","Caesar Cut","Bowl Cut","Bob Cut","Asymmetrical Bob","Lob (Long Bob)","Curtain Bangs","Blunt Bangs","Wispy Bangs","Side-Swept Bangs","Shag","Mullet","Wolf Cut","Feathered","Cornrows","Box Braids","French Braid","Dutch Braid","Fishtail Braid","Crown Braid","Twists (Senegalese/Marley)","Locs with Fade","Bantu Knots","Top Knot","Man Bun","Space Buns","Messy Bun","Chignon","Half-Up, Half-Down","High Ponytail","Low Ponytail","Pigtails","Finger Waves","Pin Curls","Layered Cut","Beach Waves","Coils / 4C Frohawk","Taper Fade","Spiky","Dauphine / Gibson Tuck","Liberty Spikes","Faux Hawk"],"sources":[{"file":"character_elements.json","arrayPath":"appearance.hair_style","length":66}]},"voice":{"question":"How do they sound?","label":"Their voice","fieldId":"CHARACTER_SPEECH","fieldLabel":"Voice Sound","values":["High pitch - Voice sits in upper register; may convey youth, excitement, or tension","Low pitch - Voice sits in lower register; often perceived as authoritative or calm","Nasal - Voice resonates through the nose; can sound pinched or whiny","Resonant - Voice fills space with rich tones; projects well and sounds full","Raspy - Rough, grating quality; suggests smoking, illness, or natural huskiness","Smooth - Clean, clear delivery without roughness; pleasant to listen to","Breathy - Air escapes with words; can indicate intimacy, weakness, or sensuality","Strong - Firm, supported delivery; projects confidence and power","Loud - High volume speech; may indicate extroversion or desire for attention","Soft-spoken - Low volume speech; suggests shyness, intimacy, or restraint","Verbose - Uses many words; enjoys elaboration and detail","Concise - Uses minimal words; values efficiency in communication","Formal - Adheres to proper grammar and elevated vocabulary; maintains distance","Casual - Relaxed grammar and colloquial terms; creates familiarity","Eloquent - Articulate expression with graceful phrasing; demonstrates education","Simple vocabulary - Basic word choices; may indicate limited education or preference for clarity","Complete sentences - Fully formed thoughts; shows methodical thinking","Fragments - Incomplete sentences; suggests rapid thinking or emotional state","Circular - Talks around points before reaching them; avoids directness","Direct - Gets straight to the point; values efficiency and clarity","Uses catchphrases - Repeats signature phrases; creates recognizable speech pattern","Distinctive greetings - Unique ways of saying hello/goodbye; establishes character identity","Unique metaphors - Special comparisons reflecting background or worldview","Personal idioms - Self-created expressions; reveals thought patterns","Self-interruptions - Breaks own speech flow; indicates self-editing or racing thoughts","Trailing off - Leaves sentences unfinished; suggests distraction or reluctance","Frequent questions - Regular interrogatives; shows curiosity or conversational style","Rhetorical questions - Questions requiring no answer; demonstrates thinking aloud","Filler words - Uses \"um,\" \"like,\" \"you know\"; reveals nervousness or speech habits","Unusual word order - Arranges sentences distinctively; may indicate foreign background","Regional accent - Pronunciation specific to geographic area; grounds character in place","Dialect - Regional vocabulary and grammar; stronger than accent in establishing origin","Professional jargon - Field-specific terminology; reveals occupation","Terminology - Specialized vocabulary; indicates expertise or interest areas","Multilingual influences - Word choices from multiple languages; shows diverse background","Code-switching - Alternating between language styles; indicates adaptability","Period-specific language - Words from particular era; establishes time period or age","Class markers - Speech patterns indicating socioeconomic status; reveals upbringing","Educational indicators - Vocabulary level and grammar usage; suggests formal learning","Rural speech - Country-associated patterns; contrasts with urban speech","Expressive - Shows feelings openly through words; emotional transparency","Restrained - Controls emotional display in speech; maintains composure","Sarcastic - Uses irony to convey opposite meaning; creates distance through humor","Earnest - Speaks with sincerity; shows genuine feelings without irony","Dry humor - Subtle, deadpan comedy; intelligence indicator","Obvious humor - Clear jokes and punchlines; seeks immediate response","Emotionally transparent - Feelings evident in speech; nothing hidden","Guarded - Careful about revealing feelings; protects vulnerability","Optimistic framing - Presents situations positively; sees opportunity","Pessimistic framing - Emphasizes negatives; anticipates problems","Interrupts - Cuts others off; indicates eagerness or disrespect","Patient waiting - Allows others to finish; shows respect or strategic listening","Frequent topic changes - Shifts conversation suddenly; suggests scattered thinking","Focus on one topic - Maintains conversational direction; indicates concentration","Storytelling - Communicates through narratives; values context and color","Factual reporting - Sticks to information; values accuracy over engagement","Direct communication - States meanings clearly; avoids ambiguity","Evasiveness - Avoids clear answers; suggests secrets or discomfort","Question-asking - Interrogative approach; shows curiosity or control","Statement-making - Declarative approach; demonstrates confidence in opinions"],"sources":[{"file":"character_elements.json","arrayPath":"CHARACTER_SPEECH","length":60}]},"background":{"question":"What stayed with them?","label":"Their past","fieldId":"extra.formative_joy","fieldLabel":"formative joy","values":["Won a small contest nobody expected them to enter","Was trusted with an important task","A stranger defended them","Made someone laugh at exactly the right moment","Learned a skill from someone patient","Found a place where they felt welcome","Finished something difficult on their own","Heard their work performed by someone else","Reunited with a person they thought was gone","Earned money doing something they loved","Saw a parent become proud of them","Helped an animal recover","Was chosen without having to ask","Experienced a festival far from home","Made a friend through a shared language","Received a gift that proved someone had listened"],"sources":[{"file":"additions.js","arrayPath":"EXTRA_ELEMENTS.formative_joy","length":16}]},"relationship":{"question":"Who is on their side?","label":"A connection","fieldId":"relationships.allies","fieldLabel":"allies","values":["Childhood Friend","Battle Companion","Mentor","Student","Family Member","Guild Member","Religious Order Member","Saved Life","Shared Secret","Business Partner","Former Enemy","Romantic Interest","Political Ally","Fellow Survivor","Indebted Individual","Magical Bond","Sworn Protector","Loyal Servant","Spirit Guide","None"],"sources":[{"file":"character_elements.json","arrayPath":"relationships.allies","length":20}]},"symbolism":{"question":"What do they carry with them?","label":"A story spark","fieldId":"extra.signature_possession","fieldLabel":"signature possession","values":["A cracked compact mirror belonging to a former enemy","A handwritten recipe with an erased name","A cheap ring they pretend is valuable","An old phone containing one saved message","A scarf repaired with mismatched thread","A key to a demolished house","A toy missing its most important piece","A coin drilled into a pendant","A letter they carry unopened","A school badge they never earned","A compass that points slightly wrong","A photograph with one person folded out of view","A borrowed watch they haven’t returned","An empty perfume bottle","A ticket for a journey they never took","A knife used only to sharpen pencils"],"sources":[{"file":"additions.js","arrayPath":"EXTRA_ELEMENTS.signature_possession","length":16}]},"scene":{"question":"What are they doing right now?","label":"Right now","fieldId":"now.activity","fieldLabel":"Current activity","values":["In the shower","Brushing teeth","Wiping the mirror","Eating standing up","Washing a cup","Looking in the refrigerator","Folding laundry","Looking for a sock","Sitting on the bed","Waiting to speak","Arranging papers","Testing a pen","Changing shoes","Finding the car","Repacking a bag","Heating lunch","Rinsing a spoon","Reading a notice","Taking notes","Packing a bag","Waiting for the lesson","Checking a room number","Opening a locker","Waiting for a friend","Reading quietly","Charging a laptop","Searching an index","Comparing prices","Reading ingredients","Reaching for a tin","Counting items","Finding a wallet","Waiting to pay","Trying a jacket","Checking a seam","Changing shoes","Stopped outside the destination","Watching the road","Folding a map","Waiting after a cancellation","Reading the departure board","Moving out of the rain","Watching the shore","Holding a hat","Looking for a seat","Watching someone below","Drying a towel","Eating a peach","Checking opening hours","Waiting for a ticket","Stowing an umbrella","Shaking sand from shoes","Reading a sign","Walking toward the water","Stepping over a root","Checking a trail marker","Listening to birds","Eating a snack","Resting their feet","Watching a dog","Watering seedlings","Inspecting leaves","Untangling a hose","Unpacking a bag","Making the bed","Searching for a socket","Waiting to be let in","Removing muddy shoes","Holding a parcel","Setting the table","Passing a bowl","Stacking plates","Finding a locker token","Drying their hair","Reading the schedule","Holding a numbered ticket","Filling out a form","Waiting for their name","Washing hands","Checking a pocket","Drying a sleeve"],"sources":[{"file":"right-now-data.js","arrayPath":"RightNowData.locations → activity arrays","length":81}]},"medical":{"question":"What did they last eat?","label":"Their last meal","fieldId":"medical.lastAte","fieldLabel":"Last ate","values":["Oatmeal with fruit","Eggs and toast","Rice and beans","A bowl of noodle soup","A cheese sandwich","Grilled fish and vegetables","Pasta with tomato sauce","Lentil curry and rice","A slice of pizza","Yogurt and a banana","An apple and a handful of nuts","A packet of crackers","Leftovers eaten cold","A shared meal made by someone they love","A hurried snack between obligations","A meal they could barely taste","Unknown / not established"],"sources":[{"file":"medical.js","arrayPath":"pools.lastAte","length":17}]},"pressure":{"question":"What will they do under pressure?","label":"A possible scene","fieldId":"workshop.pressure","fieldLabel":"Pressure situation","values":["A favor at the wrong time\n\nSomeone asks for help just as an important obligation becomes urgent.\n\nHelp now and risk missing the obligation, or protect the commitment and disappoint the person asking.\n\nA person’s trust and a commitment cannot both be protected without a cost.\n\nWhat do they offer, refuse, or negotiate—and what does it reveal?","Credit that belongs to someone else\n\nThey receive public praise for work another person quietly did.\n\nCorrect the story in front of everyone, or accept the praise and deal with it afterward.\n\nRecognition, fairness, and an existing relationship pull in different directions.\n\nWhat do they say while everyone is still watching?","The broken promise\n\nSomeone offers exactly the opportunity they have been waiting for, but accepting would break a promise.\n\nKeep the promise, break it openly, or try to renegotiate before time runs out.\n\nA desired opportunity competes with the cost of being trusted.\n\nWhich part of the decision do they try hardest to justify?","An inconvenient truth\n\nA misunderstanding is protecting them from an embarrassing consequence.\n\nExplain what happened now, or let the misunderstanding stand.\n\nShort-term relief may create a longer obligation to keep the story consistent.\n\nHow much of the truth can they bring themselves to say?","An unexpected kindness\n\nSomeone they find difficult offers useful help without asking for anything in return.\n\nAccept the help, refuse it, or ask what the person expects.\n\nThey may need to revise an opinion or pass up something they need.\n\nWhat small gesture gives away their uncertainty?","The last available place\n\nThere is one remaining place at something they badly want, and someone else needs it too.\n\nClaim it, give it up, or propose a way to share the opportunity.\n\nA personal want and another person’s need become visible to everyone nearby.\n\nWhat do they notice about the other person before deciding?","A familiar person, a different story\n\nSomeone from their past tells a shared story in a way they believe is unfair.\n\nInterrupt and challenge the account, wait to speak privately, or let it pass.\n\nCorrecting the record could expose something neither person intended to discuss.\n\nWhich detail matters enough for them to object?","A mistake with witnesses\n\nThey make a small, obvious mistake in front of someone whose opinion matters.\n\nOwn it, make a joke, ask for help, or try to conceal the mistake.\n\nThe practical problem is small; the meaning they attach to it may be much larger.\n\nWhat do they do before they have time to compose themselves?"],"sources":[{"file":"character-tools.js","arrayPath":"scenes","length":8}]},"dialogue":{"question":"How do they shape a sentence?","label":"Their dialogue","fieldId":"dialogue.sentence","fieldLabel":"Sentence shape","values":["Leave out subjects or verbs when context supplies them.","Give each main statement an explicit subject and verb.","Add qualifications inside the sentence before reaching its end.","Show the speaker replacing a word or claim as they speak.","State the conclusion, then give the reason.","Put the observations before the final conclusion.","Repeat a grammatical shape across neighboring clauses.","Insert a short aside into the middle of a sentence.","Begin suggestions with an if-clause.","End assertions with a small confirmation question.","Start practical turns with an action verb.","Finish a sentence, then append a small separate correction."],"sources":[{"file":"dialogue-data.js","arrayPath":"DialogueData pools → dialogue.sentence → instruction","length":12}]}},"sourceFingerprints":{"character_elements.json":"105847e64575e8ce465461b65fd518f8cc9e4982a9bc66d98e28d8b37abcba9b","additions.js":"8101b9f1f75d6013ecb121e6609ed8046269b3b09f1beaa9db8214167232628a","core.js":"f34ffa81380d5048a945bb7d3ae6d27739c172d94c0253f1326fe34379a0a094","right-now-data.js":"f9f853d9315bc307160a419cd8c203550e0705a730906c88b74141da2ebc8243","right-now.js":"f03b8ed5a2c119b1ee8af6229fbecdc903d31a06aee49361527b4ba4c4fcdc12","dialogue-data.js":"1ba1fe5c70847e53c9fb7b04aa581ed2b4c0e63c69121b8de9a8013324a1cc70","dialogue.js":"23827d3535e55a936844944e1d1563273dadd46066b02b5cc8a97ae712fa8681","medical.js":"f3fb45d528d6b0c38e3c000230de5e4e13c533a773281732276fdfe97597058c","character-tools.js":"174fc63bb32e8a4ffc09d3c91b1262e7a6698d19094e9128304b28552fc85e8d"},"foundation":{"gender":["Male","Female","male","male","male","male","male","female","female","female","female","female","female","transgender (woman to man)","transgender (man to woman)","Non-binary","Genderfluid","Agender"],"heritage":["White American","Black Texan","Japanese","Chinese","Singaporean","Mongolian","Italian","Mexican","White British","Indian","Maldivian","Burmese","Japanese - Ainu","Japanese American","Black Washington DC","Spanish","French","Bruneian","Australian","Canadian","Taiwanese","Native American - Navajo","Hispanic","Nicaraguan","Chinese American","White American","Black Texan","Japanese","Chinese","Singaporean","Mongolian","Italian","Mexican","White British","Indian","Maldivian","Burmese","Japanese - Ainu","Japanese American","Black Washington DC","Spanish","French","Bruneian","Australian","Canadian","Taiwanese","Native American - Navajo","Hispanic","Nicaraguan","Chinese American","Afghan","Albanian","Algerian","American","Andorran","Angolan","Antiguan","Argentine","Armenian","Australian","Austrian","Azerbaijani","Bahamian","Bahraini","Bangladeshi","Barbadian","Belarusian","Belgian","Belizean","Beninese","Bhutanese","Bolivian","Bosnian","Botswanan","Brazilian","British","Bruneian","Bulgarian","Burkinabe","Burmese","Burundian","Cambodian","Cameroonian","Canadian","Cape Verdean","Central African","Chadian","Chilean","Chinese","Chinese American","Colombian","Comorian","Congolese","Costa Rican","Croatian","Cuban","Cypriot","Czech","Danish","Djiboutian","Dominican","Dutch","Ecuadorian","Egyptian","Emirati","Equatorial Guinean","Eritrean","Estonian","Ethiopian","Fijian","Filipino","Finnish","French","Gabonese","Gambian","Georgian","German","Ghanaian","Greek","Grenadian","Guatemalan","Guinean","Guyanese","Haitian","Honduran","Hungarian","Icelander","Indian","Indonesian","Iranian","Iraqi","Irish","Israeli","Italian","Ivorian","Jamaican","Japanese","Japanese - Ainu","Japanese American","Jordanian","Kazakhstani","Kenyan","Kittitian and Nevisian","Kuwaiti","Kyrgyz","Lao","Latvian","Lebanese","Liberian","Libyan","Liechtensteiner","Lithuanian","Luxembourger","Macedonian","Malagasy","Malawian","Malaysian","Maldivian","Malian","Maltese","Marshallese","Mauritanian","Mauritian","Mexican","Micronesian","Moldovan","Monacan","Mongolian","Montenegrin","Moroccan","Mosotho","Motswana","Mozambican","Namibian","Nauruan","Nepalese","New Zealander","Ni-Vanuatu","Nicaraguan","Nigerian","Nigerien","North Korean","Northern Irish","Norwegian","Omani","Pakistani","Palauan","Palestinian","Panamanian","Papua New Guinean","Paraguayan","Peruvian","Polish","Portuguese","Qatari","Romanian","Russian","Rwandan","Saint Lucian","Salvadoran","Samoan","San Marinese","Sao Tomean","Saudi","Scottish","Senegalese","Serbian","Seychellois","Sierra Leonean","Singaporean","Slovak","Slovenian","Solomon Islander","Somali","South African","South Korean","South Sudanese","Spanish","Sri Lankan","Sudanese","Surinamese","Eswatini","Swedish","Swiss","Syrian","Taiwanese","Tajik","Tanzanian","Thai","Timorese","Togolese","Tongan","Trinidadian and Tobagonian","Tunisian","Turkish","Turkmen","Tuvaluan","Ugandan","Ukrainian","Uruguayan","Uzbek","Venezuelan","Vietnamese","Welsh","White American","White British","Yemeni","Zambian","Zimbabwean","Black Texan","Black Washington DC","Native American - Navajo","Hispanic","Nicaraguan"]}}</script>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const chapters = ['identity', 'motivation', 'obstacle'];
+  const arrayBundle = JSON.parse(document.getElementById('characterArrayPools').textContent);
+  const content = arrayBundle.content;
+  const legacySampleHashes = new Set([3036299411,1230094691,4046170626,1956257050,4099858152,3849834151,947699266,2095675961,509242181,1814636594,4103742720,3200763627,596319271,3195739908,941091703,1933221848,148035869,1545180410,1314209360,153143562,63915304,3659203867,899341734,1431329190,4067028501,3384021850,3651347834,2619257327,1061050147,3263481298,3415503432,303669568,1323807710]);
+  const valueHash = text => {let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return h>>>0;};
+  function migratePreview(saved) {
+    if(!saved || typeof saved!=='object')return saved;
+    const migrated={...saved, sourceVersion:2, sourceKinds:{...saved.sourceKinds}};
+    migrated.accepted=Object.fromEntries(Object.entries(saved.accepted||{}).filter(([key,value])=>content[key] && typeof value==='string' && (saved.sourceVersion===2 || !legacySampleHashes.has(valueHash(value)))));
+    if(saved.sourceVersion!==2){
+      migrated.indices={};for(const key of Object.keys(migrated.accepted))migrated.sourceKinds[key]='custom';
+      if(Object.keys(migrated.accepted).length<Object.keys(saved.accepted||{}).length){migrated.visited=chapters.filter(key=>migrated.accepted[key]);migrated.chapter=chapters.find(key=>!migrated.accepted[key])||saved.chapter;}
+    }
+    return migrated;
+  }
+
+  const draftKey = 'cm-guided-preview.draft.v1';
+  const versionsKey = 'cm-guided-preview.versions.v1';
+  const defaults = () => ({name:'', chapter:'identity', indices:{}, accepted:{}, sourceVersion:2, sourceKinds:{}, visited:[], foundation:{age:'29', gender:arrayBundle.foundation.gender[Math.floor(Math.random()*arrayBundle.foundation.gender.length)], heritage:arrayBundle.foundation.heritage[Math.floor(Math.random()*arrayBundle.foundation.heritage.length)]}});
+  let state = defaults(), versions = [], history = [], view = 'character', sketchOpen = false, modalOrigin = null;
+  const read = key => {try {return JSON.parse(localStorage.getItem(key));} catch {return null;}};
+  const restored = migratePreview(read(draftKey));
+  if (restored && typeof restored.name === 'string' && content[restored.chapter] && restored.accepted && restored.indices) {
+    state = {...defaults(), ...restored, foundation:{...defaults().foundation, ...restored.foundation}};
+    state.accepted = Object.fromEntries(Object.entries(state.accepted).filter(([key,value]) => content[key] && typeof value === 'string'));
+    state.visited = Array.isArray(state.visited) ? state.visited.filter(key => chapters.includes(key)) : [];
+  }
+  const storedVersions = read(versionsKey);
+  if (Array.isArray(storedVersions)) versions = storedVersions.filter(v => v && typeof v.name === 'string' && v.character).slice(0,30).map(v=>({...v,character:migratePreview(v.character)}));
+  if(Array.isArray(storedVersions)&&storedVersions.some(v=>v?.character?.sourceVersion!==2)){try{localStorage.setItem(versionsKey,JSON.stringify(versions));}catch{}}
+  const motion = () => !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const el = (tag, className, text) => {const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};
+  const button = (text, action, className='preview-secondary') => {const node=el('button',className+' btn-interactive focus-ring',text);node.type='button';node.addEventListener('click',action);return node;};
+  let noticeTimer;
+  function announce(text) { $('previewNotice').textContent=text;$('previewNotice').classList.add('notice-visible');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$('previewNotice').classList.remove('notice-visible'),2600); }
+  function persist() {
+    try {localStorage.setItem(draftKey,JSON.stringify(state));$('draftStatus').textContent='Draft saved on this device';return true;}
+    catch {$('draftStatus').textContent='Draft is open · saving unavailable';announce('Storage is unavailable. Export your sketch to keep it.');return false;}
+  }
+  function remember() {history.push(clone(state));if(history.length>20)history.shift();}
+  function valuesFor(key) {return content[key].values;}
+  function currentValue() {const values=valuesFor(state.chapter);let index=state.indices[state.chapter];if(!Number.isInteger(index)||index<0||index>=values.length){index=Math.floor(Math.random()*values.length);state.indices[state.chapter]=index;}return values[index];}
+  function animate(node, frames, options) {if(motion() && node.animate)node.animate(frames,options);}
+  function reveal() {animate($('suggestionContainer'),[{opacity:.25,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:220,easing:'ease-out'});}
+  function chooseChapter(key) {if(!content[key])return;state.chapter=key;render();persist();reveal();}
+  function renderSketch(highlight) {
+    const host=$('sketchContent');host.replaceChildren();
+    const entries=Object.entries(state.accepted);
+    if (!entries.length) host.append(el('p','sketch-empty','Accept a possibility to start their sketch. You can change any detail later.'));
+    for (const [key,value] of entries) {
+      const row=el('div','sketch-entry');row.dataset.detail=key;
+      const text=el('div','sketch-entry-copy');
+      text.append(el('p','sketch-label',content[key].label),el('p','sketch-value',value));
+      const provenance=state.sourceKinds[key]==='array'?content[key].fieldLabel:'Your wording';text.append(el('p','sketch-provenance',provenance));
+      const edit=button('Edit',()=>editDetail(key), 'sketch-edit');edit.setAttribute('aria-label','Edit '+content[key].label);
+      row.append(text,edit);host.append(row);
+      if(key===highlight)animate(row,[{backgroundColor:'rgba(228,180,90,.14)',transform:'translateY(5px)'},{backgroundColor:'transparent',transform:'translateY(0)'}],{duration:280,easing:'ease-out'});
+    }
+    $('foundationValue').textContent=Object.values(state.foundation).filter(Boolean).join(' · ')||'Add optional identity details';
+    $('toggleSketch').textContent='Your sketch · '+entries.length+' '+(entries.length===1?'detail':'details');
+    $('toggleSketch').setAttribute('aria-expanded',String(sketchOpen));
+    $('sketchCard').classList.toggle('mobile-sketch-closed',!sketchOpen);
+  }
+  function render(highlight) {
+    const data=content[state.chapter];$('questionTitle').textContent=data.question;$('suggestionText').textContent=currentValue();
+    $('suggestionText').dataset.fieldId=data.fieldId;
+    const source=$('suggestionSource');source.textContent='From your arrays · '+data.fieldLabel.charAt(0).toUpperCase()+data.fieldLabel.slice(1);source.title=data.sources.map(ref=>ref.file+' → '+ref.arrayPath+' ('+ref.length+' entries)').join('\n');source.dataset.sourcePaths=JSON.stringify(data.sources);
+    $('suggestionText').classList.toggle('long-array-value',currentValue().length>220);
+    $('characterName').value=state.name;
+    document.querySelectorAll('[data-chapter]').forEach(node=>{
+      const active=node.dataset.chapter===state.chapter;
+      node.classList.toggle('chapter-current',active);node.setAttribute('aria-current',active?'step':'false');
+      node.style.borderBottomColor=active?'var(--primary)':'transparent';
+      node.setAttribute('aria-label',content[node.dataset.chapter].question);
+      const seen=Boolean(state.accepted[node.dataset.chapter]);node.classList.toggle('chapter-kept',seen);
+    });
+    $('deeperDevelopment').classList.toggle('hidden',!chapters.every(key=>state.visited.includes(key)));
+    $('undoDetail').disabled=history.length===0;
+    renderSketch(highlight);
+  }
+  function nextChapter() {
+    if(!state.visited.includes(state.chapter))state.visited.push(state.chapter);
+    const at=chapters.indexOf(state.chapter);
+    for(let offset=1;offset<=chapters.length;offset++){
+      const key=chapters[(Math.max(at,0)+offset)%chapters.length];
+      if(!state.visited.includes(key)){state.chapter=key;return;}
+    }
+    state.chapter='appearance';
+  }
+  let acceptAfter = 0;
+  function accept(value, sourceKind='custom') {
+    if(typeof value!=='string'||!value.trim())return;
+    if(performance.now()<acceptAfter)return;
+    acceptAfter=performance.now()+240;
+    const key=state.chapter;remember();state.accepted[key]=sourceKind==='array'?value:value.trim();state.sourceKinds[key]=sourceKind;nextChapter();render(key);persist();reveal();
+    animate($('addDetail'),[{transform:'scale(.97)'},{transform:'scale(1.025)'},{transform:'scale(1)'}],{duration:210,easing:'ease-out'});
+    announce('✓ Added to your character');
+  }
+  function openModal(title, build, origin=document.activeElement) {
+    const dialog=$('previewDialog');
+    if(dialog.open)dialog.close();
+    modalOrigin=origin;
+    $('modalTitle').textContent=title;$('modalBody').replaceChildren();build($('modalBody'));
+    dialog.showModal();
+    requestAnimationFrame(()=>($('modalBody').querySelector('[autofocus],textarea,input,button')||$('closeModal')).focus());
+  }
+  function closeModal() {if($('previewDialog').open)$('previewDialog').close();}
+  $('previewDialog').addEventListener('close',()=>{
+    if($('previewDialog').open)return;
+    const label=modalOrigin?.getAttribute('aria-label');
+    const replacement=label?[...document.querySelectorAll('button[aria-label]')].find(node=>node.getAttribute('aria-label')===label):null;
+    const target=modalOrigin?.isConnected?modalOrigin:(replacement||$('addDetail'));
+    target.focus({preventScroll:true});
+  });
+  $('previewDialog').addEventListener('click',e=>{if(e.target===$('previewDialog')){const box=e.target.getBoundingClientRect();if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom)closeModal();}});
+  $('closeModal').onclick=closeModal;
+  function textEditor(title, initial, save, allowRemove=false) {
+    openModal(title,body=>{
+      const label=el('label','preview-label','Your version');label.htmlFor='ownText';
+      const input=el('textarea','preview-textarea');input.id='ownText';input.value=initial;input.rows=5;input.maxLength=5000;input.autofocus=true;
+      const actions=el('div','modal-actions');
+      const add=button('Add to character',()=>{const value=input.value.trim();if(!value){input.setCustomValidity('Write a detail first.');input.reportValidity();return;}save(value);closeModal();},'preview-primary');add.id='saveOwn';
+      actions.append(add,button('Cancel',closeModal));
+      input.addEventListener('input',()=>input.setCustomValidity(''));
+      if(allowRemove)actions.append(button('Remove detail',()=>{save(null);closeModal();}));
+      body.append(label,input,actions);
+    });
+  }
+  function editDetail(key) {textEditor('Edit '+content[key].label,state.accepted[key],value=>{remember();if(value===null){delete state.accepted[key];delete state.sourceKinds[key];}else{state.accepted[key]=value;state.sourceKinds[key]='custom';}render(key);persist();announce(value===null?'Detail removed':'Detail updated');},true);}
+  $('writeOwn').onclick=()=>textEditor(content[state.chapter].question,'',accept);
+  $('addDetail').onclick=()=>accept(currentValue(),'array');
+  $('tryAnother').onclick=()=>{
+    const key=state.chapter,previous=currentValue(),values=valuesFor(key),eligible=values.map((value,index)=>index).filter(index=>values[index]!==previous);
+    if(eligible.length)state.indices[key]=eligible[Math.floor(Math.random()*eligible.length)];
+    $('suggestionText').textContent=currentValue();$('suggestionText').classList.toggle('long-array-value',currentValue().length>220);persist();
+    animate($('suggestionText'),[{opacity:.2,transform:'translateX(6px)'},{opacity:1,transform:'translateX(0)'}],{duration:180,easing:'ease-out'});
+    animate($('tryAnotherIcon'),[{transform:'rotate(0deg)'},{transform:'rotate(180deg)'}],{duration:240,easing:'ease-out'});
+  };
+  $('skipStep').onclick=()=>{nextChapter();render();persist();reveal();announce('Skipped for now. You can revisit any question.');};
+  $('undoDetail').onclick=()=>{if(!history.length)return;state=history.pop();render();persist();reveal();announce('Last character change undone');};
+  $('characterName').oninput=e=>{state.name=e.target.value.slice(0,150);persist();};
+  document.querySelectorAll('[data-chapter]').forEach(node=>{node.classList.remove('text-primary','border-primary','font-semibold');node.onclick=()=>chooseChapter(node.dataset.chapter);});
+  $('editFoundation').onclick=()=>openModal('Optional identity details',body=>{
+    const inputs={};
+    for(const [key,label] of [['age','Age'],['gender','Gender'],['heritage','Heritage / origin']]){
+      const wrap=el('label','preview-label',label);const input=el('input','preview-input');input.value=state.foundation[key]||'';input.maxLength=150;wrap.append(input);inputs[key]=input;body.append(wrap);
+    }
+    body.append(button('Save details',()=>{remember();state.foundation=Object.fromEntries(Object.entries(inputs).map(([key,node])=>[key,node.value.trim()]));render();persist();closeModal();},'preview-primary'));
+  });
+  function relocateSketch() {
+    const mobile=matchMedia('(max-width:767px)').matches;
+    if(mobile)$('builderArea').insertBefore($('sketchAside'),$('chapterNav'));
+    else $('workspace').append($('sketchAside'));
+  }
+  $('toggleSketch').onclick=()=>{sketchOpen=!sketchOpen;renderSketch();};
+  addEventListener('resize',relocateSketch);
+  function setView(next) {
+    view=next;
+    $('builderArea').hidden=next!=='character';$('sketchAside').hidden=next!=='character';
+    $('toolsView').hidden=next!=='tools';$('libraryView').hidden=next!=='library';
+    document.querySelectorAll('[data-nav]').forEach(node=>{const active=node.dataset.nav===next;node.classList.toggle('nav-current',active);node.setAttribute('aria-current',active?'page':'false');});
+    if(next==='library')renderLibrary();
+    if(next==='character')relocateSketch();
+  }
+  document.querySelectorAll('[data-nav]').forEach(node=>{node.classList.remove('text-primary','bg-[#e4b45a14]','border-[#e4b45a55]');node.onclick=()=>setView(node.dataset.nav);});
+  function topic(key) {closeModal();setView('character');chooseChapter(key);$('questionTitle').focus({preventScroll:true});if(motion())$('questionPanel').scrollIntoView({block:'nearest',behavior:'smooth'});}
+  document.querySelectorAll('[data-topic]').forEach(node=>node.onclick=()=>topic(node.dataset.topic));
+  function browse() {openModal('Browse all details',body=>{
+    body.append(el('p','modal-note','Choose a topic to explore one possibility at a time. Every suggestion is drawn from an existing character-builder array. You can edit any accepted detail in your own words.'));
+    const label=el('label','preview-label','Find a topic');label.htmlFor='topicSearch';const search=el('input','preview-input');search.id='topicSearch';search.type='search';search.placeholder='Try voice, appearance, or motivation';
+    const list=el('div','topic-list');
+    const topics=[['Identity','identity'],['Personality','personality'],['Motivation','motivation'],['Obstacles','obstacle'],['Appearance','appearance'],['Hair style','hair'],['Voice sound','voice'],['Dialogue style','dialogue'],['Background','background'],['Relationships','relationship'],['Medical','medical'],['Symbolism','symbolism'],['Right Now','scene']];
+    function draw(){list.replaceChildren();const matches=topics.filter(([name])=>name.toLowerCase().includes(search.value.toLowerCase()));for(const [name,key]of matches)list.append(button(name,()=>topic(key),'topic-choice'));if(!matches.length)list.append(el('p','modal-note','No matching topics. Try another word.'));}
+    search.oninput=draw;body.append(label,search,list);draw();
+  });}
+  $('browseDetails').onclick=browse;
+  $('saveVersion').onclick=()=>{
+    const version={name:state.name||'Unnamed character',at:new Date().toISOString(),character:clone(state)};
+    const next=[version,...versions].slice(0,30);
+    try{localStorage.setItem(versionsKey,JSON.stringify(next));versions=next;announce('Version saved on this device');}
+    catch{announce('Could not save a version. Export your sketch to keep it.');}
+  };
+  function renderLibrary() {
+    const host=$('libraryEntries');host.replaceChildren();
+    if(!versions.length){host.append(el('p','sketch-empty','No versions yet. Save a version while building your character to keep it here.'));return;}
+    for(const entry of versions){
+      const card=el('article','library-entry');card.append(el('h3','library-name',entry.name),el('p','modal-note',Object.keys(entry.character.accepted||{}).length+' details · '+new Date(entry.at).toLocaleString()));
+      card.append(button('Open version',()=>{remember();state=clone(entry.character);setView('character');render();persist();announce('Version opened. Undo returns to your previous draft.');}));host.append(card);
+    }
+  }
+  const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  function briefText() {return [state.name||'Unnamed character',Object.values(state.foundation).filter(Boolean).join(' · '),'',...Object.entries(state.accepted).map(([key,value])=>content[key].label+'\n'+value)].join('\n\n');}
+  function briefHTML() {
+    const details=Object.entries(state.accepted).map(([key,value])=>'<section><h2>'+escapeHTML(content[key].label)+'</h2><p>'+escapeHTML(value).replace(/\n/g,'<br>')+'</p></section>').join('');
+    return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHTML(state.name||'Character sketch')+'</title><style>body{max-width:720px;margin:48px auto;padding:24px;color:#20252c;font:18px/1.6 Georgia,serif}h1{font-size:36px}h2{font:600 14px system-ui;color:#4d5964;margin-top:32px}p{overflow-wrap:anywhere}section{break-inside:avoid}@media print{body{margin:0}}</style></head><body><h1>'+escapeHTML(state.name||'Unnamed character')+'</h1><p>'+escapeHTML(Object.values(state.foundation).filter(Boolean).join(' · '))+'</p>'+details+'</body></html>';
+  }
+  function showExport() {openModal('Preview & export',body=>{
+    const preview=el('article','export-paper');preview.append(el('h3','export-name',state.name||'Unnamed character'),el('p','export-foundation',Object.values(state.foundation).filter(Boolean).join(' · ')));
+    for(const [key,value]of Object.entries(state.accepted))preview.append(el('h4','export-label',content[key].label),el('p','export-value',value));
+    if(!Object.keys(state.accepted).length)preview.append(el('p','','Accept a detail to start your character sketch.'));
+    const actions=el('div','modal-actions');
+    actions.append(button('Copy sketch',async()=>{try{await navigator.clipboard.writeText(briefText());announce('Character sketch copied');}catch{announce('Copy is unavailable here. Download the HTML instead.');}},'preview-primary'));
+    actions.append(button('Download HTML',()=>{const url=URL.createObjectURL(new Blob([briefHTML()],{type:'text/html;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=(state.name||'Character sketch').replace(/[^\p{L}\p{N} _-]/gu,'').slice(0,100)+'.html';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);announce('Character sketch downloaded');}));
+    body.append(preview,actions,el('p','modal-note','This preview exports the details you have accepted. Your production characters remain in the existing app.'));
+  });}
+  $('previewExport').onclick=showExport;
+  document.querySelectorAll('[data-menu]').forEach(node=>node.onclick=()=>openModal('Character Maker preview',body=>{
+    body.append(el('p','modal-note','A guided character builder, one possibility at a time. Add what belongs, write your own version, or skip any question.'));
+    body.append(button('Browse all details',browse),button('Preview & export',showExport));
+    body.append(el('p','modal-note','This design preview draws its options from your actual character arrays. Installation, backups, full generator settings and app updates remain in your existing app.'));
+  }));
+  document.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&e.target instanceof HTMLButtonElement&&!e.repeat)e.target.classList.add('is-pressed');});
+  document.addEventListener('keyup',()=>document.querySelectorAll('.is-pressed').forEach(node=>node.classList.remove('is-pressed')));
+  document.addEventListener('focusout',e=>e.target.classList?.remove('is-pressed'));
+  $('undoDetail').setAttribute('aria-label','Undo last character change');
+  document.querySelector('header nav').setAttribute('aria-label','Primary');
+  render();relocateSketch();setView('character');persist();
+})();
+
+</script>
+</div>
+</body>
+</html>

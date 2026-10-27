@@ -22,49 +22,60 @@ All asset URLs are relative, so the app works at both a domain root and a reposi
 
 ## Use
 
-Start with **Build a Character**, the default for new users, or **Quick Snapshot** for the
-existing compact assortment. Returning users keep their selected view. Both paths use
-one shared character. The identity foundation shows birth date and age, gender, and
-heritage/origin; the name above it is optional. Only kept details appear below it.
+The default **Character** workspace is a guided builder with three optional questions:
 
-- **Add characteristic:** shows one stored candidate from the remembered category.
-- **Keep:** accepts its current value for the canvas and My Sheet.
-- **Another:** proposes a different unaccepted field in that category; it changes no values.
-- **Reroll Value:** rolls the same proposed field using existing locks and dependency rules.
-- **Dismiss:** closes the candidate and accepts nothing.
-- **Explore section:** opens that field in a deeper panel; the sticky Back to Character
-  button returns to the canvas. Keep in any view also adds it to the canvas.
+1. **Who are they?** combines age, heritage, a personality trait, gender, species and occupation.
+2. **What do they want?** combines a motivation, another trait, an influence and an event.
+3. **What gets in their way?** combines a story descriptor, a trait and an obstacle source.
 
-Suggestions prefer highlighted fields and avoid repeat offers within a cycle. Surprise me
-selects an eligible category first with equal odds, then a field within that category.
-When highlighted candidates run out, explicitly choose Shuffle focus or Include remaining
-faded. When a cycle runs out, start a new cycle. You can always select another category.
-Nothing is accepted automatically; acceptance and focus remain separate.
+Every ingredient comes from the current character arrays or an explicit author edit. Sentence
+connectors adapt the grammar; the ingredient panel retains the original pool wording. Duplicate
+entries keep their weighting except species: automatic rolls use 90% Human, with the remaining
+10% shared by other kinds. Manual selection and locks can choose any original kind. Influences can draw from homeland, family status, allies, enemies,
+organizations or formative trauma. Obstacles can draw from events, organizations, enemies,
+abilities, skills, either parental figure, occupation, motivations or flaws. Parent fields combine
+the existing alive/deceased arrays. The composed family ingredient uses the requested original
+`background.family_status` pool; the full generator retains its added family-connection pool.
 
-Accepted cards display kept snapshots, independent of current background results and focus.
-Their Edit button edits only the accepted snapshot. Replace with current result deliberately
-captures the latest background value; Remove unkeeps the detail in both canvas and My Sheet.
-Locks protect the background field against rolls. Age-ineligible adult snapshots are retained
-but unavailable in the visible canvas/sheet until eligibility is restored.
+- **See ingredients:** inspect the elements in a sentence. Click an element directly or use
+  its Edit button to choose a pool entry or write a custom value. Click the age to enter years directly or choose a birth date. Who are they? draws from
+  all age ranges, with equal chance per range, independently of the full-roll age setting.
+- **Reroll an ingredient:** change just that element. **Hold** preserves an element during
+  Try another. Existing generator locks also apply; kept facts stay stable across suggestions.
+- **Change the pool:** influence and obstacle selectors let you choose which existing category
+  supplies that element.
+- **Add to character:** accepts the sentence and its ingredient snapshots into the same character
+  used by the original generator, sheet and writing tools. The builder then suggests the next question.
+- **Try another:** proposes a fresh combination while retaining kept, held and locked values.
+  It never replaces an accepted sentence. Edit a kept ingredient and choose Update character to
+  deliberately change that fact; related composed sentences follow an explicit accepted edit.
+- **Write my own:** accepts your sentence without silently treating the proposed ingredients as
+  character facts. **Skip for now** advances without accepting anything.
+- **Your character:** shows accepted sentences and other kept details. Edit revisits a sentence's
+  ingredients. On phones, expand **Your sketch** to see the details and notes.
 
-Use **Explore / tools** for Full Character, Dialogue Style, Right Now, My Sheet, and Saved.
-The **Actions** menu contains Roll character, Shuffle focus, and New character. New character
-clears the current draft, its locks, acceptance, name, and notes, and rolls a fresh foundation
-and background. It asks for confirmation when accepted details or notes would be discarded.
-Saved snapshots remain untouched; story/roll preferences, category choice, and customized
-snapshot fields carry over. Save character always creates a new saved snapshot.
+After the three questions, See them, Hear them, Know their past and Watch them act provide paths
+into deeper development. You can preview and export at any time; no chapter is compulsory.
 
+**Story tools** opens Right Now, Connected characters, Put them under pressure, and Dialogue.
+**Library** holds saved versions, JSON export and backup import. **Browse all details** opens
+Quick Snapshot, Full Character, Medical, My Sheet, History, and the retained one-detail builder.
+All views share one character. Existing Focus, Lock, Keep, Copy and field editors remain available
+in those detailed views. The app menu contains installation/help, story settings, Roll character,
+Shuffle focus, New character, Undo/Redo and History.
 
-- **Roll character:** rolls every unlocked field and shuffles focus.
-- **Shuffle focus:** changes highlighted fields while keeping every rolled value.
-- **Actions while scrolling:** a duplicate Actions menu stays at the bottom right on desktop and mobile. It has the same Roll character, Shuffle focus, and New character controls as the top menu. Tap outside or press Escape to close it.
-- **Build a Character / Quick Snapshot / Full Character:** views of the same character. Choose which fields appear in Quick Snapshot.
-- **Focus:** tap/click a field’s label, value, or card background to highlight or fade it, or use its Focus button. Buttons and editing controls keep their own actions. Faded results stay readable and usable.
-- **Lock:** keep a value during future rolls.
-- **Keep:** copy the current value into My Sheet. This captures a snapshot; rerolling the field won't replace what you've kept. Remove and Keep again to capture a new roll. Applying an edit to a kept field updates its kept value.
-- **Save character:** saves a new snapshot with all rolls, settings, and notes on this device. You can save multiple versions under the same name.
-- **Export all / Import backup:** transfer saved characters and your current working draft between devices.
-- Saved state is device-local. Clearing browser/site data removes it; export backups to keep your work.
+The draft saves automatically on this device. **Save version** creates a permanent local snapshot;
+you can keep multiple versions with the same name. Undo/Redo restores composed prompts, ingredient
+edits, acceptance and their linked character changes together. Saves and JSON backups include the
+builder state. Older characters gain an empty guided builder without changing their existing fields,
+locks, kept wording or notes. A new character resets the builder and asks before discarding accepted
+work; saved versions remain available.
+
+Button presses have brief tactile motion, suggestions reveal gently, and newly accepted details
+settle into the sketch. Reduced-motion preferences disable these effects. All app features remain
+offline-capable, with no runtime dependencies or external fonts.
+
+Saved state is device-local. Export a backup before changing devices or clearing browser data.
 
 ## Birthday logic
 
@@ -74,15 +85,15 @@ Western sun signs use common approximate date ranges and don't calculate astrono
 
 Adult intimacy is opt-in and available for characters aged 18+. A character who turns 18 in a year-only setting needs an exact story date before this field is generated, since they might still be 17.
 
-## Original data preservation
+## Character data sources
 
-`character_elements.json` is byte-for-byte unchanged from:
+The original baseline for `character_elements.json` came from:
 
 https://github.com/KgitWH21/storyspinner25/blob/main/character_elements.json
 
-Source Git blob SHA: `b48148c3b6106edd33de367534e1d052495c9ba3`.
+Original baseline Git blob SHA: `b48148c3b6106edd33de367534e1d052495c9ba3`.
 
-All original wording, capitalization, repeated entries, and array order remain. Repeated entries retain their weighting. `original-data.js` is a JSON-equivalent JavaScript wrapper so the app can also open directly from a local file without fetching JSON. Original lists remain available in the source files. The former family-status field now draws from the added family-connection pool instead of the original marital-status entries. The alive and deceased parent pools are combined for separate maternal and paternal rolls. Every original age range remains available. Tarot retains upright / reversed meanings and all layouts; arc rolls draw three different cards.
+The current JSON includes your expanded editable arrays. Entries retain their wording, capitalization and order; duplicates retain their weighting. The application does not rewrite or deduplicate your source arrays. `original-data.js` is a JSON-equivalent JavaScript wrapper so the app can also open directly from a local file without fetching JSON. Original lists remain available in the source files. The former family-status field now draws from the added family-connection pool instead of the original marital-status entries. The alive and deceased parent pools are combined for separate maternal and paternal rolls. Every original age range remains available. Tarot retains upright / reversed meanings and all layouts; arc rolls draw three different cards.
 
 Additions live in `additions.js`. Customize those lists freely. The `human_distinctive_features` array adds 64 human features to the existing Distinctive Features field, including facial details, hair, hands, scars, tattoos, accessories, and posture. Its roll and selection menu use the original entries followed by these additions; original duplicates retain their relative weighting. If you edit `character_elements.json`, regenerate the wrapper with:
 
@@ -92,7 +103,7 @@ node -e "const fs=require('fs');fs.writeFileSync('original-data.js','window.ORIG
 
 ## Files
 
-`index.html`, `style.css`, `app.js`, `core.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `medical.js`, `languages.js`, `character-tools.js`, `app-updates.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
+`index.html`, `style.css`, `guided.css`, `guided-builder.js`, `guided-ui.js`, `app.js`, `core.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `medical.js`, `languages.js`, `character-tools.js`, `app-updates.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
 
 ## App updates
 
@@ -158,7 +169,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v15`, including both Right Now
+The service worker uses scope-specific cache version `v20`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -280,7 +291,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v15` caches both new
+customized sketch selections remain intact. Service-worker version `v20` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -319,7 +330,7 @@ canvas operation. No runtime dependencies were added.
 4. Wait for deployment to finish, then open the existing Pages URL online.
 5. On your phone, open the installed app online and tap **Check updates**. When
    **App update ready** appears, apply open field edits, then tap **Update & reload**.
-   The current release is `v15`. If a pre-v15 app still shows **Install app**, wait for the
+   The current release is `v20`. If a pre-v15 app still shows **Install app**, wait for the
    update to download, close it from Recent apps, and reopen online once.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
@@ -381,7 +392,7 @@ Old workspaces and saved characters gain missing medical fields once while retai
 profile values, locks, notes, kept snapshots, and customized Quick Snapshot selections.
 All medical values persist through save, export, import, and offline use. Kept values
 remain accepted snapshots; changes to linked background values do not rewrite them.
-The updated ZIP includes `medical.js`, and service-worker cache `v15` installs it offline.
+The updated ZIP includes `medical.js`, and service-worker cache `v20` installs it offline.
 
 Reference material used for the prompts:
 
@@ -444,7 +455,7 @@ On the first load of an older character missing both additional fields, its unlo
 main language is synced to heritage, and Second/Third are initialized once. Existing
 locks, kept snapshots, notes, and Quick Snapshot choices survive. Subsequent loads keep
 the established values. Customize the mappings and named language pool in `languages.js`.
-Service-worker cache `v15` and the current downloadable ZIP include this file.
+Service-worker cache `v20` and the current downloadable ZIP include this file.
 
 Country-language reference examples: [Singapore Department of Statistics census language
 tables](https://www.singstat.gov.sg/publication-resources/singapore-census-of-population-2020-statistical-release-1-demographic-characteristics-education-language-and-religion)
@@ -542,7 +553,7 @@ being truncated. The complete brief remains visible for review before printing.
 workshop validation, and standalone brief renderer. Browser verification covers full
 undo/redo/restore journeys, generated and existing connected profiles, protected opening,
 scene responses, portrait validation, HTML/clipboard/PDF output, history reloads, JSON
-round trips, mobile layout, and offline use. Service-worker cache `v15` includes this file.
+round trips, mobile layout, and offline use. Service-worker cache `v20` includes this file.
 
 
 ## Installed phone app updates (v15)
@@ -583,3 +594,115 @@ containing commit `737ccd6`.
 Update lifecycle references: [MDN registration.update](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/update),
 [updateViaCache](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/updateViaCache),
 and [skipWaiting](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/skipWaiting).
+
+
+## Guided builder implementation and verification (v16)
+
+`guided-builder.js` defines the multi-array recipes, source ingredients, sentence composition and
+backward-compatible builder migration. `guided-ui.js` connects the responsive workspace and ingredient
+editors to the existing app state, history and exports; `guided.css` supplies its layout and motion.
+The service worker and downloadable ZIP include all three files.
+
+Run `node verify.cjs` and `node verify-guided.cjs` for the dependency-free checks. With Playwright
+installed, run `node verify-guided-browser.cjs`, `node verify-browser.cjs` and
+`node verify-updates-browser.cjs`. Browser scripts accept `PLAYWRIGHT_MODULE` and
+`CHROMIUM_EXECUTABLE` overrides. The update test also requires legacy commit `737ccd6`.
+
+The composed-builder checks cover source provenance, ingredient edits/holds/pool changes, kept facts,
+atomic undo/redo, old/new saves, custom writing, source escaping, HTML export, mobile controls,
+reduced motion and offline reload.
+
+
+## Education, relationships, and accepted identity (v17)
+
+**Identity details** stays blank until its details are accepted with **Add to character**
+or **Keep**. It displays the accepted snapshots, so background rerolls do not replace
+established identity. The finished brief follows the same accepted-only rule. Custom
+whole sentences do not implicitly accept the proposed identity ingredients.
+
+**Browse all details → Education & Training** contains seven fields: overall education,
+college subject, graduate subject, doctoral subject, current education status, trade or
+specialty training, and feelings about education. The level spectrum covers no formal
+schooling, school in progress, high school dropout, diploma/GED, unfinished college,
+vocational/apprenticeship credentials, associate, bachelor’s, graduate certificate,
+master’s, professional, and doctoral degrees. Current status includes enrollment, leave,
+breaks, funding delays, administrative holds, transfers, thesis work, and awaiting conferral.
+Subjects, trades, enrollment statuses, and education feelings are editable arrays in
+`life-data.js`; feelings can also draw from the original personality traits.
+
+Automatic completion ages and education weights are fiction conventions, not demographic
+estimates. Degree subjects follow the overall level. Editing an established subject can
+promote an unlocked overall level. Explicit None/Unknown subject edits are allowed.
+Locked conflicts remain available for the author to review. Kept snapshots remain separate
+from subsequent background repairs.
+
+**Browse all details → Relationship details** adds longest/current relationship duration,
+first serious relationship, first marriage/divorce, current status from romantic entries
+in the original `background.family_status` array, children (including Unknown), relationship
+behavior from traits, and a current-relationship viewpoint made from the original
+`STORY_DESCRIPTOR` and `BASIC_EVENT` arrays. The full original status list remains available
+to adult authors in Edit; nonromantic/custom statuses can have unknown romantic metrics.
+Current single status produces Not applicable for current relationship ratings. Durations
+support hours, days, weeks, months, and years; longest-relationship rolls use hours, days,
+or years. Dates and durations stay within the available age timeline, and longest duration
+covers the current relationship. Manual edits and locks allow deliberate exceptions.
+
+For confirmed adults (18+), this category also includes first sexual experience, partner
+count (0–10, Too many to count, or Unknown), sexual attitudes, perceived attractiveness,
+author-rated attractiveness, sexual compatibility, and the existing opt-in **Adult intimacy**
+field. Its toggle is also available at the top of Relationship details and stays synced
+with Roll settings. First-experience age draws start at 18. Attractiveness ratings are subjective fictional
+viewpoints, on a 0–10 scale. These fields are omitted for minors from suggestions, category
+cards, accepted details, My Sheet, copy output, and the finished brief. Teenagers age 13+
+receive nonsexual relationship prompts; children receive no relationship-detail prompts.
+Adult histories are never generated with under-18 sexual ages. A year-only age must establish
+that the character is already 18; an exact story date permits the precise eighteenth birthday.
+
+Each current relationship area has F, D, C, B, A, or S-tier: shared values, communication,
+financial compatibility, sexual compatibility (adults), and willingness to stay. The overall
+rating is the rounded average of the available area ranks. Unknown or nonapplicable areas
+are excluded. Change the areas to change the overall rating.
+
+Every new detail participates in Focus, Lock, Keep, Copy, Edit, Reroll, one-detail suggestions,
+Quick Snapshot selection, undo/redo, saves, JSON import/export, briefs, and offline use.
+Calculated overall rating has Keep/Copy/Focus; change its contributing areas to edit it.
+Older characters initialize missing fields once and retain existing values, locks, snapshots,
+notes, and custom selections. `character-life.js` contains the generation and consistency
+rules. Neither original source array data nor existing accepted identities are rewritten.
+
+### Demographic references and their limits
+
+Marriage defaults use the ONS **England 2025** all-persons age bands in Table 1 of
+[Population estimates by marital status and living arrangements, England](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesbymaritalstatusandlivingarrangementsengland/current),
+published 31 July 2026 (`maritalstatuslivingarrangements2002to2025england.xlsx`). This is
+an England reference, not a worldwide marriage rate. Civil partnerships are included.
+
+| Age band | Never married / civil partnered | Married | Civil partnered | Divorced | Widowed | Ever legally partnered draw |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 18–24 | 4,812,716 | 73,560 | 14,344 | Suppressed | Suppressed | 1.79% lower bound |
+| 25–44 | 7,983,045 | 7,406,972 | 161,668 | 392,259 | 29,991 | 50.02% |
+| 45–64 | 2,851,538 | 9,698,602 | 163,443 | 1,759,900 | 294,781 | 80.69% |
+| 65+ | 801,946 | 6,459,125 | 54,330 | 1,551,679 | 2,367,312 | 92.86% |
+
+The generation probability is the observed ever-partnered count divided by the known
+band total. Suppressed youngest-adult divorce/widow counts are excluded, making that
+estimate a lower bound. First-marriage ages are fictional uniform draws from 18 through
+the smaller of current age and 45; the source does not measure these event ages. First
+divorce uses the current-divorced share among ever-partnered people as a conservative
+fiction reference (0%, 4.91%, 14.77%, 14.87% by band), then draws a fictional age between
+first marriage and current age. A current-status prevalence is not a measured lifetime
+divorce probability. Manual statuses and locks can override these generation defaults.
+
+Children use the [UN World Fertility 2024](https://www.un.org/development/desa/pd/node/4354)
+global total-fertility reference of **2.25 births per woman in 2024** as an anchor. Total
+fertility is a synthetic period measure, not the actual child-count distribution of
+individual people. The generator deliberately uses a fictional Poisson count with mean
+`2.25 × clamp((age − 18) / 27, 0, 1)`, for all character genders. There is a separate 4%
+Unknown option; counts above ten display 11 or more. The age scaling, Poisson shape,
+unknown probability, and application to all genders/species are authoring choices, not
+claims about observed global household sizes or personal fertility.
+
+Run `node verify-life.cjs` for weighted generation, education, age/timeline validation,
+source probability boundaries, fictional child-count behavior, locks and migration.
+`node verify-life-browser.cjs` checks the actual identity/category/edit controls,
+clipboard, undo/redo, saves, import/export, age filtering, mobile layout, and offline use.

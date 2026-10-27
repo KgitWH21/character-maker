@@ -32,14 +32,14 @@ function sanitize(raw,validate){const d=defaults(),s=raw&&typeof raw==='object'?
  d.pressure=cleanScene(s.pressure);d.scenes=Array.isArray(s.scenes)?s.scenes.slice(0,12).map(cleanScene).filter(Boolean):[];
  const b=s.brief||{};d.brief={...d.brief,tagline:text(b.tagline,300),portrait:typeof b.portrait==='string'&&/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(b.portrait)&&b.portrait.length<=350000?b.portrait:'',compact:b.compact===true};for(const k of ['includeNotes','includeConnections','includeScenes'])d.brief[k]=b[k]!==false;return d;
 }
-function signature(s){const {tab,canvas,savedId,...rest}=s;const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,ordered(x[k])])):x;return JSON.stringify(ordered(rest));}
+function signature(s){const {tab,canvas,savedId,guided,...rest}=s;rest.guided={accepted:guided?.accepted||{}};const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,ordered(x[k])])):x;return JSON.stringify(ordered(rest));}
 class History{
  constructor(current,persisted,validate){this.entries=[];this.rolls=[];this.index=0;this.entries=[this.entry(current,'Starting point','initial')];
   if(persisted&&Array.isArray(persisted.entries))try{const entries=persisted.entries.slice(-21).map(e=>({...this.entry(validate(e.character),text(e.label,150),text(e.kind,30)),id:text(e.id,100),at:text(e.at,50)})),index=Number(persisted.index);if(entries.length&&Number.isInteger(index)&&index>=0&&index<entries.length&&signature(entries[index].character)===signature(current)){this.entries=entries;this.index=index;this.rolls=Array.isArray(persisted.rolls)?persisted.rolls.slice(0,8).map(e=>({...this.entry(validate(e.character),text(e.label,150),'roll'),id:text(e.id,100),at:text(e.at,50)})):[];}}catch{}
  }
  entry(s,label,kind){return {id:Date.now().toString(36)+Math.random().toString(36).slice(2),at:new Date().toISOString(),label,kind,character:clone(s)};}
  capture(s,label='Edit character',kind='edit'){
-  if(signature(s)===signature(this.entries[this.index].character))return false;
+  if(!['roll','guided-edit'].includes(kind)&&signature(s)===signature(this.entries[this.index].character))return false;
   const e=this.entry(s,label,kind),current=this.entries[this.index];this.entries=this.entries.slice(0,this.index+1);
   if(kind==='text'&&current.kind==='text'&&current.label===label&&Date.parse(e.at)-Date.parse(current.at)<1500&&this.index>0)this.entries[this.index]=e;
   else{this.entries.push(e);this.index=this.entries.length-1;}

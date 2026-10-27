@@ -6,6 +6,8 @@ const foundation=['birthday','basic.gender','CHARACTER_NATIONAL_HERITAGE'];
 const categories=[
  {id:'personality',label:'Personality & background',matches:f=>['Personality','Background','Formative experiences','Relationships','Voice & behavior'].includes(f.group)},
  {id:'appearance',label:'Appearance',matches:f=>f.group==='Appearance'},
+ {id:'education',label:'Education & Training',matches:f=>f.group==='Education & Training'},
+ {id:'relationship-details',label:'Relationship details',matches:f=>f.group==='Relationship details'},
  {id:'medical',label:'Medical',matches:f=>f.group==='Medical'},
  {id:'dialogue',label:'Dialogue',matches:f=>f.kind==='dialogue'&&!f.wildcard||f.id==='CHARACTER_SPEECH'},
  {id:'right-now',label:'Right Now',matches:f=>f.kind==='rightNow'},

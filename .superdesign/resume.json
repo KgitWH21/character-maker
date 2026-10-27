@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/": {
+      "targetKind": "existing-ui",
+      "projectId": "93212c1a-619e-42e0-87cb-1cca94347e0d",
+      "baselineDraftId": "2f292577-42ec-4e8b-bc1d-9cdba76acf12",
+      "activeDraftId": "2f292577-42ec-4e8b-bc1d-9cdba76acf12",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "icon.svg"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "icon.svg",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/93212c1a-619e-42e0-87cb-1cca94347e0d/brand-assets/icon.svg/icon.svg",
+          "sourcePath": "icon.svg"
+        }
+      },
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "index.html",
+        ".superdesign/context/builder-ui.js",
+        "style.css",
+        "character-canvas.js",
+        "icon.svg",
+        ".superdesign/context/array-sources.md"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "12b5e9e7429ab998dd7916075581618cb616abe510ba9ae7294d49e0b99d84b3",
+        "index.html": "4506da8e94ce914ad7e91389a6d3bcee2268802326cd280c7ec2d83715d59a7b",
+        ".superdesign/context/builder-ui.js": "9c87a3d2df2cce84d8d4f5cf11d727f2460b99aeb214236a75bfa102982ac281",
+        "style.css": "7211ea3bc59168b81a3b86209c6280db10961c199d91b78c3f1aa0a524200a9d",
+        "character-canvas.js": "63a20271be3879a499a59b79523ad2922eaa655ece715c45e8ec0c8c30eb0a9e",
+        "icon.svg": "7005c5b58af61f7b5f021d5994a39a4f09e45677e01325bd4f0a96e8e524b5a2",
+        ".superdesign/context/array-sources.md": "11f545874938a5e3cc4776b01b5bec1b55b97758ae0bc2d15e8ec8e5613f756a"
+      },
+      "components": [
+        {
+          "name": "AppHeader",
+          "id": "b373f688-7cd7-4e5b-b31e-c596e0ceba26",
+          "sourcePath": "index.html",
+          "logoAssetKey": "icon.svg"
+        }
+      ],
+      "drafts": {
+        "2f292577-42ec-4e8b-bc1d-9cdba76acf12": {
+          "title": "Character Maker \u2014 Guided Builder",
+          "visualDirection": "Selected responsive navy-and-gold guided builder, now backed by complete actual source pools with verbatim entries and preserved duplicates. Who\u2192occupation, Want\u2192motivations, Obstacle\u2192flaws. Separate custom writing and existing-preview migration. No authored suggestion phrases.",
+          "currentVersion": 4
+        }
+      },
+      "updatedAt": "2026-10-27T18:29:32.407449+00:00",
+      "baselineVersion": 1,
+      "previewUrl": "https://p.superdesign.dev/draft/2f292577-42ec-4e8b-bc1d-9cdba76acf12",
+      "canvasUrl": "https://superdesign.dev/teams/d34086fb-26c7-47ea-bcc4-121fa06e8dca/projects/93212c1a-619e-42e0-87cb-1cca94347e0d",
+      "localPreviewPath": ".superdesign/guided-builder-preview.html",
+      "arraySourceFingerprints": {
+        "character_elements.json": "105847e64575e8ce465461b65fd518f8cc9e4982a9bc66d98e28d8b37abcba9b",
+        "additions.js": "8101b9f1f75d6013ecb121e6609ed8046269b3b09f1beaa9db8214167232628a",
+        "core.js": "f34ffa81380d5048a945bb7d3ae6d27739c172d94c0253f1326fe34379a0a094",
+        "right-now-data.js": "f9f853d9315bc307160a419cd8c203550e0705a730906c88b74141da2ebc8243",
+        "right-now.js": "f03b8ed5a2c119b1ee8af6229fbecdc903d31a06aee49361527b4ba4c4fcdc12",
+        "dialogue-data.js": "1ba1fe5c70847e53c9fb7b04aa581ed2b4c0e63c69121b8de9a8013324a1cc70",
+        "dialogue.js": "23827d3535e55a936844944e1d1563273dadd46066b02b5cc8a97ae712fa8681",
+        "medical.js": "f3fb45d528d6b0c38e3c000230de5e4e13c533a773281732276fdfe97597058c",
+        "character-tools.js": "174fc63bb32e8a4ffc09d3c91b1262e7a6698d19094e9128304b28552fc85e8d"
+      },
+      "arrayPoolsPath": ".superdesign/array-pools.json",
+      "implementation": {
+        "status": "implemented",
+        "release": "v16",
+        "sourceFiles": [
+          "index.html",
+          "guided-builder.js",
+          "guided-ui.js",
+          "guided.css",
+          "app.js"
+        ],
+        "note": "Production UI now composes sentences from multiple arrays with See ingredients controls; canvas v4 is the earlier single-pool review artifact. User requested no mockup rebuild."
+      }
+    }
+  }
+}

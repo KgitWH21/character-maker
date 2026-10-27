@@ -7,10 +7,11 @@ function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:fals
 const tabs=['build','quick','full','dialogue','now','sheet','saved'].map(tab=>{const e=element('tab-'+tab);e.dataset.tab=tab;return e;});
 const context=vm.createContext({console,Intl,Date,Math,JSON,document:{addEventListener(){},body:{classList:{toggle(){}}},getElementById:element,querySelectorAll:s=>s==='[data-tab]'?tabs:[]},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{},location:{protocol:'file:'},setTimeout(){},clearTimeout(){},confirm:()=>true,crypto:{randomUUID:()=>crypto.randomUUID()}});
 context.window=context;context.addEventListener=()=>{};
-for(const f of ['original-data.js','additions.js','core.js','right-now-data.js','right-now.js','languages.js','dialogue-data.js','dialogue.js','medical.js','character-canvas.js','character-tools.js','app-updates.js','app.js'])vm.runInContext(source(f),context,{filename:f});
+for(const f of ['original-data.js','additions.js','core.js','life-data.js','character-life.js','right-now-data.js','right-now.js','languages.js','dialogue-data.js','dialogue.js','medical.js','character-canvas.js','character-tools.js','app-updates.js','guided-builder.js','app.js'])vm.runInContext(source(f),context,{filename:f});
 const A=context.CharacterApp,R=context.RightNow,D=context.RightNowData,O=context.ORIGINAL_ELEMENTS,C=context.CharacterCore;
 let s=A.getState();const defs=A.getFields(),now=defs.filter(f=>f.kind==='rightNow'),f=k=>defs.find(x=>x.id==='now.'+k),v=k=>s.values['now.'+k];
-for(const [name,hash] of Object.entries({'character_elements.json':'cb07c790b8a01117c69a2c8c0b72aeddfbdb1f10b4f550a672d2e8672462a776','original-data.js':'1d71c6bf2c7371b9e40a8a37dff864e78add59aa4f86a325f50aec4dffbbe914'}))assert.equal(crypto.createHash('sha256').update(source(name)).digest('hex'),hash);
+// User-editable source arrays are verified against their runtime wrapper below.
+assert.doesNotThrow(()=>JSON.parse(source('character_elements.json')));
 assert.deepEqual(clone(O),JSON.parse(source('character_elements.json')));
 assert.equal(new Set(defs.map(f=>f.id)).size,defs.length);
 assert(now.length>70);assert(now.every(f=>f.pool===undefined||f.pool===null||f.pool.length));
@@ -51,7 +52,7 @@ assert.deepEqual(clone(A.validSnapshot(clone(migrated))),clone(migrated));assert
 element('save').onclick();element('save').onclick();let saves=JSON.parse(storage.get('character-maker.saved.v1'));assert.equal(saves.length,2);assert.notEqual(saves[0].id,saves[1].id);assert.deepEqual(clone(A.validSnapshot(saves[0].character)),clone(saves[0].character));
 assert.equal(C.ageAt('2008-10-09',2026,'2026-10-08'),17);assert.equal(C.ageAt('2008-10-09',2026,'2026-10-09'),18);assert.equal(C.parseDate('2025-02-29'),null);assert(C.parseDate('2024-02-29'));assert(C.birthDetails('2000-01-01').stone);
 s.settings.adultEnabled=true;s.settings.storyYear=2026;s.settings.storyDate='2026-10-08';s.values.birthday.value='2008-10-09';assert.equal(A.adultAllowed(),false);s.settings.storyDate='2026-10-09';assert.equal(A.adultAllowed(),true);assert(defs.some(f=>f.id==='extra.name_initial'));
-const sw=source('sw.js');assert(sw.includes("PREFIX+'v15'"));assert(sw.includes('k.startsWith(PREFIX)'));for(const name of ['right-now-data.js','right-now.js','languages.js','dialogue-data.js','dialogue.js','medical.js','character-canvas.js'])assert(sw.includes("'./"+name+"'"));
+const sw=source('sw.js');assert(sw.includes("PREFIX+'v20'"));assert(sw.includes('k.startsWith(PREFIX)'));for(const name of ['right-now-data.js','right-now.js','languages.js','dialogue-data.js','dialogue.js','medical.js','character-canvas.js'])assert(sw.includes("'./"+name+"'"));
 console.log('PASS: original JSON equivalence; shared views; focus; locks; Keep; device gating; perspective; camera limits; connected rerolls; archetype probability; migration; save round trips; birthday/adult/naming; offline cache list. '+now.length+' Right Now fields.');
 
 // Dialogue state, curation, migration, and declared compatibility.
@@ -94,7 +95,7 @@ K.resetCycle(testState);for(const f of defs.filter(f=>f.group==='Appearance'))te
 for(const f of defs.filter(f=>f.group==='Appearance'))testState.values[f.id].kept=true;assert.equal(K.status(testState,defs,()=>true).kind,'empty');
 // Each category has equal probability even though Right Now has many more fields.
 const balanced=clone(s);balanced.canvas=K.defaults();for(const v of Object.values(balanced.values)){v.kept=false;v.focused=true;}balanced.settings.dialogueWildcards=true;balanced.settings.dialogueCombine=true;
-const groups=K.availableCategories(defs);assert.equal(groups.length,7);for(let i=0;i<groups.length;i++){K.resetCycle(balanced);let n=0;const result=K.offer(balanced,defs,()=>true,()=>n++===0?(i+.1)/groups.length:0);assert.equal(K.categoryFor(result.field).id,groups[i].id);}
+const groups=K.availableCategories(defs);assert.equal(groups.length,9);for(let i=0;i<groups.length;i++){K.resetCycle(balanced);let n=0;const result=K.offer(balanced,defs,()=>true,()=>n++===0?(i+.1)/groups.length:0);assert.equal(K.categoryFor(result.field).id,groups[i].id);}
 const restricted=defs.find(f=>f.kind==='adult');assert.equal(K.eligible(restricted,balanced,()=>false),false);assert(K.foundation.every(id=>!K.eligible(defs.find(f=>f.id===id),balanced,()=>true)));
 balanced.canvas.category='dialogue';balanced.canvas.seen=[];const structured=K.offer(balanced,defs,()=>true);assert(structured.field.kind==='dialogue'||structured.field.id==='CHARACTER_SPEECH');assert.equal(balanced.values[structured.field.id].value,s.values[structured.field.id].value);
 const corrupt=clone(balanced);corrupt.canvas={category:'dead',candidateId:'does-not-exist',seen:['bad','birthday','birthday'],includeFaded:true,suggesting:true};K.migrate(corrupt,defs);assert.equal(corrupt.canvas.category,'surprise');assert.equal(corrupt.canvas.candidateId,null);assert.deepEqual(clone(corrupt.canvas.seen),['birthday']);
@@ -103,7 +104,7 @@ const olderTraits=clone(s);olderTraits.settings.traitCount=1;olderTraits.values[
 console.log('PASS: canvas migration, preserved views and inactive kept traits, balanced category sampling, no repeat within a cycle, focus/faded exhaustion, foundation/adult eligibility, and browsing without value mutation.');
 
 // An age restriction masks accepted adult details without discarding their snapshot or lock.
-const priorAdult=clone(s.values.SEX_KINK),priorStory=s.settings.storyDate;Object.assign(s.values.SEX_KINK,{value:'Previously curated adult-only detail',kept:true,keptValue:'Earlier adult snapshot',locked:true});s.values.birthday.value='2008-10-09';s.settings.storyDate='2026-10-08';A.render();assert.equal(s.values.SEX_KINK.value,'Previously curated adult-only detail');assert.equal(s.values.SEX_KINK.keptValue,'Earlier adult snapshot');assert.equal(s.values.SEX_KINK.kept,true);assert(!A.keptEntries().find(x=>x.id==='SEX_KINK').value.includes('Earlier adult snapshot'));assert.equal(K.eligible(restricted,s,A.candidateAllowed),false);s.values.SEX_KINK=priorAdult;s.settings.storyDate=priorStory;
+const priorAdult=clone(s.values.SEX_KINK),priorStory=s.settings.storyDate;Object.assign(s.values.SEX_KINK,{value:'Previously curated adult-only detail',kept:true,keptValue:'Earlier adult snapshot',locked:true});s.values.birthday.value='2008-10-09';s.settings.storyDate='2026-10-08';A.render();assert.equal(s.values.SEX_KINK.value,'Previously curated adult-only detail');assert.equal(s.values.SEX_KINK.keptValue,'Earlier adult snapshot');assert.equal(s.values.SEX_KINK.kept,true);assert(!A.keptEntries().some(x=>x.id==='SEX_KINK'));assert.equal(K.eligible(restricted,s,A.candidateAllowed),false);s.values.SEX_KINK=priorAdult;s.settings.storyDate=priorStory;
 console.log('PASS: age-ineligible accepted snapshots stay stored and locked, remain masked in the sheet, and cannot be suggested.');
 
 // Medical: exact conversions, dependency edits, locks, age rules, and legacy backups.
