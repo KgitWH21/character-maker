@@ -54,7 +54,7 @@ the existing alive/deceased arrays. The composed family ingredient uses the requ
 - **Your character:** shows accepted sentences and other kept details. Edit revisits a sentence's
   ingredients. On phones, expand **Your sketch** to see the details and notes.
 
-After the three questions, See them, Hear them, Know their past and Watch them act provide paths
+After the three questions, four randomly selected Explore categories provide paths
 into deeper development. You can preview and export at any time; no chapter is compulsory.
 
 **Story tools** opens Right Now, Connected characters, Put them under pressure, and Dialogue.
@@ -169,7 +169,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v20`, including both Right Now
+The service worker uses scope-specific cache version `v22`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -291,7 +291,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v20` caches both new
+customized sketch selections remain intact. Service-worker version `v22` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -330,7 +330,7 @@ canvas operation. No runtime dependencies were added.
 4. Wait for deployment to finish, then open the existing Pages URL online.
 5. On your phone, open the installed app online and tap **Check updates**. When
    **App update ready** appears, apply open field edits, then tap **Update & reload**.
-   The current release is `v20`. If a pre-v15 app still shows **Install app**, wait for the
+   The current release is `v22`. If a pre-v15 app still shows **Install app**, wait for the
    update to download, close it from Recent apps, and reopen online once.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
@@ -392,7 +392,7 @@ Old workspaces and saved characters gain missing medical fields once while retai
 profile values, locks, notes, kept snapshots, and customized Quick Snapshot selections.
 All medical values persist through save, export, import, and offline use. Kept values
 remain accepted snapshots; changes to linked background values do not rewrite them.
-The updated ZIP includes `medical.js`, and service-worker cache `v20` installs it offline.
+The updated ZIP includes `medical.js`, and service-worker cache `v22` installs it offline.
 
 Reference material used for the prompts:
 
@@ -455,7 +455,7 @@ On the first load of an older character missing both additional fields, its unlo
 main language is synced to heritage, and Second/Third are initialized once. Existing
 locks, kept snapshots, notes, and Quick Snapshot choices survive. Subsequent loads keep
 the established values. Customize the mappings and named language pool in `languages.js`.
-Service-worker cache `v20` and the current downloadable ZIP include this file.
+Service-worker cache `v22` and the current downloadable ZIP include this file.
 
 Country-language reference examples: [Singapore Department of Statistics census language
 tables](https://www.singstat.gov.sg/publication-resources/singapore-census-of-population-2020-statistical-release-1-demographic-characteristics-education-language-and-religion)
@@ -553,7 +553,7 @@ being truncated. The complete brief remains visible for review before printing.
 workshop validation, and standalone brief renderer. Browser verification covers full
 undo/redo/restore journeys, generated and existing connected profiles, protected opening,
 scene responses, portrait validation, HTML/clipboard/PDF output, history reloads, JSON
-round trips, mobile layout, and offline use. Service-worker cache `v20` includes this file.
+round trips, mobile layout, and offline use. Service-worker cache `v22` includes this file.
 
 
 ## Installed phone app updates (v15)
@@ -706,3 +706,21 @@ Run `node verify-life.cjs` for weighted generation, education, age/timeline vali
 source probability boundaries, fictional child-count behavior, locks and migration.
 `node verify-life-browser.cjs` checks the actual identity/category/edit controls,
 clipboard, undo/redo, saves, import/export, age filtering, mobile layout, and offline use.
+
+
+## Next-step help and rapid iteration (v21)
+
+**Help me decide**, beside **What would help you picture them next?**, suggests one
+next step at a time from the four categories currently suggested. The four cards
+randomly sample distinct categories from the same catalog as **Explore your character**:
+Voice & dialogue, Medical, Education & Training, Relationship details, Right Now,
+Connections, Pressure situations, and Character sheet. Quick snapshot, All character
+details, Undo & roll history, and One detail at a time are excluded. The set stays stable
+while browsing a draft; a new or reopened draft gets a new draw. **Suggest another**
+cycles those four choices; choosing one opens that existing tool on the same character.
+
+Once all three starting answers are added, **Save & start another** appears near the
+top of the workspace and remains available in the deeper views. It saves a complete
+version in Library, then returns to a fresh **Who are they?** question in one click.
+The next character keeps the story settings. A failed save leaves the current draft
+open. Undo can recover the previous draft, and the saved version stays in Library.

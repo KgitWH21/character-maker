@@ -1,7 +1,7 @@
 /* Installed-app update checks and an explicit, state-preserving reload. */
 (function(root){
 'use strict';
-const release='v20';
+const release='v22';
 const isInstalled=()=>root.matchMedia?.('(display-mode: standalone)').matches===true||root.navigator.standalone===true;
 function start({persist=()=>true,notify=()=>{}}={}){
  const $=id=>root.document.getElementById(id),sw=root.navigator.serviceWorker;

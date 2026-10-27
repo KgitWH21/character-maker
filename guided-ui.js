@@ -4,6 +4,30 @@
 const A=window.CharacterApp,B=window.GuidedBuilder,C=window.CharacterCore,$=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const api=()=>A.builderAPI(),state=()=>A.getState(),guided=()=>state().guided;
+const exploreTopics=[
+ {label:'Quick snapshot',tab:'quick'},
+ {label:'All character details',tab:'full'},
+ {label:'Voice & dialogue',tab:'dialogue',description:'Find their voice',help:'Choose a voice or conversational habit. Imagine how they would ask someone for what they want.'},
+ {label:'Medical',tab:'medical',description:'Health & physical details',help:'Explore a physical detail that could affect their daily routines, choices, or comfort.'},
+ {label:'Education & Training',tab:'education',description:'Learning & practical skills',help:'Discover what they learned, how they learned it, and how they feel about that path.'},
+ {label:'Relationship details',tab:'relationship-details',description:'Their personal connections',help:'Explore their relationship history, current situation, or how they behave with someone close.'},
+ {label:'Right Now',tab:'now',description:'A moment in their life',help:'Picture them somewhere specific. Choose what they are doing, thinking, or about to do.'},
+ {label:'Connections',tab:'connections',description:'People who shape their story',help:'Introduce an ally, a rival, or someone who remembers their past.'},
+ {label:'Pressure situations',tab:'pressure',description:'A choice that tests them',help:'Put their desire and obstacle into a difficult situation, then decide how they respond.'},
+ {label:'Character sheet',tab:'sheet',description:'Review the details you kept',help:'Read the details you have kept together and see what else you want to discover.'},
+ {label:'Undo & roll history',tab:'history'},
+ {label:'One detail at a time',tab:'single'}
+];
+const excludedSuggestions=new Set(['quick','full','history','single']),developmentSelections=new WeakMap();
+function developmentSuggestions(){
+ const g=guided();
+ if(!developmentSelections.has(g)){
+  const choices=exploreTopics.filter(topic=>!excludedSuggestions.has(topic.tab));
+  for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
+  developmentSelections.set(g,choices.slice(0,4));
+ }
+ return developmentSelections.get(g);
+}
 const motion=()=>!matchMedia('(prefers-reduced-motion: reduce)').matches;
 let dialogOrigin=null,settingsParent=null,settingsNext=null,settingsNode=null,addingUntil=0;
 const reveal=()=>{if(motion())$('suggestionText').animate([{opacity:.2,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'});};
@@ -52,6 +76,7 @@ function render(){
  const main=s.tab==='saved'?'saved':build||['quick','full','medical','sheet','education','relationship-details'].includes(s.tab)?'build':'tools';
  for(const button of document.querySelectorAll('[data-main]')){const selected=button.dataset.main===main;button.classList.toggle('selected',selected);button.setAttribute('aria-current',selected?'page':'false');}
  $('builderUndo').disabled=A.getHistory().index===0;
+ $('iterationActions').hidden=!B.keys.every(key=>g.accepted[key]);
  if(!build)return;
  const prompt=B.ensure(api());
  $('questionTitle').textContent=B.titles[g.chapter];
@@ -60,6 +85,7 @@ function render(){
  for(const button of document.querySelectorAll('[data-chapter]')){const key=button.dataset.chapter;button.classList.toggle('active',key===g.chapter);button.classList.toggle('complete',!!g.accepted[key]);button.setAttribute('aria-current',key===g.chapter?'step':'false');}
  $('ingredientDetails').open=g.ingredientsOpen;renderIngredients(prompt);renderSketch();
  $('deeperDevelopment').hidden=!B.keys.every(k=>g.visited.includes(k));
+ if(!$('deeperDevelopment').hidden)$('developmentChoices').innerHTML=developmentSuggestions().map(topic=>`<button data-explore="${topic.tab}">${esc(topic.label)}<small>${esc(topic.description)}</small></button>`).join('');
  // Initial suggestions are cached once. Browsing does not create undo entries.
  persist();
 }
@@ -122,12 +148,23 @@ $('builderDialogContent').addEventListener('click',event=>{if(event.target.close
 for(const button of document.querySelectorAll('[data-chapter]'))button.onclick=()=>switchChapter(button.dataset.chapter);
 for(const button of document.querySelectorAll('[data-main]'))button.onclick=()=>{document.querySelectorAll('details.app-menu').forEach(d=>d.open=false);A.setView(button.dataset.main);};
 for(const button of document.querySelectorAll('[data-go]'))button.onclick=()=>A.setView(button.dataset.go);
-function explore(value){
- const fields=A.getFields();
- if(value==='appearance'||value==='background'){const f=fields.find(f=>f.group===(value==='appearance'?'Appearance':'Background'));A.setView('full',f?.id);}
- else A.setView(value);
-}
-for(const button of document.querySelectorAll('[data-explore]'))button.onclick=()=>explore(button.dataset.explore);
+function explore(value){A.setView(value);}
+$('developmentChoices').addEventListener('click',event=>{const button=event.target.closest('[data-explore]');if(button)explore(button.dataset.explore);});
+$('helpDecide').onclick=()=>{
+ const choices=developmentSuggestions();let index=0;
+ const show=()=>{
+  const choice=choices[index];
+  openDialog('Help me decide',`<h3>${esc(choice.label)}</h3><p>${esc(choice.help)}</p><div class="modal-actions"><button id="tryDevelopment" class="primary">Open ${esc(choice.label)}</button><button id="anotherDevelopment">Suggest another</button></div>`,$('helpDecide'));
+  $('tryDevelopment').onclick=()=>{$('builderDialog').close();explore(choice.tab);};
+  $('anotherDevelopment').onclick=()=>{index=(index+1)%choices.length;show();};
+ };
+ show();
+};
+$('saveAndStartAnother').onclick=()=>{
+ if(!A.saveAndStartAnother())return;
+ $('singleDetailBuilder').hidden=true;$('guidedQuestion').hidden=false;
+ A.setView('build');$('questionTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:motion()?'smooth':'auto'});
+};
 $('toggleSketch').onclick=()=>{guided().sketchOpen=!guided().sketchOpen;renderSketch();persist();};
 $('builderUndo').onclick=()=>A.undo();$('previewExport').onclick=()=>A.setView('brief');
 $('guidedSketchContent').addEventListener('click',event=>{
@@ -138,8 +175,7 @@ $('guidedSketchContent').addEventListener('click',event=>{
  if(button.dataset.editKept){const original=$('acceptedContent').querySelector(`[data-canvas-action="edit"][data-id="${CSS.escape(button.dataset.editKept)}"]`);original?.click();}
 });
 $('browseDetails').onclick=()=>{
- const topics=[['Quick snapshot','quick'],['All character details','full'],['Voice & dialogue','dialogue'],['Medical','medical'],['Education & Training','education'],['Relationship details','relationship-details'],['Right Now','now'],['Connections','connections'],['Pressure situations','pressure'],['Character sheet','sheet'],['Undo & roll history','history'],['One detail at a time','single']];
- openDialog('Explore your character',`<label class="editor-label">Find a topic<input id="topicSearch" type="search" placeholder="Try voice, appearance, or history"></label><div id="topicChoices" class="topic-choices">${topics.map(([label,tab])=>`<button data-browse-tab="${tab}">${label}</button>`).join('')}</div><p class="hint">Your character stays the same as you explore.</p><button data-open-settings>Story &amp; roll settings</button>`);
+ openDialog('Explore your character',`<label class="editor-label">Find a topic<input id="topicSearch" type="search" placeholder="Try voice, appearance, or history"></label><div id="topicChoices" class="topic-choices">${exploreTopics.map(({label,tab})=>`<button data-browse-tab="${tab}">${label}</button>`).join('')}</div><p class="hint">Your character stays the same as you explore.</p><button data-open-settings>Story &amp; roll settings</button>`);
  $('topicSearch').oninput=()=>{for(const button of $('topicChoices').children)button.hidden=!button.textContent.toLowerCase().includes($('topicSearch').value.toLowerCase());};
  $('topicChoices').onclick=event=>{const button=event.target.closest('[data-browse-tab]');if(!button)return;$('builderDialog').close();if(button.dataset.browseTab==='single'){$('singleDetailBuilder').hidden=false;$('guidedQuestion').hidden=true;$('singleDetailBuilder').scrollIntoView({block:'start'});}else A.setView(button.dataset.browseTab);};
 };
