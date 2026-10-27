@@ -40,3 +40,12 @@ main{padding-bottom:6rem}
 @media(max-width:700px){.workshop-form{grid-template-columns:1fr 1fr}.connections-grid{grid-template-columns:1fr}.brief-options>label:first-child{grid-column:1/-1}}
 @media(max-width:450px){.workshop-form{grid-template-columns:1fr}.history-card{align-items:flex-start;flex-direction:column}.finished-brief{padding:1.2rem}.finished-brief h1{font-size:1.8rem}.brief-foundation{grid-template-columns:1fr 1fr}.brief-portrait{width:80px;height:110px}.brief-header{gap:1rem}.brief-checks{flex-direction:column;gap:.7rem}}
 @media print{@page{margin:15mm}body.brief-view{background:#fff;color:#20252c}body.brief-view>header,body.brief-view main>*:not(#workshopView),body.brief-view>dialog,body.brief-view>.floating-actions,body.brief-view>#toast{display:none!important}body.brief-view main{max-width:none;margin:0;padding:0!important}body.brief-view #workshopView>*:not(#briefPreview){display:none!important}body.brief-view #briefPreview{margin:0;overflow:visible;border-radius:0}body.brief-view .finished-brief{max-width:none;padding:0}body.brief-view .brief-header{break-inside:avoid}body.brief-view .finished-brief h2{break-after:avoid}}
+
+/* Update notices remain available until the user reloads the installed app. */
+#updateBanner{position:fixed;z-index:60;right:max(1rem,env(safe-area-inset-right));bottom:calc(5.5rem + env(safe-area-inset-bottom));width:min(440px,calc(100% - 2rem));padding:1rem;background:var(--panel);border:1px solid var(--accent);border-radius:12px;box-shadow:0 6px 24px #0008}
+#updateBanner strong{color:var(--accent)}#updateBanner p{font-size:.85rem;margin:.5rem 0 .75rem;color:var(--text)}#updateBanner button{min-height:44px;width:100%}.floating-actions[open]~#updateBanner{visibility:hidden}#appVersion{white-space:nowrap;color:var(--muted)}
+@media print{#updateBanner{display:none!important}}
+
+.update-actions{display:flex;gap:.5rem}#updateBanner #dismissUpdate{width:auto;flex-shrink:0}
+
+body.update-available #toast{top:calc(1rem + env(safe-area-inset-top));bottom:auto}

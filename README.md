@@ -92,11 +92,11 @@ node -e "const fs=require('fs');fs.writeFileSync('original-data.js','window.ORIG
 
 ## Files
 
-`index.html`, `style.css`, `app.js`, `core.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `medical.js`, `languages.js`, `character-tools.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
+`index.html`, `style.css`, `app.js`, `core.js`, `additions.js`, `right-now-data.js`, `right-now.js`, `dialogue-data.js`, `dialogue.js`, `character-canvas.js`, `medical.js`, `languages.js`, `character-tools.js`, `app-updates.js`, `original-data.js`, `character_elements.json`, `manifest.webmanifest`, `sw.js`, `icon.svg`, and the PNG files in `icons/` are the app. This README and `character-maker.zip` are optional on your GitHub site. No external fonts or runtime dependencies are used.
 
 ## App updates
 
-When updating cached app files, bump `VERSION` in `sw.js` (for example, `PREFIX+'v3'`, retaining the scope prefix), republish, open online, and close all app tabs/windows once the update is ready. Reopen to activate the new version. Export a backup before clearing site data.
+When updating cached app files, bump `VERSION` in `sw.js` and `release` in `app-updates.js` together, rebuild the ZIP, and republish. Open online and use **Check updates**, then **Update & reload** when the notice appears. Apply open field edits before reloading. Your draft is persisted before reload, and saved characters remain in local storage.
 
 ## Calendar references
 
@@ -153,23 +153,24 @@ profile values, notes, locks, kept details, and customized sketches are preserve
 ## Verify and package
 
 Run `node verify.cjs` for dependency-free state/data regression checks. Optional browser
-checks are in `verify-browser.cjs`; run with `PLAYWRIGHT_MODULE` pointing to an installed
+checks are in `verify-browser.cjs` and `verify-updates-browser.cjs`; run with `PLAYWRIGHT_MODULE` pointing to an installed
 Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if needed.
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v14`, including both Right Now
-files. To update an installed phone app, publish the updated files, open the app online,
-wait for the update-ready notice, close **all** tabs/windows for this app, and reopen.
-No reinstall or storage clearing is needed. Export a backup before clearing browser data.
+The service worker uses scope-specific cache version `v15`, including both Right Now
+files. To update an installed phone app, open it online and use **Check updates**.
+When the update notice appears, apply open field edits and tap **Update & reload**.
+Other app windows can remain open. No reinstall or storage clearing is needed.
 
 ## Local preview updates
 
 Run `python3 -m http.server 8000` in this folder and open `http://localhost:8000`.
 Localhost previews try the current files first on every reload and cache them for
 offline fallback. Published sites continue to use the versioned offline cache.
-If a previous service worker is still serving old code, open the preview online,
-close every tab/window for that preview, then reopen it to activate the waiting update.
+If an older service worker is still serving old code, open the preview online and
+use Check updates, then Update & reload. A pre-v15 installed app may need a one-time
+close and reopen after the new release finishes downloading.
 For an immediate fresh preview, use port 8001 instead. Different ports have separate
 saved-character storage; your saves on port 8000 remain there.
 
@@ -279,7 +280,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v14` caches both new
+customized sketch selections remain intact. Service-worker version `v15` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -316,10 +317,10 @@ canvas operation. No runtime dependencies were added.
 3. In GitHub **Settings → Pages**, use **Deploy from a branch**, **main**, **/ (root)**. If that
    is already configured, uploading the files triggers the existing Pages deployment.
 4. Wait for deployment to finish, then open the existing Pages URL online.
-5. On your phone, open the installed app online. Wait for **App update ready**. Close **all**
-   browser tabs and installed-app windows for this site, then reopen online to activate the
-   waiting service worker (`v14`). If it has already activated, opening shows the new Build a
-   Character navigation immediately.
+5. On your phone, open the installed app online and tap **Check updates**. When
+   **App update ready** appears, apply open field edits, then tap **Update & reload**.
+   The current release is `v15`. If a pre-v15 app still shows **Install app**, wait for the
+   update to download, close it from Recent apps, and reopen online once.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
    clearing browser data is needed.
@@ -380,7 +381,7 @@ Old workspaces and saved characters gain missing medical fields once while retai
 profile values, locks, notes, kept snapshots, and customized Quick Snapshot selections.
 All medical values persist through save, export, import, and offline use. Kept values
 remain accepted snapshots; changes to linked background values do not rewrite them.
-The updated ZIP includes `medical.js`, and service-worker cache `v14` installs it offline.
+The updated ZIP includes `medical.js`, and service-worker cache `v15` installs it offline.
 
 Reference material used for the prompts:
 
@@ -443,7 +444,7 @@ On the first load of an older character missing both additional fields, its unlo
 main language is synced to heritage, and Second/Third are initialized once. Existing
 locks, kept snapshots, notes, and Quick Snapshot choices survive. Subsequent loads keep
 the established values. Customize the mappings and named language pool in `languages.js`.
-Service-worker cache `v14` and the current downloadable ZIP include this file.
+Service-worker cache `v15` and the current downloadable ZIP include this file.
 
 Country-language reference examples: [Singapore Department of Statistics census language
 tables](https://www.singstat.gov.sg/publication-resources/singapore-census-of-population-2020-statistical-release-1-demographic-characteristics-education-language-and-religion)
@@ -541,4 +542,44 @@ being truncated. The complete brief remains visible for review before printing.
 workshop validation, and standalone brief renderer. Browser verification covers full
 undo/redo/restore journeys, generated and existing connected profiles, protected opening,
 scene responses, portrait validation, HTML/clipboard/PDF output, history reloads, JSON
-round trips, mobile layout, and offline use. Service-worker cache `v14` includes this file.
+round trips, mobile layout, and offline use. Service-worker cache `v15` includes this file.
+
+
+## Installed phone app updates (v15)
+
+The installed app now labels its top button **Check updates**. The same action is
+available in How to use and at the bottom of the page. Normal browser tabs retain
+**Install app** for installation. A release number is visible in the footer.
+
+The app checks on launch, when brought back to the foreground, when a frozen page is
+restored, and when connectivity returns. Automatic checks are limited to one per minute;
+a manual Check updates bypasses that interval. The service worker script bypasses the
+HTTP cache, and every new release’s offline files are fetched fresh before activation.
+
+A completely downloaded update activates even while another app window or browser tab
+is open. The running page continues with its existing code and shows a persistent
+**App update ready** panel. It does not unexpectedly reload an open editor. Apply your
+field edits, then tap **Update & reload**. **Later** hides the panel while you finish;
+Check updates can bring it back. Reload first persists the working draft, saved snapshots,
+and local history. If persistence fails, reload is blocked and the app asks you to export
+before proceeding. Updates never clear local storage or reinstall the app.
+
+An interrupted or incomplete download leaves the previous release active. Offline checks
+explain that the current app remains available. An offline reload uses the last fully
+cached release. Old cache deletion remains limited to this app’s own scope.
+
+For a phone stuck on a pre-v15 release, open it online to download this fix, close it
+from Recent apps, and reopen once. Future updates use Check updates and Update & reload.
+You do not need to remove the home-screen icon or clear Chrome’s site data.
+
+`verify-updates-browser.cjs` runs a separate production-style cache-first upgrade test,
+starting with the actual v14 service worker and page from commit `737ccd6`. It keeps a
+second window open, simulates installed display mode, upgrades through successive
+releases despite HTTP caching, checks unapplied editor text, blocks reload on a simulated
+storage error, preserves drafts and saved characters, reopens offline, and detects the
+next release when brought to the foreground. This upgrade test requires a Git checkout
+containing commit `737ccd6`.
+
+Update lifecycle references: [MDN registration.update](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/update),
+[updateViaCache](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/updateViaCache),
+and [skipWaiting](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/skipWaiting).
