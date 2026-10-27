@@ -1,12 +1,14 @@
 'use strict';
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const trackDevelopmentScroll=()=>{const native=Element.prototype.scrollIntoView;window.developmentScrolls=[];Element.prototype.scrollIntoView=function(options){if(this.id==='deeperDevelopment')window.developmentScrolls.push(options);return native.call(this,options);};};
 (async()=>{
  const server=http.createServer((req,res)=>{const name=decodeURIComponent(req.url.split('?')[0]),file=path.resolve(__dirname,'.'+(name==='/'?'/index.html':name));if(!file.startsWith(__dirname+path.sep)){res.writeHead(403).end();return;}fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return;}res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.json':'application/json','.webmanifest':'application/manifest+json','.png':'image/png'}[path.extname(file)]||'application/octet-stream'));res.end(data);});});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));let browser;
  try{
   browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_EXECUTABLE?{executablePath:process.env.CHROMIUM_EXECUTABLE}:{})});
   const context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await context.addInitScript(trackDevelopmentScroll);
   const url='http://127.0.0.1:'+server.address().port;await page.goto(url);await page.waitForFunction(()=>window.GuidedUI);assert.deepEqual(errors,[]);
   const read=()=>page.evaluate(()=>JSON.parse(JSON.stringify(CharacterApp.getState())));
   const sentence=()=>page.locator('#suggestionText').innerText();
@@ -37,7 +39,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
   await page.locator('[data-ingredient-pool="influence"]').selectOption('relationships.enemies');assert.equal((await read()).guided.pending.motivation.ingredients.find(i=>i.slot==='influence').fieldId,'relationships.enemies');
   await page.locator('#tryAnother').click();assert.equal(await page.locator('[data-sketch="identity"] p').innerText(),identity);
   await page.locator('#addDetail').click();await page.waitForTimeout(300);assert.equal(await page.locator('#questionTitle').innerText(),'What gets in their way?');
-  await page.locator('#addDetail').click();await page.waitForTimeout(300);assert.equal(Object.keys((await read()).guided.accepted).length,3);assert(await page.locator('#deeperDevelopment').isVisible());
+  await page.locator('#addDetail').click();await page.waitForTimeout(300);assert.equal(Object.keys((await read()).guided.accepted).length,3);assert(await page.locator('#deeperDevelopment').isVisible());assert.equal(await page.evaluate(()=>window.developmentScrolls.length),0,'Desktop completion should not scroll the page');
   assert(await page.locator('#saveAndStartAnother').isVisible());
   const beforeDecision=await read(),suggestions=()=>page.locator('#developmentChoices [data-explore]').evaluateAll(items=>items.map(item=>({id:item.dataset.explore,label:item.firstChild.textContent})));
   const excluded=['quick','full','history','single'],allowed=['dialogue','medical','education','relationship-details','now','connections','pressure','sheet'];
@@ -80,6 +82,32 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
   await start.locator('.app-menu summary').click();await start.locator('.app-menu [data-open-settings]').click();await start.locator('#storyYear').fill('2030');await start.locator('#storyYear').press('Tab');assert.equal(await start.evaluate(()=>CharacterApp.getState().settings.storyYear),2030);await start.locator('#builderDialog [data-close]').click();assert.equal(await start.locator('#rollSettings').isVisible(),false);
   await start.locator('[data-sentence-ingredient="trait"]').focus();await start.keyboard.press('Enter');assert(await start.locator('#ingredientEditValue').isVisible());await start.keyboard.press('Escape');
   const saves=await start.evaluate(()=>localStorage.getItem('character-maker.saved.v1'));await start.evaluate(()=>{window.realSetItem=Storage.prototype.setItem;Storage.prototype.setItem=()=>{throw Error('Storage full');};});await start.locator('#save').click();assert.match(await start.locator('#toast').innerText(),/Could not save/);assert.equal(await start.evaluate(()=>localStorage.getItem('character-maker.saved.v1')),saves);await start.evaluate(()=>Storage.prototype.setItem=window.realSetItem);
+  // Completing the third answer on a phone brings the next steps above the bottom navigation.
+  for(const custom of [false,true]){
+   const mobileContext=await browser.newContext({viewport:{width:375,height:812},isMobile:true,hasTouch:true,reducedMotion:custom?'reduce':'no-preference'});await mobileContext.addInitScript(trackDevelopmentScroll);
+   const mobile=await mobileContext.newPage();mobile.on('pageerror',e=>errors.push(e.message));await mobile.goto(url);await mobile.waitForFunction(()=>window.GuidedUI);
+   const sketch=mobile.locator('#toggleSketch');assert(!await sketch.evaluate(el=>el.classList.contains('sketch-ready')));assert(!await sketch.evaluate(el=>el.classList.contains('sketch-unread')));
+   for(let i=0;i<2;i++){
+    await mobile.locator('#addDetail').click();await mobile.waitForFunction(count=>Object.keys(CharacterApp.getState().guided.accepted).length===count,i+1);await mobile.waitForTimeout(300);assert.equal(await mobile.evaluate(()=>window.developmentScrolls.length),0);
+    assert(await sketch.evaluate(el=>el.classList.contains('sketch-ready')));assert(await sketch.evaluate(el=>el.classList.contains('sketch-unread')));assert.match(await sketch.locator('.sketch-toggle-meta').textContent(),/Updated/);assert.match(await mobile.locator('#sketchFeedback').textContent(),/Your sketch updated/);
+    assert.equal(await sketch.evaluate(el=>getComputedStyle(el).animationName),custom?'none':'sketch-pulse');assert.equal(await sketch.evaluate(el=>getComputedStyle(el).color),'rgb(228, 180, 90)');
+    if(i===0){
+     assert.match(await sketch.locator('.sketch-toggle-meta').textContent(),/^1 detail/);await sketch.scrollIntoViewIfNeeded();await mobile.locator('#guidedSketch').screenshot({path:'/tmp/character-sketch-feedback-'+(custom?'reduced':'standard')+'.png'});
+     await sketch.click();assert(await mobile.locator('#sketchBody').isVisible());assert(!await sketch.evaluate(el=>el.classList.contains('sketch-unread')));assert(await sketch.evaluate(el=>el.classList.contains('sketch-ready')));assert.equal(await sketch.evaluate(el=>getComputedStyle(el).animationName),'none');await sketch.click();
+     await mobile.locator('#tryAnother').click();assert(!await sketch.evaluate(el=>el.classList.contains('sketch-unread')));
+     // Keeping an individual detail in a deeper view also marks the sketch as updated.
+     await mobile.locator('#browseDetails').click();await mobile.locator('[data-browse-tab="education"]').click();await mobile.locator('#results [data-field="education.trade"] [data-action="keep"]').click();await mobile.locator('#backToCharacter').click();assert(await sketch.evaluate(el=>el.classList.contains('sketch-unread')));assert.match(await sketch.locator('.sketch-toggle-meta').textContent(),/^2 details/);await sketch.click();await sketch.click();assert(!await sketch.evaluate(el=>el.classList.contains('sketch-unread')));
+    }
+   }
+   if(custom){await mobile.locator('#writeOwn').click();await mobile.locator('#customSentence').fill('A public promise stands between them and their goal.');await mobile.locator('#keepCustomSentence').click();}else await mobile.locator('#addDetail').click();
+   await mobile.waitForFunction(()=>window.developmentScrolls.length===1);assert.equal(await mobile.evaluate(()=>window.developmentScrolls[0].behavior),custom?'auto':'smooth');
+   await mobile.waitForFunction(()=>{const heading=document.getElementById('developmentTitle').getBoundingClientRect(),cards=document.querySelectorAll('#developmentChoices button'),last=cards[cards.length-1].getBoundingClientRect(),nav=document.querySelector('.mobile-nav').getBoundingClientRect();return heading.top>=0&&heading.bottom<nav.top&&last.bottom<=nav.top+1;});
+   const cardBounds=await mobile.locator('#developmentChoices button').evaluateAll(items=>items.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom,font:parseFloat(getComputedStyle(el).fontSize)};}));
+   for(let i=0;i<cardBounds.length;i++){const card=cardBounds[i];assert(card.height>=88);assert(card.width>=340);assert(card.font>=17);if(i){assert.equal(card.x,cardBounds[i-1].x);assert(card.y>=cardBounds[i-1].bottom+11);}}assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   assert.equal(await mobile.evaluate(()=>document.activeElement.id),'developmentTitle');assert.equal(await mobile.locator('#developmentChoices button').count(),4);await mobile.screenshot({path:'/tmp/character-mobile-completion-'+(custom?'custom':'standard')+'.png',fullPage:false});
+   await mobile.waitForTimeout(300);await mobile.locator('#addDetail').click();await mobile.waitForTimeout(100);assert.equal(await mobile.evaluate(()=>window.developmentScrolls.length),1,'Updating a completed answer should not scroll again');
+   await mobile.reload();await mobile.waitForFunction(()=>window.GuidedUI);assert.equal(await mobile.evaluate(()=>window.developmentScrolls.length),0,'Reopening an existing sketch should not scroll');await mobileContext.close();
+  }
   // Completed sketches can be saved and restarted in one click, including on a phone.
   const iterationContext=await browser.newContext({viewport:{width:375,height:812}}),iteration=await iterationContext.newPage();iteration.on('pageerror',e=>errors.push(e.message));let dialogs=0;iteration.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});
   await iterationContext.addInitScript(snapshot=>{if(!localStorage.getItem('character-maker.workspace.v1'))localStorage.setItem('character-maker.workspace.v1',JSON.stringify(snapshot));},beforeReload);

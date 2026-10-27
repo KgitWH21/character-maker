@@ -169,7 +169,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v22`, including both Right Now
+The service worker uses scope-specific cache version `v25`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -291,7 +291,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v22` caches both new
+customized sketch selections remain intact. Service-worker version `v25` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -330,7 +330,7 @@ canvas operation. No runtime dependencies were added.
 4. Wait for deployment to finish, then open the existing Pages URL online.
 5. On your phone, open the installed app online and tap **Check updates**. When
    **App update ready** appears, apply open field edits, then tap **Update & reload**.
-   The current release is `v22`. If a pre-v15 app still shows **Install app**, wait for the
+   The current release is `v25`. If a pre-v15 app still shows **Install app**, wait for the
    update to download, close it from Recent apps, and reopen online once.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
@@ -392,7 +392,7 @@ Old workspaces and saved characters gain missing medical fields once while retai
 profile values, locks, notes, kept snapshots, and customized Quick Snapshot selections.
 All medical values persist through save, export, import, and offline use. Kept values
 remain accepted snapshots; changes to linked background values do not rewrite them.
-The updated ZIP includes `medical.js`, and service-worker cache `v22` installs it offline.
+The updated ZIP includes `medical.js`, and service-worker cache `v25` installs it offline.
 
 Reference material used for the prompts:
 
@@ -455,7 +455,7 @@ On the first load of an older character missing both additional fields, its unlo
 main language is synced to heritage, and Second/Third are initialized once. Existing
 locks, kept snapshots, notes, and Quick Snapshot choices survive. Subsequent loads keep
 the established values. Customize the mappings and named language pool in `languages.js`.
-Service-worker cache `v22` and the current downloadable ZIP include this file.
+Service-worker cache `v25` and the current downloadable ZIP include this file.
 
 Country-language reference examples: [Singapore Department of Statistics census language
 tables](https://www.singstat.gov.sg/publication-resources/singapore-census-of-population-2020-statistical-release-1-demographic-characteristics-education-language-and-religion)
@@ -553,7 +553,7 @@ being truncated. The complete brief remains visible for review before printing.
 workshop validation, and standalone brief renderer. Browser verification covers full
 undo/redo/restore journeys, generated and existing connected profiles, protected opening,
 scene responses, portrait validation, HTML/clipboard/PDF output, history reloads, JSON
-round trips, mobile layout, and offline use. Service-worker cache `v22` includes this file.
+round trips, mobile layout, and offline use. Service-worker cache `v25` includes this file.
 
 
 ## Installed phone app updates (v15)
@@ -724,3 +724,17 @@ top of the workspace and remains available in the deeper views. It saves a compl
 version in Library, then returns to a fresh **Who are they?** question in one click.
 The next character keeps the story settings. A failed save leaves the current draft
 open. Undo can recover the previous draft, and the saved version stays in Library.
+
+
+On mobile, adding the third starting answer scrolls to **What would help you picture them
+next?** and focuses its heading. This also works when the third answer uses **Write my own**.
+Reduced-motion settings use an immediate scroll. Editing an already completed sketch or
+reopening it leaves scrolling under the author’s control.
+
+
+On mobile, the four next-step suggestions are large, full-width buttons in a single column.
+**Your sketch** shows its detail count and turns gold once details are kept. New or edited
+kept content adds an **Updated** indicator and a subtle pulse until the sketch is opened;
+opening it clears that indicator while retaining the gold styling. Screen readers receive
+an update announcement. Reduced-motion settings retain the color and text feedback without
+animation. These updates apply to both composed answers and individual kept details.

@@ -18,7 +18,7 @@ const exploreTopics=[
  {label:'Undo & roll history',tab:'history'},
  {label:'One detail at a time',tab:'single'}
 ];
-const excludedSuggestions=new Set(['quick','full','history','single']),developmentSelections=new WeakMap();
+const excludedSuggestions=new Set(['quick','full','history','single']),developmentSelections=new WeakMap(),sketchFeedback=new WeakMap();
 function developmentSuggestions(){
  const g=guided();
  if(!developmentSelections.has(g)){
@@ -65,8 +65,20 @@ function renderSketch(){
  const g=guided(),sentences=B.keys.filter(k=>g.accepted[k]),used=new Set(sentences.flatMap(k=>g.accepted[k].customText===null?g.accepted[k].ingredients.map(i=>i.fieldId):[]));
  const others=A.keptEntries().filter(e=>!used.has(e.id));
  $('guidedSketchContent').innerHTML=sentences.map(key=>`<article class="sketch-composition" data-sketch="${key}"><div><h3>${B.labels[key]}</h3><button data-edit-composition="${key}" aria-label="Edit ${B.labels[key]}">Edit</button></div><p>${esc(B.sentence(g.accepted[key],key,state().settings))}</p><div class="sketch-composition-actions"><button data-copy-composition="${key}">Copy</button><button data-remove-composition="${key}">Remove</button></div></article>`).join('')+(others.length?'<details class="other-kept"><summary>'+others.length+' other kept '+(others.length===1?'detail':'details')+'</summary>'+others.map(e=>`<div class="other-kept-row"><h3>${esc(e.label)}</h3><p>${esc(e.value)}</p><button data-edit-kept="${esc(e.id)}">Edit</button></div>`).join('')+'</details>':'')+(!sentences.length&&!others.length?'<p class="canvas-empty">One possibility at a time.<br>Add what belongs and watch a person take shape.</p>':'');
- const count=sentences.length+others.length;
- $('toggleSketch').textContent='Your sketch · '+count+' '+(count===1?'detail':'details')+' ⌄';
+ const count=sentences.length+others.length,entries=new Map([...sentences.map(key=>['sentence:'+key,B.sentence(g.accepted[key],key,state().settings)]),...others.map(entry=>['field:'+entry.id,entry.value])]);
+ let feedback=sketchFeedback.get(g);
+ if(!feedback){feedback={entries,unread:false};sketchFeedback.set(g,feedback);}
+ else{
+  const changed=[...entries].some(([id,value])=>feedback.entries.get(id)!==value);
+  if(changed){feedback.unread=!g.sketchOpen;$('sketchFeedback').textContent='Your sketch updated. '+count+' '+(count===1?'detail':'details')+' kept.';}
+  feedback.entries=entries;
+ }
+ if(g.sketchOpen||!count)feedback.unread=false;
+ if(!count)$('sketchFeedback').textContent='';
+ $('toggleSketch').innerHTML='<span class="sketch-toggle-copy"><span class="sketch-toggle-title">Your sketch</span><small class="sketch-toggle-meta">'+count+' '+(count===1?'detail':'details')+(feedback.unread?' · Updated':'')+'</small></span><span class="sketch-chevron" aria-hidden="true">'+(g.sketchOpen?'⌃':'⌄')+'</span>';
+ $('toggleSketch').classList.toggle('sketch-ready',count>0);
+ $('toggleSketch').classList.toggle('sketch-unread',feedback.unread);
+ $('toggleSketch').setAttribute('aria-label','Your sketch, '+count+' '+(count===1?'detail':'details')+(feedback.unread?', updated':''));
  $('toggleSketch').setAttribute('aria-expanded',String(g.sketchOpen));
  $('sketchBody').classList.toggle('sketch-collapsed',!g.sketchOpen);
 }
@@ -132,17 +144,26 @@ $('ingredientRows').addEventListener('change',event=>{
 });
 $('ingredientDetails').addEventListener('toggle',()=>{guided().ingredientsOpen=$('ingredientDetails').open;persist();});
 $('suggestionText').addEventListener('click',event=>{const button=event.target.closest('[data-sentence-ingredient]');if(button){showIngredients();editIngredient(button.dataset.sentenceIngredient,button);}});
+function continueToDevelopment(wasComplete){
+ if(wasComplete||!B.keys.every(key=>guided().accepted[key])||!matchMedia('(max-width:767px)').matches)return;
+ const completed=guided();
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  if(guided()!==completed||state().tab!=='build'||$('deeperDevelopment').hidden)return;
+  $('developmentTitle').focus({preventScroll:true});
+  $('deeperDevelopment').scrollIntoView({block:'start',behavior:motion()?'smooth':'auto'});
+ }));
+}
 $('addDetail').onclick=()=>{
  if(performance.now()<addingUntil)return;addingUntil=performance.now()+280;
- const g=guided(),key=g.chapter,prompt=B.clone(B.ensure(api()));
- if(A.acceptGuided(key,prompt)){A.notify('✓ Added to your character');reveal();const row=$('guidedSketchContent').querySelector(`[data-sketch="${key}"]`);if(row&&motion())row.animate([{background:'#e4b45a24',transform:'translateY(5px)'},{background:'transparent',transform:'none'}],{duration:280,easing:'ease-out'});}
+ const g=guided(),key=g.chapter,prompt=B.clone(B.ensure(api())),wasComplete=B.keys.every(key=>g.accepted[key]);
+ if(A.acceptGuided(key,prompt)){A.notify('✓ Added to your character');reveal();const row=$('guidedSketchContent').querySelector(`[data-sketch="${key}"]`);if(row&&motion())row.animate([{background:'#e4b45a24',transform:'translateY(5px)'},{background:'transparent',transform:'none'}],{duration:280,easing:'ease-out'});continueToDevelopment(wasComplete);}
 };
 $('tryAnother').onclick=tryAnother;
 $('skipStep').onclick=()=>{B.next(guided(),guided().chapter);A.render();persist();reveal();};
 $('writeOwn').onclick=()=>{
  const chapter=guided().chapter,prompt=B.clone(B.ensure(api()));
  openDialog(B.titles[chapter],`<label class="editor-label">Your sentence<textarea id="customSentence" rows="5" maxlength="20000">${esc(B.sentence(prompt,chapter,state().settings))}</textarea></label><p class="hint">Your wording will be kept as a sentence. It won't assign the generated ingredients as facts.</p><div class="modal-actions"><button id="keepCustomSentence" class="primary">Add to character</button><button data-builder-cancel>Cancel</button></div>`);
- $('keepCustomSentence').onclick=()=>{const text=$('customSentence').value.trim();if(!text){A.notify('Write a sentence first.');return;}prompt.customText=text;A.acceptGuided(chapter,prompt);$('builderDialog').close();A.notify('Your sentence was added.');};
+ $('keepCustomSentence').onclick=()=>{const text=$('customSentence').value.trim();if(!text){A.notify('Write a sentence first.');return;}prompt.customText=text;const wasComplete=B.keys.every(key=>guided().accepted[key]);if(!A.acceptGuided(chapter,prompt))return;$('builderDialog').close();A.notify('Your sentence was added.');continueToDevelopment(wasComplete);};
 };
 $('builderDialogContent').addEventListener('click',event=>{if(event.target.closest('[data-builder-cancel]'))$('builderDialog').close();});
 for(const button of document.querySelectorAll('[data-chapter]'))button.onclick=()=>switchChapter(button.dataset.chapter);
