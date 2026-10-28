@@ -59,7 +59,8 @@ into deeper development. You can preview and export at any time; no chapter is c
 
 **Story tools** opens Right Now, Connected characters, Put them under pressure, and Dialogue.
 **Library** holds saved versions, JSON export and backup import. **Browse all details** opens
-Quick Snapshot, Full Character, Medical, My Sheet, History, and the retained one-detail builder.
+Quick Snapshot, Full Character, the twelve dedicated detail pages listed below, My Sheet,
+History, and the retained one-detail builder.
 All views share one character. Existing Focus, Lock, Keep, Copy and field editors remain available
 in those detailed views. The app menu contains installation/help, story settings, Roll character,
 Shuffle focus, New character, Undo/Redo and History.
@@ -171,7 +172,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v27`, including both Right Now
+The service worker uses scope-specific cache version `v29`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -293,7 +294,7 @@ app cards and shared state in `app.js`.
 Save/open, import/export, device-local storage, and My Sheet include every new field,
 parameter, setting, focus/lock flag, and kept snapshot. Older backups initialize missing
 dialogue fields once without regenerating their existing profile or Right Now values;
-customized sketch selections remain intact. Service-worker version `v27` caches both new
+customized sketch selections remain intact. Service-worker version `v29` caches both new
 scripts locally. The downloadable ZIP is regenerated from current sources.
 
 `node verify.cjs` checks original data hashes, dialogue state/curation/migration, language
@@ -332,7 +333,7 @@ canvas operation. No runtime dependencies were added.
 4. Wait for deployment to finish, then open the existing Pages URL online.
 5. On your phone, open the installed app online and tap **Check updates**. When
    **App update ready** appears, apply open field edits, then tap **Update & reload**.
-   The current release is `v27`. If a pre-v15 app still shows **Install app**, wait for the
+   The current release is `v29`. If a pre-v15 app still shows **Install app**, wait for the
    update to download, close it from Recent apps, and reopen online once.
 6. Before traveling, reopen the app in airplane mode and try Add characteristic. All app files
    are local once cached. Saved characters remain in device-local storage; no reinstall or
@@ -394,7 +395,7 @@ Old workspaces and saved characters gain missing medical fields once while retai
 profile values, locks, notes, kept snapshots, and customized Quick Snapshot selections.
 All medical values persist through save, export, import, and offline use. Kept values
 remain accepted snapshots; changes to linked background values do not rewrite them.
-The updated ZIP includes `medical.js`, and service-worker cache `v27` installs it offline.
+The updated ZIP includes `medical.js`, and service-worker cache `v29` installs it offline.
 
 Reference material used for the prompts:
 
@@ -457,7 +458,7 @@ On the first load of an older character missing both additional fields, its unlo
 main language is synced to heritage, and Second/Third are initialized once. Existing
 locks, kept snapshots, notes, and Quick Snapshot choices survive. Subsequent loads keep
 the established values. Customize the mappings and named language pool in `languages.js`.
-Service-worker cache `v27` and the current downloadable ZIP include this file.
+Service-worker cache `v29` and the current downloadable ZIP include this file.
 
 Country-language reference examples: [Singapore Department of Statistics census language
 tables](https://www.singstat.gov.sg/publication-resources/singapore-census-of-population-2020-statistical-release-1-demographic-characteristics-education-language-and-religion)
@@ -555,7 +556,7 @@ being truncated. The complete brief remains visible for review before printing.
 workshop validation, and standalone brief renderer. Browser verification covers full
 undo/redo/restore journeys, generated and existing connected profiles, protected opening,
 scene responses, portrait validation, HTML/clipboard/PDF output, history reloads, JSON
-round trips, mobile layout, and offline use. Service-worker cache `v27` includes this file.
+round trips, mobile layout, and offline use. Service-worker cache `v29` includes this file.
 
 
 ## Installed phone app updates (v15)
@@ -638,7 +639,7 @@ promote an unlocked overall level. Explicit None/Unknown subject edits are allow
 Locked conflicts remain available for the author to review. Kept snapshots remain separate
 from subsequent background repairs.
 
-**Browse all details → Relationship details** adds longest/current relationship duration,
+**Browse all details → Relationships & Family** adds longest/current relationship duration,
 first serious relationship, first marriage/divorce, current status from romantic entries
 in the original `background.family_status` array, children (including Unknown), relationship
 behavior from traits, and a current-relationship viewpoint made from the original
@@ -652,7 +653,7 @@ covers the current relationship. Manual edits and locks allow deliberate excepti
 For confirmed adults (18+), this category also includes first sexual experience, partner
 count (0–10, Too many to count, or Unknown), sexual attitudes, perceived attractiveness,
 author-rated attractiveness, sexual compatibility, and the existing opt-in **Adult intimacy**
-field. Its toggle is also available at the top of Relationship details and stays synced
+field. Its toggle is also available at the top of Relationships & Family and stays synced
 with Roll settings. First-experience age draws start at 18. Attractiveness ratings are subjective fictional
 viewpoints, on a 0–10 scale. These fields are omitted for minors from suggestions, category
 cards, accepted details, My Sheet, copy output, and the finished brief. Teenagers age 13+
@@ -715,9 +716,8 @@ clipboard, undo/redo, saves, import/export, age filtering, mobile layout, and of
 **Help me decide**, beside **What would help you picture them next?**, suggests one
 next step at a time from the four categories currently suggested. The four cards
 randomly sample distinct categories from the same catalog as **Explore your character**:
-Voice & dialogue, Medical, Education & Training, Relationship details, Right Now,
-Connections, Pressure situations, and Character sheet. Quick snapshot, All character
-details, Undo & roll history, and One detail at a time are excluded. The set stays stable
+the twelve detail pages, Connections, Pressure situations, Character sheet, All character
+details, and Add one detail at a time. Only Quick snapshot and Undo & roll history are excluded. The set stays stable
 while browsing a draft; a new or reopened draft gets a new draw. **Suggest another**
 cycles those four choices; choosing one opens that existing tool on the same character.
 
@@ -798,3 +798,59 @@ Run `node verify-criminal.cjs` for module consistency checks and
 mobile layout, and offline reload. Browser checks use the same `PLAYWRIGHT_MODULE` and
 `CHROMIUM_EXECUTABLE` overrides as the other suites. The v26 service-worker cache and
 rebuilt ZIP include the new module.
+
+
+## Dedicated character detail pages (v29)
+
+Browse all details now offers twelve pages, with a shared page map powering the Explore
+menu, guided development suggestions, single-detail candidate categories, and Explore section links:
+
+| Page | Details |
+| --- | --- |
+| Identity & Naming | Identity, origins, languages, and naming prompts |
+| Physical Appearance | Height description, build, hair, eyes, skin, and distinctive features |
+| Personality & Behavior | Traits, flaws, values, motivations, social reactions, habits, and personal texture |
+| Background & Past | Homeland, occupation, social class, formative experiences, and childhood beliefs |
+| Skills & Possessions | Skills, abilities, equipment, unusual expertise, collections, and signature possessions |
+| Symbolism & Story Sparks | Birthday traditions/associations, beliefs, superstitions, tarot, and story seeds |
+| Relationships & Family | Family/parental figures, allies, enemies, organizations, attraction, relationship history, current relationship, compatibility, and intimacy |
+| Medical | Precise measurements, medical history, medications, and meals |
+| Education & Training | Education, degree subjects, student status, trade training, and feelings about education |
+| Criminal History | Overview and expandable incidents, records, people, and consequences |
+| Voice & Dialogue | Voice sound, dialogue habits, and optional dialogue challenges |
+| Right Now | Location, action, thoughts, devices, media, conversations, sightings, status, and context |
+
+Each field has one primary detail page. Full Character retains the complete view and its
+original module headings. Medical and Physical Appearance link to each other. Relationships
+& Family separates family, social connections, current relationship, history, ratings, and
+intimacy into subsections. Existing age restrictions continue to apply per field, so family
+and social connections remain available even when age-restricted relationship fields are hidden.
+
+Back to Character is the first entry in the floating Actions menu outside the main builder.
+It closes the menu and returns to the same sketch. Navigation preserves rolls, focus, locks,
+kept snapshots, and notes. Saved drafts retain their selected page, and legacy candidate
+categories migrate to the corresponding page. No source pools or saved field IDs changed.
+
+Run `node verify.cjs` for the field partition, navigation, and migration checks.
+`node verify-detail-pages-browser.cjs` checks all twelve pages, mobile return navigation,
+related-page links, reload persistence, Explore targets, and overflow at 1440, 390, and 320 pixels.
+It accepts the same Playwright/Chromium overrides as the other browser suites.
+
+
+## Random Quick Snapshot and expanded exploration (v29)
+
+Explore your character includes all twelve dedicated pages. All character details and
+Add one detail at a time can also appear among the four suggestions after the opening
+questions; Help me decide opens both using the same navigation as Browse all details.
+The four choices remain distinct and stable while exploring the same draft.
+
+Quick Snapshot automatically displays six existing details from six randomly selected
+modules, giving every available module an equal chance. Opening the view again draws a
+new selection; editing a card or reloading keeps the current selection. Shuffle snapshot
+selects another mix without rerolling values, changing focus, or altering kept snapshots.
+Age restrictions and disabled dialogue wildcards apply to the sample.
+
+Choose snapshot fields switches to a manual selection that persists across visits.
+Use random snapshot switches back to automatic selection. Earlier customized snapshots
+remain manual; earlier default snapshots adopt automatic sampling. Both modes and the
+current selection are included in saved versions, backups, and undo history.

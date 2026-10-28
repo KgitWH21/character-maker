@@ -4,7 +4,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
 (async()=>{
  const base=__dirname,legacy=new Map(['sw.js','index.html','app.js'].map(name=>[name,execFileSync('git',['show','737ccd6:'+name],{cwd:base,encoding:'utf8'})]));let release=14;
  const server=http.createServer((req,res)=>{const filename=decodeURIComponent(req.url.split('?')[0]).replace(/^\//,'')||'index.html',full=path.resolve(base,filename);if(!full.startsWith(base+path.sep)){res.writeHead(403).end();return;}
-  try{let body=release===14&&legacy.has(filename)?legacy.get(filename):fs.readFileSync(full);if(['sw.js','app-updates.js'].includes(filename)&&release!==14)body=body.toString().replaceAll("'v27'","'v"+release+"'");if(filename==='sw.js')body=body.toString().replace("const LOCAL_PREVIEW=['localhost','127.0.0.1','[::1]'].includes(self.location.hostname);",'const LOCAL_PREVIEW=false;');
+  try{let body=release===14&&legacy.has(filename)?legacy.get(filename):fs.readFileSync(full);if(['sw.js','app-updates.js'].includes(filename)&&release!==14)body=body.toString().replaceAll("'v29'","'v"+release+"'");if(filename==='sw.js')body=body.toString().replace("const LOCAL_PREVIEW=['localhost','127.0.0.1','[::1]'].includes(self.location.hostname);",'const LOCAL_PREVIEW=false;');
    res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png'}[path.extname(full)]||'application/octet-stream'));res.setHeader('Cache-Control','public, max-age=3600');res.end(body);
   }catch{res.writeHead(404).end();}
  });await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));let browser;

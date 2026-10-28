@@ -6,20 +6,15 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const api=()=>A.builderAPI(),state=()=>A.getState(),guided=()=>state().guided;
 const exploreTopics=[
  {label:'Quick snapshot',tab:'quick'},
- {label:'All character details',tab:'full'},
- {label:'Voice & dialogue',tab:'dialogue',description:'Find their voice',help:'Choose a voice or conversational habit. Imagine how they would ask someone for what they want.'},
- {label:'Medical',tab:'medical',description:'Health & physical details',help:'Explore a physical detail that could affect their daily routines, choices, or comfort.'},
- {label:'Education & Training',tab:'education',description:'Learning & practical skills',help:'Discover what they learned, how they learned it, and how they feel about that path.'},
- {label:'Criminal history',tab:'criminal-history',description:'Secrets & consequences',help:'Explore what happened, what is on the record, and what still follows them.'},
- {label:'Relationship details',tab:'relationship-details',description:'Their personal connections',help:'Explore their relationship history, current situation, or how they behave with someone close.'},
- {label:'Right Now',tab:'now',description:'A moment in their life',help:'Picture them somewhere specific. Choose what they are doing, thinking, or about to do.'},
+ {label:'All character details',tab:'full',description:'Browse every module together',help:'Browse all the character details together and keep anything that helps you picture them.'},
+ ...window.CharacterCanvas.pages.map(({id:tab,label,description,help})=>({tab,label,description,help})),
  {label:'Connections',tab:'connections',description:'People who shape their story',help:'Introduce an ally, a rival, or someone who remembers their past.'},
  {label:'Pressure situations',tab:'pressure',description:'A choice that tests them',help:'Put their desire and obstacle into a difficult situation, then decide how they respond.'},
  {label:'Character sheet',tab:'sheet',description:'Review the details you kept',help:'Read the details you have kept together and see what else you want to discover.'},
  {label:'Undo & roll history',tab:'history'},
- {label:'One detail at a time',tab:'single'}
+ {label:'Add one detail at a time',tab:'single',description:'Build with one possibility at a time',help:'Choose a module or let Surprise me offer a detail. Keep the possibilities that belong to your character.'}
 ];
-const excludedSuggestions=new Set(['quick','full','history','single']),developmentSelections=new WeakMap(),sketchFeedback=new WeakMap();
+const excludedSuggestions=new Set(['quick','history']),developmentSelections=new WeakMap(),sketchFeedback=new WeakMap();
 function developmentSuggestions(){
  const g=guided();
  if(!developmentSelections.has(g)){
@@ -86,7 +81,7 @@ function renderSketch(){
 function render(){
  const s=state(),g=guided(),build=s.tab==='build';
  $('toolsView').hidden=s.tab!=='tools';
- const main=s.tab==='saved'?'saved':build||['quick','full','medical','sheet','education','relationship-details','criminal-history'].includes(s.tab)?'build':'tools';
+ const main=s.tab==='saved'?'saved':build||['quick','full','sheet',...window.CharacterCanvas.pages.filter(p=>!['dialogue','now'].includes(p.id)).map(p=>p.id)].includes(s.tab)?'build':'tools';
  for(const button of document.querySelectorAll('[data-main]')){const selected=button.dataset.main===main;button.classList.toggle('selected',selected);button.setAttribute('aria-current',selected?'page':'false');}
  $('builderUndo').disabled=A.getHistory().index===0;
  $('iterationActions').hidden=!B.keys.every(key=>g.accepted[key]);
@@ -170,7 +165,7 @@ $('builderDialogContent').addEventListener('click',event=>{if(event.target.close
 for(const button of document.querySelectorAll('[data-chapter]'))button.onclick=()=>switchChapter(button.dataset.chapter);
 for(const button of document.querySelectorAll('[data-main]'))button.onclick=()=>{document.querySelectorAll('details.app-menu').forEach(d=>d.open=false);A.setView(button.dataset.main);};
 for(const button of document.querySelectorAll('[data-go]'))button.onclick=()=>A.setView(button.dataset.go);
-function explore(value){A.setView(value);}
+function explore(value){if(value!=='single'){A.setView(value);return;}A.setView('build');$('singleDetailBuilder').hidden=false;$('guidedQuestion').hidden=true;$('singleDetailBuilder').scrollIntoView({block:'start'});$('candidateCategory').focus({preventScroll:true});}
 $('developmentChoices').addEventListener('click',event=>{const button=event.target.closest('[data-explore]');if(button)explore(button.dataset.explore);});
 $('helpDecide').onclick=()=>{
  const choices=developmentSuggestions();let index=0;
@@ -199,7 +194,7 @@ $('guidedSketchContent').addEventListener('click',event=>{
 $('browseDetails').onclick=()=>{
  openDialog('Explore your character',`<label class="editor-label">Find a topic<input id="topicSearch" type="search" placeholder="Try voice, appearance, or history"></label><div id="topicChoices" class="topic-choices">${exploreTopics.map(({label,tab})=>`<button data-browse-tab="${tab}">${label}</button>`).join('')}</div><p class="hint">Your character stays the same as you explore.</p><button data-open-settings>Story &amp; roll settings</button>`);
  $('topicSearch').oninput=()=>{for(const button of $('topicChoices').children)button.hidden=!button.textContent.toLowerCase().includes($('topicSearch').value.toLowerCase());};
- $('topicChoices').onclick=event=>{const button=event.target.closest('[data-browse-tab]');if(!button)return;$('builderDialog').close();if(button.dataset.browseTab==='single'){$('singleDetailBuilder').hidden=false;$('guidedQuestion').hidden=true;$('singleDetailBuilder').scrollIntoView({block:'start'});}else A.setView(button.dataset.browseTab);};
+ $('topicChoices').onclick=event=>{const button=event.target.closest('[data-browse-tab]');if(!button)return;$('builderDialog').close();explore(button.dataset.browseTab);};
 };
 $('closeSingleDetail').onclick=()=>{$('singleDetailBuilder').hidden=true;$('guidedQuestion').hidden=false;};
 document.addEventListener('click',event=>{

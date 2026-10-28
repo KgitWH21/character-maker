@@ -58,7 +58,7 @@ console.log('PASS: original JSON equivalence; shared views; focus; locks; Keep; 
 // Dialogue state, curation, migration, and declared compatibility.
 const G=context.Dialogue,DD=context.DialogueData,gd=defs.filter(f=>f.kind==='dialogue'),gf=key=>gd.find(f=>f.id==='dialogue.'+key);
 assert.equal(gd.length,14);assert(gd.filter(f=>!f.wildcard&&f.id!=='dialogue.profanity').every(f=>f.pool.length>=12&&f.pool.length<=20));
-assert.equal(defs.find(f=>f.id==='CHARACTER_SPEECH').label,'Voice Sound');assert.equal(defs.find(f=>f.id==='CHARACTER_SPEECH').pool,O.CHARACTER_SPEECH);assert(!s.quickFields.some(id=>id.startsWith('dialogue.')));
+assert.equal(defs.find(f=>f.id==='CHARACTER_SPEECH').label,'Voice Sound');assert.equal(defs.find(f=>f.id==='CHARACTER_SPEECH').pool,O.CHARACTER_SPEECH);assert.equal(s.quickFields.length,6);assert.equal(new Set(s.quickFields.map(id=>context.CharacterCanvas.pageFor(defs.find(f=>f.id===id)).id)).size,6);
 const optionIds=gd.filter(f=>!f.wildcard).flatMap(f=>f.pool.map(o=>o.id));assert.equal(new Set(optionIds).size,optionIds.length);for(const f of gd)for(const o of f.pool)assert(o.id&&o.label&&(o.instruction||o.rule)&&o.example);
 const beforeDialogue=clone(s.values);A.focusShuffle();for(const f of gd){assert.equal(s.values[f.id].value,beforeDialogue[f.id].value);assert.deepEqual(clone(s.values[f.id].parameters),beforeDialogue[f.id].parameters);}
 for(const f of gd){const state=s.values[f.id];state.locked=true;const snapshot=clone(state);G.roll(f,s,{force:true});assert.deepEqual(clone(state),snapshot);state.locked=false;}
@@ -95,7 +95,7 @@ K.resetCycle(testState);for(const f of defs.filter(f=>f.group==='Appearance'))te
 for(const f of defs.filter(f=>f.group==='Appearance'))testState.values[f.id].kept=true;assert.equal(K.status(testState,defs,()=>true).kind,'empty');
 // Each category has equal probability even though Right Now has many more fields.
 const balanced=clone(s);balanced.canvas=K.defaults();for(const v of Object.values(balanced.values)){v.kept=false;v.focused=true;}balanced.settings.dialogueWildcards=true;balanced.settings.dialogueCombine=true;
-const groups=K.availableCategories(defs);assert.equal(groups.length,10);for(let i=0;i<groups.length;i++){K.resetCycle(balanced);let n=0;const result=K.offer(balanced,defs,()=>true,()=>n++===0?(i+.1)/groups.length:0);assert.equal(K.categoryFor(result.field).id,groups[i].id);}
+const groups=K.availableCategories(defs);assert.equal(groups.length,12);for(let i=0;i<groups.length;i++){K.resetCycle(balanced);let n=0;const result=K.offer(balanced,defs,()=>true,()=>n++===0?(i+.1)/groups.length:0);assert.equal(K.categoryFor(result.field).id,groups[i].id);}
 const restricted=defs.find(f=>f.kind==='adult');assert.equal(K.eligible(restricted,balanced,()=>false),false);assert(K.foundation.every(id=>!K.eligible(defs.find(f=>f.id===id),balanced,()=>true)));
 balanced.canvas.category='dialogue';balanced.canvas.seen=[];const structured=K.offer(balanced,defs,()=>true);assert(structured.field.kind==='dialogue'||structured.field.id==='CHARACTER_SPEECH');assert.equal(balanced.values[structured.field.id].value,s.values[structured.field.id].value);
 const corrupt=clone(balanced);corrupt.canvas={category:'dead',candidateId:'does-not-exist',seen:['bad','birthday','birthday'],includeFaded:true,suggesting:true};K.migrate(corrupt,defs);assert.equal(corrupt.canvas.category,'surprise');assert.equal(corrupt.canvas.candidateId,null);assert.deepEqual(clone(corrupt.canvas.seen),['birthday']);
@@ -162,3 +162,32 @@ const invalidWorkshop=clone(workshopState);invalidWorkshop.workshop.brief.portra
 for(const id of Object.keys(workshopState.values))workshopState.values[id].kept=false;assert.equal(A.briefData().groups.length,0);assert.equal(T.pressure([],[],'blank').anchors.length,0);
 assert(source('sw.js').includes("'./character-tools.js'"));assert(source('index.html').includes('src="./character-tools.js"'));assert(source('package-app.py').includes("'character-tools.js'"));
 console.log('PASS: undo/redo, branching and bounded roll history, reload validation, generated sibling inheritance, independent profiles, connection undo, kept scene anchors/responses, curated brief content/escaping/print, and legacy/nested workshop migration.');
+
+// Detail pages partition every field and remain safe to browse and restore.
+{
+ const pages=context.CharacterCanvas.pages,all=A.builderAPI().fields,current=A.getState();
+ assert.equal(pages.length,12);
+ for(const field of all)assert.equal(pages.filter(page=>page.matches(field)).length,1,'One primary page for '+field.id);
+ const expected={identity:['birthday','CHARACTER_NAME_TYPE','extra.language3'],appearance:['appearance.height','appearance.distinctive_features'],personality:['trait.0','personality.values','extra.lying','extra.tiny_ritual'],background:['background.occupation','PRIMARY_TRAUMATIC_EVENT','extra.childhood_belief'],skills:['abilities.skills','extra.collection','extra.signature_possession'],symbolism:['birthSymbols','tarot_cards','BASIC_EVENT'],'relationship-details':['mother','father','background.family_status','relationships.allies','basic.attracted to','relationshipDetails.status']};
+ for(const [tab,ids]of Object.entries(expected))for(const id of ids)assert.equal(K.pageFor(all.find(f=>f.id===id)).id,tab,id);
+ A.render();const preserved=clone(current.values),oldTab=current.tab;
+ for(const page of pages){A.setView(page.id);assert.equal(current.tab,page.id);assert.equal(element('results').hidden,false);assert(element('results').innerHTML.includes(page.label.replaceAll('&','&amp;')));assert.equal(element('floatingBackToCharacter').hidden,false);assert.deepEqual(clone(current.values),preserved);assert.equal(A.validSnapshot(clone(current)).tab,page.id);}
+ element('floatingBackToCharacter').onclick();assert.equal(current.tab,'build');assert.equal(element('floatingBackToCharacter').hidden,true);assert.deepEqual(clone(current.values),preserved);
+ for(const [category,id,expected]of [['other','extra.collection','skills'],['personality','PRIMARY_TRAUMATIC_EVENT','background'],['symbolism','dialogue.wildcard1','dialogue'],['right-now','now.thought','now']]){const old=clone(current);old.canvas={...K.defaults(category),candidateId:id,suggesting:true,seen:[id]};K.migrate(old,all);assert.equal(old.canvas.category,expected);assert.equal(old.canvas.candidateId,id);assert.deepEqual(clone(old.values),preserved);}
+ A.setView(oldTab);
+ console.log('PASS: every field has exactly one detail page; family/personality/past/possessions mapping; all 12 views and backup tabs; mobile return; legacy category migration; navigation preserves values and kept snapshots.');
+}
+
+// Random snapshots sample modules evenly without changing the underlying character.
+{
+ const current=A.getState(),all=A.getFields();A.render();const before=clone(current.values),originalTab=current.tab;
+ current.quickMode='auto';
+ const samples=new Set();
+ for(let i=0;i<30;i++){A.setView('build');A.setView('quick');assert.equal(current.quickFields.length,6);assert.equal(new Set(current.quickFields.map(id=>K.pageFor(all.find(f=>f.id===id)).id)).size,6);samples.add(current.quickFields.join(','));assert.deepEqual(clone(current.values),before);const ids=clone(current.quickFields);A.render();assert.deepEqual(clone(current.quickFields),ids);}
+ assert(samples.size>1);
+ current.quickMode='custom';current.quickFields=['birthday','CHARACTER_NAME_TYPE'];A.setView('build');A.setView('quick');assert.deepEqual(clone(current.quickFields),['birthday','CHARACTER_NAME_TYPE']);
+ const legacy=clone(current);delete legacy.quickMode;assert.equal(A.validSnapshot(legacy).quickMode,'custom');legacy.quickFields=all.filter(f=>f.quick).map(f=>f.id);assert.equal(A.validSnapshot(legacy).quickMode,'auto');
+ const filtered=K.snapshot(current,all,f=>!f.id.startsWith('relationshipDetails.')&&f.id!=='SEX_KINK');assert(filtered.every(id=>!id.startsWith('relationshipDetails.')&&id!=='SEX_KINK'));assert(!filtered.some(id=>all.find(f=>f.id===id).wildcard));
+ assert.equal(K.snapshot(current,all,()=>false).length,0);assert.deepEqual(clone(current.values),before);A.setView(originalTab);
+ console.log('PASS: automatic six-module snapshots, random variation, stable rerenders, preserved values, manual selection, legacy auto/custom migration, and field eligibility.');
+}
