@@ -99,8 +99,10 @@ The current JSON includes your expanded editable arrays. Entries retain their wo
 Additions live in `additions.js`. Customize those lists freely. The `human_distinctive_features` array adds 64 human features to the existing Distinctive Features field, including facial details, hair, hands, scars, tattoos, accessories, and posture. Its roll and selection menu use the original entries followed by these additions; original duplicates retain their relative weighting. After editing `character_elements.json`, run `python3 package-app.py`. Packaging automatically regenerates `original-data.js` from the JSON before building the ZIP. For a local preview without packaging, regenerate the wrapper with:
 
 ```sh
-node -e "const fs=require('fs');fs.writeFileSync('original-data.js','window.ORIGINAL_ELEMENTS = '+JSON.stringify(JSON.parse(fs.readFileSync('character_elements.json','utf8')))+';\\n')"
+node -e "const fs=require('fs');fs.writeFileSync('original-data.js','window.ORIGINAL_ELEMENTS = '+JSON.stringify(JSON.parse(fs.readFileSync('character_elements.json','utf8')),null,2)+';\n')"
 ```
+
+`original-data.js` uses two-space indentation with one array entry per line. Both regeneration methods preserve this formatting. For changes that survive packaging, edit `character_elements.json`; direct edits to `original-data.js` are replaced the next time it is regenerated.
 
 ## Files
 

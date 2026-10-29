@@ -11,7 +11,7 @@ base = Path(__file__).resolve().parent
 # The browser loads this wrapper, so every package must include the current JSON pools.
 elements = json.loads((base / 'character_elements.json').read_text(encoding='utf-8'))
 (base / 'original-data.js').write_text(
-    'window.ORIGINAL_ELEMENTS = ' + json.dumps(elements, ensure_ascii=False, separators=(',', ':')) + ';\n',
+    'window.ORIGINAL_ELEMENTS = ' + json.dumps(elements, ensure_ascii=False, indent=2) + ';\n',
     encoding='utf-8',
 )
 with ZipFile(base / 'character-maker.zip', 'w', ZIP_DEFLATED) as archive:
