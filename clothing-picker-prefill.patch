@@ -1,0 +1,110 @@
+diff --git a/prefill.js b/prefill.js
+new file mode 100644
+--- /dev/null
++++ b/prefill.js
+@@ -0,0 +1,11 @@
++/* Allowlisted deep links can preselect filters without replacing saved outfits. */
++(function(root){
++'use strict';
++const allowed={occasion:['casual','work','formal','outdoor','active','sleep','fantasy'],presentation:['any','m','f','n']};
++function apply(state,search=''){
++ const params=new URLSearchParams(search),settings={...state.settings},applied=[];
++ for(const [key,values]of Object.entries(allowed)){const value=params.get(key);if(values.includes(value)){settings[key]=value;applied.push(key);}}
++ return {state:applied.length?{...state,settings}:state,applied};
++}
++const api={allowed,apply};root.PickerPrefill=api;if(typeof module!=='undefined')module.exports=api;
++})(globalThis);
+diff --git a/app.js b/app.js
+--- a/app.js
++++ b/app.js
+@@ -3,6 +3,8 @@
+   const $=id=>document.getElementById(id);
+   let state=P.initial(), storage=true;
+   try {state=P.restore(localStorage.getItem(key));} catch (_) {storage=false;}
++  const incoming=PickerPrefill.apply(state,globalThis.location?.search||'');
++  state=incoming.state;
+   if(!Object.keys(state.results).length) state=P.roll(state).state;
+   else state=P.fillFoundation(state);
+   const rows={};
+@@ -99,4 +101,5 @@
+   });
+   $('collectionCount').textContent=`${WardrobeData.items.length} base details · ${WeaponData.physical.length+WeaponData.metaphorical.length} weapons & advantages`;
+   render();
++  if(incoming.applied.length) notify('Linked occasion / gender applied. Roll outfit to refresh unlocked details.');
+ })();
+diff --git a/index.html b/index.html
+--- a/index.html
++++ b/index.html
+@@ -11,7 +11,7 @@
+ <link rel="icon" href="icons/wardrobe.svg" type="image/svg+xml">
+ <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+ <link rel="stylesheet" href="style.css">
+-<script defer src="conditions.js"></script><script defer src="data.js"></script><script defer src="weapons.js"></script><script defer src="weapon-conditions.js"></script><script defer src="engine.js"></script><script defer src="app.js"></script><script defer src="pwa.js"></script>
++<script defer src="conditions.js"></script><script defer src="data.js"></script><script defer src="weapons.js"></script><script defer src="weapon-conditions.js"></script><script defer src="engine.js"></script><script defer src="prefill.js"></script><script defer src="app.js"></script><script defer src="pwa.js"></script>
+ </head>
+ <body>
+ <main>
+diff --git a/sw.js b/sw.js
+--- a/sw.js
++++ b/sw.js
+@@ -1,10 +1,10 @@
+ // Bump this version whenever a cached file changes. An update takes over after
+ // existing app windows close, keeping each open app on one consistent version.
+ const CACHE_PREFIX='wardrobe-picker:'+self.registration.scope+':';
+-const CACHE_NAME=CACHE_PREFIX+'v8';
++const CACHE_NAME=CACHE_PREFIX+'v9';
+ const APP_FILES=[
+   './', './index.html', './style.css', './conditions.js', './data.js',
+-  './weapons.js', './weapon-conditions.js', './engine.js', './app.js', './pwa.js', './manifest.webmanifest',
++  './weapons.js', './weapon-conditions.js', './engine.js', './prefill.js', './app.js', './pwa.js', './manifest.webmanifest',
+   './icons/wardrobe.svg', './icons/apple-touch-icon.png', './icons/icon-192.png',
+   './icons/icon-512.png', './icons/icon-maskable-512.png'
+ ].map(path=>new URL(path,self.registration.scope).href);
+diff --git a/test-prefill.js b/test-prefill.js
+new file mode 100644
+--- /dev/null
++++ b/test-prefill.js
+@@ -0,0 +1,6 @@
++const assert=require('node:assert/strict'),P=require('./engine.js'),L=require('./prefill.js');
++for(const occasion of L.allowed.occasion)for(const presentation of L.allowed.presentation){const state=P.initial(),out=L.apply(state,'?occasion='+occasion+'&presentation='+presentation);assert.equal(out.state.settings.occasion,occasion);assert.equal(out.state.settings.presentation,presentation);assert.deepEqual(out.applied,['occasion','presentation']);assert.equal(state.settings.occasion,'casual');assert.equal(state.settings.presentation,'any');}
++const saved=P.roll(P.initial(),null,()=>.4).state;saved.locks.top=true;saved.settings.collection='japanese';saved.settings.structure='separates';const values=JSON.stringify(saved.results),locks=JSON.stringify(saved.locks);const next=L.apply(saved,'?occasion=formal&presentation=f').state;assert.equal(JSON.stringify(next.results),values);assert.equal(JSON.stringify(next.locks),locks);assert.equal(next.settings.collection,'japanese');assert.equal(next.settings.structure,'separates');
++for(const query of ['', '?occasion=bad&presentation=male','?occasion=%3Cscript%3E&presentation=unknown','?era=fantasy&weapons=true']){const out=L.apply(saved,query);assert.equal(out.state,saved);assert.deepEqual(out.applied,[]);}
++const partial=L.apply(saved,'?occasion=outdoor&presentation=bad');assert.equal(partial.state.settings.occasion,'outdoor');assert.equal(partial.state.settings.presentation,saved.settings.presentation);assert.deepEqual(partial.applied,['occasion']);
++console.log('PASS: all occasion/gender deep links, invalid input, partial prefills, and preserved wardrobe settings, results, and locks.');
+diff --git a/test-ui.js b/test-ui.js
+--- a/test-ui.js
++++ b/test-ui.js
+@@ -17,10 +17,10 @@
+  const document={getElementById(id){return elements[id]||=(new Element());},createElement(){return new Element();},createTextNode(text){return text;}};
+  for(const id of ['color','condition','omitEmpty','weapons']) document.getElementById(id).type='checkbox';
+  document.getElementById('onepieceChance').type='number';
+- const context=vm.createContext({document, navigator:{clipboard:clipboard?{async writeText(t){writes.push(t);}}:undefined},localStorage:{getItem(){if(failStorage)throw Error();return stored;},setItem(k,v){if(failStorage)throw Error();stored=v;}},console});
++ const context=vm.createContext({document, navigator:{clipboard:clipboard?{async writeText(t){writes.push(t);}}:undefined},URLSearchParams,localStorage:{getItem(){if(failStorage)throw Error();return stored;},setItem(k,v){if(failStorage)throw Error();stored=v;}},console});
+  // Keep initial Auto structure in separates so the top-lock scenario is stable.
+  vm.runInContext('Math.random = () => 0.3;',context);
+- for(const file of ['conditions.js','data.js','weapons.js','weapon-conditions.js','engine.js','app.js']) vm.runInContext(readFileSync(file,'utf8'),context);
++ for(const file of ['conditions.js','data.js','weapons.js','weapon-conditions.js','engine.js','prefill.js','app.js']) vm.runInContext(readFileSync(file,'utf8'),context);
+  return {elements,writes,stored:()=>stored};
+ }
+ (async()=>{
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -119,3 +119,17 @@
+ Weapon-condition checks verify all 125 distinct statuses are reachable and separate from clothing, compatibility across all 94 entries, manual edits and locks, random rolls across every mode/era, copied explanations, saved results, and migration of the higher default roll chance.
+ 
+ PWA checks cover icon dimensions, installation prompts and fallbacks, standalone mode, insecure URLs, offline assets, and cache isolation between URL scopes. Chromium browser checks also verified desktop and phone layouts, the manifest, offline reloads and rolls, and saved results at both the site root and a subdirectory. iPhone installation guidance was checked with an iPhone user agent; native phone installation, browser clipboard permissions, and screen-reader interaction still require device checks.
++
++## Prefilled links from Character Maker
++
++Open `?occasion=work&presentation=m` to preselect the native Occasion / setting and Gender
++controls. Occasions: `casual`, `work`, `formal`, `outdoor`, `active`, `sleep`, `fantasy`.
++Gender presentation: `m` (Male), `f` (Female), `n` (Neutral), or `any` (Any / mixed).
++Only these allowlisted values are applied; other parameters are ignored. Existing results,
++locks, chances, and unrelated settings remain intact. Roll outfit applies the new filters
++to unlocked details; an empty wardrobe generates its first outfit with the incoming filters.
++No character names, notes, or other character data are requested.
++
++`prefill.js` applies the two settings before initial generation and control rendering.
++Run `node test-prefill.js` to verify the link contract and saved-outfit preservation.
++The v9 service worker includes the new script.

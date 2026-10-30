@@ -15,15 +15,18 @@ const exploreTopics=[
  {label:'Add one detail at a time',tab:'single',description:'Build with one possibility at a time',help:'Choose a module or let Surprise me offer a detail. Keep the possibilities that belong to your character.'}
 ];
 const excludedSuggestions=new Set(['quick','history']),developmentSelections=new WeakMap(),sketchFeedback=new WeakMap();
-function developmentSuggestions(){
+function developmentSuggestions(reroll=false){
  const g=guided(),available=topic=>!excludedSuggestions.has(topic.tab)&&window.Affinities.topicAvailable(state(),topic.tab);
- if(!developmentSelections.has(g)||developmentSelections.get(g).some(topic=>!available(topic))){
+ if(reroll||!developmentSelections.has(g)||developmentSelections.get(g).some(topic=>!available(topic))){
+  const previous=new Set((developmentSelections.get(g)||[]).map(topic=>topic.tab));
   const choices=exploreTopics.filter(available);
   for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
-  developmentSelections.set(g,choices.slice(0,4));
+  const ordered=reroll?[...choices.filter(topic=>!previous.has(topic.tab)),...choices.filter(topic=>previous.has(topic.tab))]:choices;
+  developmentSelections.set(g,ordered.slice(0,4));
  }
  return developmentSelections.get(g);
 }
+function renderDevelopmentChoices(){$('developmentChoices').innerHTML=developmentSuggestions().map(topic=>`<button data-explore="${topic.tab}">${esc(topic.label)}<small>${esc(topic.description)}</small></button>`).join('');}
 const motion=()=>!matchMedia('(prefers-reduced-motion: reduce)').matches;
 let dialogOrigin=null,settingsParent=null,settingsNext=null,settingsNode=null,addingUntil=0;
 const reveal=()=>{if(motion())$('suggestionText').animate([{opacity:.2,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'});};
@@ -60,7 +63,7 @@ function renderIngredients(prompt){
 function renderSketch(){
  const g=guided(),sentences=B.keys.filter(k=>g.accepted[k]),used=new Set(sentences.flatMap(k=>g.accepted[k].customText===null?g.accepted[k].ingredients.map(i=>i.fieldId):[]));
  const others=A.keptEntries().filter(e=>!used.has(e.id));
- $('guidedSketchContent').innerHTML=sentences.map(key=>`<article class="sketch-composition" data-sketch="${key}"><div><h3>${B.labels[key]}</h3><button data-edit-composition="${key}" aria-label="Edit ${B.labels[key]}">Edit</button></div><p>${esc(B.sentence(g.accepted[key],key,state().settings,state()))}</p><div class="sketch-composition-actions"><button data-copy-composition="${key}">Copy</button><button data-remove-composition="${key}">Remove</button></div></article>`).join('')+(others.length?'<details class="other-kept"><summary>'+others.length+' other kept '+(others.length===1?'detail':'details')+'</summary>'+others.map(e=>`<div class="other-kept-row"><h3>${esc(e.label)}</h3><p>${esc(e.value)}</p><button data-edit-kept="${esc(e.id)}">Edit</button></div>`).join('')+'</details>':'')+(!sentences.length&&!others.length?'<p class="canvas-empty">One possibility at a time.<br>Add what belongs and watch a person take shape.</p>':'');
+ $('guidedSketchContent').innerHTML=sentences.map(key=>`<article class="sketch-composition" data-sketch="${key}"><div><h3>${B.labels[key]}</h3><button data-edit-composition="${key}" aria-label="Edit ${B.labels[key]}">Edit</button></div><p>${esc(B.sentence(g.accepted[key],key,state().settings,state()))}</p><div class="sketch-composition-actions"><button data-copy-composition="${key}">Copy</button><button data-remove-composition="${key}">Remove</button></div></article>`).join('')+(others.length?'<details class="other-kept"><summary>'+others.length+' other kept '+(others.length===1?'detail':'details')+'</summary>'+others.map(e=>`<div class="other-kept-row"><h3>${esc(e.label)}</h3><p>${esc(e.value)}</p>${e.id===window.Clothing.FIELD&&state().values[e.id]?.focused&&window.Clothing.url(state(),{kept:true})?`<a class="clothing-select" href="${esc(window.Clothing.url(state(),{kept:true}))}" target="_blank" rel="noopener noreferrer">Select clothing ↗</a>`:''}<button data-edit-kept="${esc(e.id)}">Edit</button></div>`).join('')+'</details>':'')+(!sentences.length&&!others.length?'<p class="canvas-empty">One possibility at a time.<br>Add what belongs and watch a person take shape.</p>':'');
  const count=sentences.length+others.length,entries=new Map([...sentences.map(key=>['sentence:'+key,B.sentence(g.accepted[key],key,state().settings,state())]),...others.map(entry=>['field:'+entry.id,entry.value])]);
  let feedback=sketchFeedback.get(g);
  if(!feedback){feedback={entries,unread:false};sketchFeedback.set(g,feedback);}
@@ -93,7 +96,7 @@ function render(){
  for(const button of document.querySelectorAll('[data-chapter]')){const key=button.dataset.chapter;button.classList.toggle('active',key===g.chapter);button.classList.toggle('complete',!!g.accepted[key]);button.setAttribute('aria-current',key===g.chapter?'step':'false');}
  $('ingredientDetails').open=g.ingredientsOpen;renderIngredients(prompt);renderSketch();
  $('deeperDevelopment').hidden=!B.keys.every(k=>g.visited.includes(k));
- if(!$('deeperDevelopment').hidden)$('developmentChoices').innerHTML=developmentSuggestions().map(topic=>`<button data-explore="${topic.tab}">${esc(topic.label)}<small>${esc(topic.description)}</small></button>`).join('');
+ if(!$('deeperDevelopment').hidden)renderDevelopmentChoices();
  // Initial suggestions are cached once. Browsing does not create undo entries.
  persist();
 }
@@ -166,6 +169,7 @@ for(const button of document.querySelectorAll('[data-chapter]'))button.onclick=(
 for(const button of document.querySelectorAll('[data-main]'))button.onclick=()=>{document.querySelectorAll('details.app-menu').forEach(d=>d.open=false);A.setView(button.dataset.main);};
 for(const button of document.querySelectorAll('[data-go]'))button.onclick=()=>A.setView(button.dataset.go);
 function explore(value){if(value!=='single'){A.setView(value);return;}A.setView('build');$('singleDetailBuilder').hidden=false;$('guidedQuestion').hidden=true;$('singleDetailBuilder').scrollIntoView({block:'start'});$('candidateCategory').focus({preventScroll:true});}
+$('rerollModules').onclick=()=>{const choices=developmentSuggestions(true);renderDevelopmentChoices();$('developmentFeedback').textContent='New modules: '+choices.map(topic=>topic.label).join(', ')+'.';};
 $('developmentChoices').addEventListener('click',event=>{const button=event.target.closest('[data-explore]');if(button)explore(button.dataset.explore);});
 $('helpDecide').onclick=()=>{
  const choices=developmentSuggestions();let index=0;

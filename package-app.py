@@ -5,9 +5,9 @@ import json
 files = ['index.html', 'style.css', 'guided.css', 'app.js', 'guided-builder.js', 'guided-ui.js', 'core.js', 'life-data.js', 'character-life.js', 'criminal-history.js', 'additions.js',
          'right-now-data.js', 'right-now.js', 'dialogue-data.js', 'dialogue.js', 'languages.js', 'app-updates.js', 'character-tools.js', 'medical.js', 'character-canvas.js', 'original-data.js',
          'character_elements.json', 'story_elements.json', 'social-issues-additions.json', 'game-genres.json',
-         'story-data.js', 'game-genres-data.js', 'story-metadata.js', 'story-elements.js', 'affinity-data.js', 'character-affinities.js', 'manifest.webmanifest', 'sw.js',
+         'story-data.js', 'game-genres-data.js', 'story-metadata.js', 'story-elements.js', 'affinity-data.js', 'character-affinities.js', 'clothing.js', 'manifest.webmanifest', 'sw.js',
          'icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'README.md',
-         'verify.cjs', 'verify-story.cjs', 'verify-story-browser.cjs', 'verify-affinities.cjs', 'verify-affinities-browser.cjs', 'verify-life.cjs', 'verify-criminal.cjs', 'verify-criminal-browser.cjs', 'verify-life-browser.cjs', 'verify-guided.cjs', 'verify-guided-browser.cjs', 'verify-browser.cjs', 'verify-detail-pages-browser.cjs', 'verify-updates-browser.cjs', 'package-app.py']
+         'verify.cjs', 'verify-clothing.cjs', 'verify-clothing-browser.cjs', 'verify-story.cjs', 'verify-story-browser.cjs', 'verify-affinities.cjs', 'verify-affinities-browser.cjs', 'verify-life.cjs', 'verify-criminal.cjs', 'verify-criminal-browser.cjs', 'verify-life-browser.cjs', 'verify-guided.cjs', 'verify-guided-browser.cjs', 'verify-browser.cjs', 'verify-detail-pages-browser.cjs', 'verify-updates-browser.cjs', 'package-app.py']
 base = Path(__file__).resolve().parent
 # The browser loads this wrapper, so every package must include the current JSON pools.
 elements = json.loads((base / 'character_elements.json').read_text(encoding='utf-8'))

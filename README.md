@@ -174,7 +174,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v31`, including both Right Now
+The service worker uses scope-specific cache version `v33`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -987,3 +987,41 @@ Run `node verify-affinities.cjs` for independent gates, locks, conditional field
 IDs and limits, snapshots, migration, and history. Run `node verify-affinities-browser.cjs`
 for actual controls, multiple pets, preserved kept facts with sections off, import/export,
 mobile layout, direct-file startup, and offline use. It accepts the standard browser overrides.
+
+## Reroll development modules (v32)
+
+Beside “What would help you picture them next?”, **Reroll modules** draws four new
+eligible suggestions, avoiding the immediately previous four when enough alternatives
+exist. Inactive affinity sections remain excluded. Character values, accepted details,
+focus, locks, notes, and undo history stay unchanged. The new choices remain stable
+while browsing, and Help me decide uses the current selection.
+
+## Preferred clothing style and the clothing picker (v33)
+
+Physical Appearance includes **Preferred clothing style**, using the clothing picker's seven
+Occasion / setting choices: Casual / everyday, Work / professional, Formal / evening,
+Outdoor / travel, Activewear / sports, Sleepwear / loungewear, and Fantasy / armor.
+It supports the normal focus, lock, Keep, custom editing, rerolls, snapshots, saves, and history.
+
+When this field is in focus, **Select clothing** opens the clothing picker in a new tab,
+using `?occasion=...&presentation=...`. Male and Female map to the picker's `m` and `f`;
+all other gender selections use `any` (Any / mixed). Accepted gender takes precedence over
+background suggestions. Background cards use their current clothing value; accepted cards,
+My Sheet, and the guided sketch use the kept clothing snapshot. Only the occasion and gender
+presentation travel in the URL. Names, notes, birthdays, and other character details stay here.
+
+A custom style is preserved normally. For a prefilled link, choose one of the seven mapped
+Occasion / setting values from the pool; an unmapped custom value shows a short chooser hint.
+Older characters gain an unkept clothing suggestion without changing their existing work.
+The option mapping and URL builder live in `clothing.js`.
+
+The companion picker change is reviewable in `clothing-picker-prefill.patch`. It adds the
+allowlisted `prefill.js` receiver, applies the two filters before initial generation, and
+caches that script in picker v9. Existing outfits, locks, chances, and unrelated settings
+remain preserved. In a saved wardrobe, use Roll outfit to apply the filters to unlocked items.
+The companion receiver is published in clothing-picker commit `fb4fb42a52b1e93e55909fa903b001f9f42322e5`.
+
+Run `node verify-clothing.cjs` for mappings and persistence. Run
+`node verify-clothing-browser.cjs` for the full browser handoff; set `CLOTHING_PICKER_ROOT`
+to a checkout of the updated picker if it is not in the sibling `clothing-picker` directory.
+Browser checks use the standard Playwright/Chromium overrides described above.
