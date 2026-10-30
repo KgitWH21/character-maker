@@ -3,7 +3,9 @@ window.ORIGINAL_ELEMENTS = {
     "race": [
       "Human",
       "Cyborg",
-      "human with animal abilities"
+      "human with animal abilities",
+      "genetically enhanced-human",
+      "bio-hacked human"
     ],
     "gender": [
       "Male",

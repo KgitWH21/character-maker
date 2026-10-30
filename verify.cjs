@@ -7,7 +7,7 @@ function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:fals
 const tabs=['build','quick','full','dialogue','now','sheet','saved'].map(tab=>{const e=element('tab-'+tab);e.dataset.tab=tab;return e;});
 const context=vm.createContext({console,Intl,Date,Math,JSON,document:{addEventListener(){},body:{classList:{toggle(){}}},getElementById:element,querySelectorAll:s=>s==='[data-tab]'?tabs:[]},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{},location:{protocol:'file:'},setTimeout(){},clearTimeout(){},confirm:()=>true,crypto:{randomUUID:()=>crypto.randomUUID()}});
 context.window=context;context.addEventListener=()=>{};
-for(const f of ['original-data.js','additions.js','core.js','life-data.js','character-life.js','criminal-history.js','right-now-data.js','right-now.js','languages.js','dialogue-data.js','dialogue.js','medical.js','character-canvas.js','character-tools.js','app-updates.js','guided-builder.js','app.js'])vm.runInContext(source(f),context,{filename:f});
+for(const f of ['original-data.js','additions.js','core.js','life-data.js','character-life.js','criminal-history.js','right-now-data.js','right-now.js','languages.js','dialogue-data.js','dialogue.js','medical.js','character-canvas.js','character-tools.js','app-updates.js','guided-builder.js','story-data.js','game-genres-data.js','story-metadata.js','story-elements.js','affinity-data.js','character-affinities.js','app.js'])vm.runInContext(source(f),context,{filename:f});
 const A=context.CharacterApp,R=context.RightNow,D=context.RightNowData,O=context.ORIGINAL_ELEMENTS,C=context.CharacterCore;
 let s=A.getState();const defs=A.getFields(),now=defs.filter(f=>f.kind==='rightNow'),f=k=>defs.find(x=>x.id==='now.'+k),v=k=>s.values['now.'+k];
 // User-editable source arrays are verified against their runtime wrapper below.
@@ -95,7 +95,7 @@ K.resetCycle(testState);for(const f of defs.filter(f=>f.group==='Appearance'))te
 for(const f of defs.filter(f=>f.group==='Appearance'))testState.values[f.id].kept=true;assert.equal(K.status(testState,defs,()=>true).kind,'empty');
 // Each category has equal probability even though Right Now has many more fields.
 const balanced=clone(s);balanced.canvas=K.defaults();for(const v of Object.values(balanced.values)){v.kept=false;v.focused=true;}balanced.settings.dialogueWildcards=true;balanced.settings.dialogueCombine=true;
-const groups=K.availableCategories(defs);assert.equal(groups.length,12);for(let i=0;i<groups.length;i++){K.resetCycle(balanced);let n=0;const result=K.offer(balanced,defs,()=>true,()=>n++===0?(i+.1)/groups.length:0);assert.equal(K.categoryFor(result.field).id,groups[i].id);}
+balanced.affinities.animals.active=true;balanced.affinities.supernatural.active=true;const groups=K.availableCategories(defs);assert.equal(groups.length,14);for(let i=0;i<groups.length;i++){K.resetCycle(balanced);let n=0;const result=K.offer(balanced,defs,()=>true,()=>n++===0?(i+.1)/groups.length:0);assert.equal(K.categoryFor(result.field).id,groups[i].id);}
 const restricted=defs.find(f=>f.kind==='adult');assert.equal(K.eligible(restricted,balanced,()=>false),false);assert(K.foundation.every(id=>!K.eligible(defs.find(f=>f.id===id),balanced,()=>true)));
 balanced.canvas.category='dialogue';balanced.canvas.seen=[];const structured=K.offer(balanced,defs,()=>true);assert(structured.field.kind==='dialogue'||structured.field.id==='CHARACTER_SPEECH');assert.equal(balanced.values[structured.field.id].value,s.values[structured.field.id].value);
 const corrupt=clone(balanced);corrupt.canvas={category:'dead',candidateId:'does-not-exist',seen:['bad','birthday','birthday'],includeFaded:true,suggesting:true};K.migrate(corrupt,defs);assert.equal(corrupt.canvas.category,'surprise');assert.equal(corrupt.canvas.candidateId,null);assert.deepEqual(clone(corrupt.canvas.seen),['birthday']);
@@ -166,7 +166,7 @@ console.log('PASS: undo/redo, branching and bounded roll history, reload validat
 // Detail pages partition every field and remain safe to browse and restore.
 {
  const pages=context.CharacterCanvas.pages,all=A.builderAPI().fields,current=A.getState();
- assert.equal(pages.length,12);
+ assert.equal(pages.length,14);
  for(const field of all)assert.equal(pages.filter(page=>page.matches(field)).length,1,'One primary page for '+field.id);
  const expected={identity:['birthday','CHARACTER_NAME_TYPE','extra.language3'],appearance:['appearance.height','appearance.distinctive_features'],personality:['trait.0','personality.values','extra.lying','extra.tiny_ritual'],background:['background.occupation','PRIMARY_TRAUMATIC_EVENT','extra.childhood_belief'],skills:['abilities.skills','extra.collection','extra.signature_possession'],symbolism:['birthSymbols','tarot_cards','BASIC_EVENT'],'relationship-details':['mother','father','background.family_status','relationships.allies','basic.attracted to','relationshipDetails.status']};
  for(const [tab,ids]of Object.entries(expected))for(const id of ids)assert.equal(K.pageFor(all.find(f=>f.id===id)).id,tab,id);
@@ -175,7 +175,7 @@ console.log('PASS: undo/redo, branching and bounded roll history, reload validat
  element('floatingBackToCharacter').onclick();assert.equal(current.tab,'build');assert.equal(element('floatingBackToCharacter').hidden,true);assert.deepEqual(clone(current.values),preserved);
  for(const [category,id,expected]of [['other','extra.collection','skills'],['personality','PRIMARY_TRAUMATIC_EVENT','background'],['symbolism','dialogue.wildcard1','dialogue'],['right-now','now.thought','now']]){const old=clone(current);old.canvas={...K.defaults(category),candidateId:id,suggesting:true,seen:[id]};K.migrate(old,all);assert.equal(old.canvas.category,expected);assert.equal(old.canvas.candidateId,id);assert.deepEqual(clone(old.values),preserved);}
  A.setView(oldTab);
- console.log('PASS: every field has exactly one detail page; family/personality/past/possessions mapping; all 12 views and backup tabs; mobile return; legacy category migration; navigation preserves values and kept snapshots.');
+ console.log('PASS: every field has exactly one detail page; family/personality/past/possessions mapping; all 14 views and backup tabs; mobile return; legacy category migration; navigation preserves values and kept snapshots.');
 }
 
 // Random snapshots sample modules evenly without changing the underlying character.
@@ -187,7 +187,8 @@ console.log('PASS: undo/redo, branching and bounded roll history, reload validat
  assert(samples.size>1);
  current.quickMode='custom';current.quickFields=['birthday','CHARACTER_NAME_TYPE'];A.setView('build');A.setView('quick');assert.deepEqual(clone(current.quickFields),['birthday','CHARACTER_NAME_TYPE']);
  const legacy=clone(current);delete legacy.quickMode;assert.equal(A.validSnapshot(legacy).quickMode,'custom');legacy.quickFields=all.filter(f=>f.quick).map(f=>f.id);assert.equal(A.validSnapshot(legacy).quickMode,'auto');
+ const previousWildcards=current.settings.dialogueWildcards;current.settings.dialogueWildcards=false;
  const filtered=K.snapshot(current,all,f=>!f.id.startsWith('relationshipDetails.')&&f.id!=='SEX_KINK');assert(filtered.every(id=>!id.startsWith('relationshipDetails.')&&id!=='SEX_KINK'));assert(!filtered.some(id=>all.find(f=>f.id===id).wildcard));
- assert.equal(K.snapshot(current,all,()=>false).length,0);assert.deepEqual(clone(current.values),before);A.setView(originalTab);
+ assert.equal(K.snapshot(current,all,()=>false).length,0);assert.deepEqual(clone(current.values),before);current.settings.dialogueWildcards=previousWildcards;A.setView(originalTab);
  console.log('PASS: automatic six-module snapshots, random variation, stable rerenders, preserved values, manual selection, legacy auto/custom migration, and field eligibility.');
 }

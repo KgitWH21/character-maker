@@ -9,7 +9,7 @@ function state(age){const s={settings:{storyYear:2026,storyDate:'2026-10-27',age
 function edit(s,id,value){F.edit(field(id),s,value);F.reconcile(s,id,O);}
 function reroll(s){for(const f of defs)F.roll(f,s,O);F.reconcile(s,'all',O);}
 const species={};for(let i=0;i<10000;i++){const value=C.speciesValue(O,()=>(i+.5)/10000);species[value]=(species[value]||0)+1;}
-assert.equal(species.Human,9000);for(const value of O.basic.race.filter(v=>v!=='Human'))assert.equal(species[value],500);
+assert.equal(species.Human,9000);for(const value of O.basic.race.filter(v=>v!=='Human'))assert.equal(species[value],1000/O.basic.race.filter(v=>v!=='Human').length);
 const api={state:state(35),fields:C.definitions(O,scope.EXTRA_ELEMENTS),original:O};B.migrate(api.state);
 for(let i=0;i<100;i++)assert.equal(B.generate(api,'identity',null,()=>.5).ingredients.find(x=>x.fieldId==='basic.race').value,'Human');
 assert.equal(defs.filter(f=>f.group==='Education & Training').length,7);assert.equal(new Set(defs.map(f=>f.id)).size,defs.length);
@@ -55,4 +55,4 @@ const before=clone(s);F.migrate(s,O);assert.deepEqual(clone(s),before);delete s.
 for(const row of D.marriage){const ever=row.married+row.civilPartnered+(row.divorced||0)+(row.widowed||0);assert(Math.abs(row.everPartneredProbability-ever/(ever+row.never))<1e-12);assert(Math.abs(row.divorcedAmongEverPartnered-(row.divorced||0)/ever)<1e-12);}
 let total=0,known=0,unknown=0;const mature=state(55),children=field('relationshipDetails.children');for(let i=0;i<30000;i++){const v=F.generate(children,mature,O,random);if(v===F.UNKNOWN){unknown++;continue;}total+=v==='11 or more'?11:Number(v);known++;}assert(Math.abs(total/known-2.25)<.05);assert(Math.abs(unknown/30000-.04)<.01);
 for(const [age,draw,expected]of [[20,.01,true],[20,.03,false],[35,.49,true],[35,.51,false],[55,.8,true],[55,.82,false],[80,.92,true],[80,.94,false]]){const value=F.generate(field('relationshipDetails.firstMarriage'),state(age),O,()=>draw);assert.equal(value!=='Never married',expected);}
-console.log('PASS: 90/5/5 species weighting; guided identity weighting; education progression and subjects; source-backed marriage probability boundaries; fictional child-count distribution; age and duration consistency; edits/locks/kept snapshots; adult-only gating and birthday boundaries; safe teen status pools; migration preservation.');
+console.log('PASS: 90% Human species weighting with an equal share for other kinds; guided identity weighting; education progression and subjects; source-backed marriage probability boundaries; fictional child-count distribution; age and duration consistency; edits/locks/kept snapshots; adult-only gating and birthday boundaries; safe teen status pools; migration preservation.');

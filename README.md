@@ -59,7 +59,7 @@ into deeper development. You can preview and export at any time; no chapter is c
 
 **Story tools** opens Right Now, Connected characters, Put them under pressure, and Dialogue.
 **Library** holds saved versions, JSON export and backup import. **Browse all details** opens
-Quick Snapshot, Full Character, the twelve dedicated detail pages listed below, My Sheet,
+Quick Snapshot, Full Character, the dedicated detail pages listed below, My Sheet,
 History, and the retained one-detail builder.
 All views share one character. Existing Focus, Lock, Keep, Copy and field editors remain available
 in those detailed views. The app menu contains installation/help, story settings, Roll character,
@@ -174,7 +174,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v29`, including both Right Now
+The service worker uses scope-specific cache version `v31`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -856,3 +856,134 @@ Choose snapshot fields switches to a manual selection that persists across visit
 Use random snapshot switches back to automatic selection. Earlier customized snapshots
 remain manual; earlier default snapshots adopt automatic sampling. Both modes and the
 current selection are included in saved versions, backups, and undo history.
+
+## Personality, social context, and life game genres (v30)
+
+Browse all details opens the new cards on the existing pages:
+
+| Page | New details |
+| --- | --- |
+| Personality & Behavior | Personal archetype, personal narrative perspective, what makes them feel safe, descriptive quality, Life game genre |
+| Background & Past | Social issue affecting them |
+| Symbolism & Story Sparks | Story genre and the universal question their life explores |
+
+Archetypes describe the role or recurring pattern the character sees in their own life.
+Perspectives frame their inner narrative and are separate from Right Now's viewing perspective.
+Each control theory keeps its title and “I feel safe…” statement together in a single card.
+The character-descriptor pool supplements the existing traits and flaws without changing their weights.
+
+Social issues combine the upstream 57 general, 50 men's, and 53 boys' prompts with the
+locally authored **50 women's and 50 girls' prompts**: **260 total**. Automatic suggestions
+follow accepted gender when available, otherwise the current gender result, and confirmed age.
+Trans men use the men's/boys' pools and trans women use the women's/girls' pools. Other or
+unknown identities use general suggestions by default. Younger children receive only reviewed
+age-appropriate prompts; year-only dates use the existing conservative age calculation.
+
+Edit the issue card to choose Follow character, General, Men's, Women's, Boys', Girls', or
+All issues. **Include situation-specific prompts** adds entries mentioning circumstances
+such as parenthood, disability, or identity. An issue is a writing prompt; it does not set
+another identity, medical, or relationship field. Age filters remain active for manual contexts.
+Explicit adult issues also require the existing Adult intimacy setting.
+
+Gender and date edits reconcile unlocked, unkept suggestions. Custom wording, locks, and
+kept snapshots remain preserved. Wording outside the current age/content settings is masked
+on cards and omitted from kept sheets, briefs, and scene anchors. Original backup JSON retains
+author data so changing story settings does not destroy saved work. Edit or reroll a masked
+result to choose a new eligible issue.
+
+**Life game genre** describes how the character views life if it were a video game:
+
+```text
+whimsical Detective game
+melancholy Farming Survival game
+```
+
+The editor offers a descriptor pool and descriptor, a primary genre, and an optional distinct
+second genre from **105 games across 13 families**. Automatic mode includes the second genre
+35% of the time by default; change the percentage or choose One genre / Two genres. Selecting
+None sets One genre until changed deliberately. Hold any ingredient to preserve it on rerolls;
+Lock preserves the entire card. Apply edit saves the ingredient settings and phrase together.
+Your version supports custom whole-phrase text. Game goals and twists appear in an optional
+inspiration section; they do not assign real-life goals to the character.
+
+Every card supports the existing editing, focus, locks, Keep, copy, canvas, Quick Snapshot,
+sheet, saved versions, JSON backup, undo/redo, and brief flows. Older characters gain the
+new cards as unkept suggestions without changing existing accepted wording. Social issues
+can be explicitly selected as an obstacle ingredient; initial guided suggestions keep their
+existing source choices. Kept issues, archetypes, control theories, and universal questions
+can also provide anchors for pressure exercises.
+
+The species pool adds **genetically enhanced-human** and **bio-hacked human**. Human remains
+90% of automatic rolls; the other four kinds share the remaining 10%. First sexual-experience
+history now consistently requires a confirmed adult age, matching the existing documented rule.
+
+The upstream story source is [story_elements.json](https://github.com/KgitWH21/storyspinner25/blob/main/story_elements.json),
+blob `a0449e5ea25c1376597dc26b2c3e82a00bb5bbb4`, preserved locally in `story_elements.json`.
+`social-issues-additions.json` contains the authored additions and `game-genres.json` the game
+source. `story-metadata.js` holds editable age/context rules and stable content-based IDs;
+`story-elements.js` implements generation, editing, and migration. `story-data.js` combines
+the upstream story data and additions under separate namespaces; `game-genres-data.js` is
+the game wrapper. Both wrappers support direct-file launch and offline use.
+
+After editing any source JSON, run `python3 package-app.py` to regenerate wrappers and
+`character-maker.zip`. Release v30 caches all new assets; installed apps use Check updates
+and Update & reload as before.
+
+Run `node verify-story.cjs` for source counts, option integrity, age/gender/context filtering,
+kept/locked behavior, game composition, migration, and history checks. Run
+`node verify-story-browser.cjs` for actual editor controls, saves, exports, briefs, mobile
+layouts, direct-file opening, and offline reload. Browser checks accept the same
+`PLAYWRIGHT_MODULE` and `CHROMIUM_EXECUTABLE` overrides as the other suites.
+
+## Animal and supernatural affinity (v31)
+
+Browse all details now includes **Animal Affinity** and **Supernatural Affinity** as
+two independent detail pages. Personality & Behavior links to both; Symbolism & Story
+Sparks also links to Supernatural Affinity.
+
+Each section has its own **Active / Inactive** switch. Roll character and Shuffle focus
+independently randomize the two unlocked switches using the existing focus density:
+60% active per section at the default setting. Either, both, or neither can be active.
+Individual fields retain their own independent focus, so turning a section on does not
+light up every detail. **Lock section** preserves its on/off choice while field rerolls
+and individual field locks continue to work normally. A new character resets section locks.
+
+Inactive means the topic is not prominent in how the character thinks about life. It
+does not establish pet ownership or a belief. Inactive sections are omitted from automatic
+snapshot sampling, snapshot presentation, single-detail candidates, and random development
+suggestions. Both remain accessible in Browse all details and Full Character. Turning one
+off preserves values, notes, and accepted details; kept facts remain in the sketch, sheet,
+and finished brief. Custom snapshot selections are preserved when their fields are inactive.
+
+Animal Affinity has an eight-position descriptive spectrum from **Hates animals** to
+**Believes they are an animal reincarnated**. Separate fields cover practical comfort,
+what shaped the attitude, favored/avoided animals, animal responses, a defining encounter,
+and what could change their mind. The believed past-life animal appears when relevant.
+
+Current pet status and childhood pet status are separate choices. A pet-owning status
+reveals its records; No current pets reveals a reason instead. Each pet has independent
+animal/species, name, and bond fields. Childhood pets also have an outcome. **Add another
+pet** supports up to eight current and eight childhood pets, with stable record IDs.
+Records can be rerolled together while respecting individual locks. Unlock a record's
+fields before removing it; removal can be undone. Change the status to None to hide all
+records without destroying them or their accepted snapshots. A pet's type can include a
+breed or other detail through the usual custom editor.
+
+Supernatural Affinity has an eight-position spectrum from **Only believes what they can
+directly observe** to **Believes they may be a supernatural being in temporary flesh**.
+Supporting fields include phenomena, basis for belief or skepticism, claimed experience,
+emotion, public/private stance, practices, and what could change their mind. Possible
+supernatural identity and its meaning appear for the corresponding beliefs. **Author's
+truth** is an independent field; beliefs do not rewrite species or abilities. Existing
+superstitions, symbolism, and tarot retain their original fields.
+
+All details use the existing Focus, Lock, Keep, Copy, Edit, and Reroll controls. Both section
+states and pet records survive saves, JSON backups, imports, undo/redo, and offline reload.
+Older characters gain the two inactive sections with unkept suggestions, preserving all
+existing accepted work. Source pools live in `affinity-data.js`; behavior and migration
+live in `character-affinities.js`. Both are cached and included in the rebuilt ZIP.
+
+Run `node verify-affinities.cjs` for independent gates, locks, conditional fields, pet record
+IDs and limits, snapshots, migration, and history. Run `node verify-affinities-browser.cjs`
+for actual controls, multiple pets, preserved kept facts with sections off, import/export,
+mobile layout, direct-file startup, and offline use. It accepts the standard browser overrides.

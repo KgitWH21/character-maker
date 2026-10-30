@@ -10,7 +10,9 @@ const pages=[
  {id:'identity',label:'Identity & Naming',description:'Their name, origins, languages, and identity',help:'Explore who they are, where they come from, and the languages they use.',matches:f=>['Identity','Naming'].includes(f.group)&&f.id!=='basic.attracted to'},
  {id:'appearance',label:'Physical Appearance',description:'Their visible features',help:'Choose a physical detail that makes them recognizable.',matches:f=>f.group==='Appearance'},
  {id:'personality',label:'Personality & Behavior',description:'Traits, values, habits, and reactions',help:'Explore what matters to them and how it shows in their everyday behavior.',matches:f=>['Personality','Voice & behavior'].includes(f.group)||personalityTexture.includes(f.id)},
- {id:'background',label:'Background & Past',description:'Work, upbringing, and formative experiences',help:'Discover an experience or circumstance that helped shape who they are.',matches:f=>f.group==='Background'&&!family.includes(f.id)||f.group==='Formative experiences'||f.id==='extra.childhood_belief'},
+ {id:'animal-affinity',label:'Animal Affinity',description:'Their connection with animals, current pets, and pets growing up',help:'Explore how animals fit into their life, or leave this topic inactive.',matches:f=>f.kind==='affinity'&&f.affinitySection==='animals'},
+ {id:'supernatural-affinity',label:'Supernatural Affinity',description:'Belief, experience, identity, and what is true in the story',help:'Explore how much the unexplained matters to them, or leave this topic inactive.',matches:f=>f.kind==='affinity'&&f.affinitySection==='supernatural'},
+ {id:'background',label:'Background & Past',description:'Work, upbringing, formative experiences, and social context',help:'Discover an experience or circumstance that helped shape who they are.',matches:f=>f.group==='Background'&&!family.includes(f.id)||f.group==='Formative experiences'||f.group==='Social context'||f.id==='extra.childhood_belief'},
  {id:'skills',label:'Skills & Possessions',description:'What they can do and what they carry',help:'Choose a skill, ability, or possession that matters in their story.',matches:f=>f.group==='Abilities & equipment'||possessions.includes(f.id)},
  {id:'symbolism',label:'Symbolism & Story Sparks',description:'Beliefs, birthdays, tarot, and story ideas',help:'Explore a symbol, superstition, or story seed that resonates with them.',matches:f=>['Birthday & symbolism','Tarot & story sparks'].includes(f.group)},
  {id:'relationship-details',label:'Relationships & Family',description:'Family, connections, romance, and history',sectionOrder:['Family & parental figures','Allies, enemies & organizations','Current relationship','Relationship history & milestones','Compatibility ratings','Attraction & intimacy'],help:'Explore their family, allies, enemies, or intimate relationship history.',matches:f=>['Relationship details','Relationships'].includes(f.group)||family.includes(f.id)||f.id==='basic.attracted to'},
@@ -23,13 +25,14 @@ const pages=[
 const categories=pages;
 function pageFor(f){return pages.find(page=>page.matches(f));}
 function snapshot(s,fields,isAllowed=()=>true,random=Math.random){
- const available=fields.filter(f=>s.values[f.id]&&isAllowed(f)&&(!f.wildcard||(s.settings.dialogueWildcards&&(!f.id.endsWith('2')||s.settings.dialogueCombine))));
+ const available=fields.filter(f=>s.values[f.id]&&(!root.Affinities||root.Affinities.available(f,s))&&isAllowed(f)&&(!f.wildcard||(s.settings.dialogueWildcards&&(!f.id.endsWith('2')||s.settings.dialogueCombine))));
  const modules=pages.map(page=>available.filter(page.matches)).filter(pool=>pool.length),selected=[];
  while(modules.length&&selected.length<6){const pool=modules.splice(Math.floor(random()*modules.length),1)[0];selected.push(pool[Math.floor(random()*pool.length)].id);}
  return selected;
 }
 function sectionFor(f){
  const page=pageFor(f)?.id;
+ if(f.kind==='story'&&f.section)return f.section;
  if(page==='identity')return f.group==='Naming'?'Naming':'Identity & origins';
  if(page==='appearance')return 'Physical appearance';
  if(page==='personality')return f.group==='Personality'?'Traits, values & motivations':f.group==='Voice & behavior'?'Social behavior & reactions':'Habits & personal texture';
@@ -56,10 +59,10 @@ function migrate(s,fields){const old=s.canvas||{},ids=new Set(fields.map(f=>f.id
  seen:Array.isArray(old.seen)?[...new Set(old.seen.filter(id=>typeof id==='string'&&ids.has(id)))].slice(0,fields.length):[],
  includeFaded:old.includeFaded===true,candidateId:ids.has(old.candidateId)?old.candidateId:null,suggesting:old.suggesting===true
  };return s;}
-function eligible(f,s,isAllowed=()=>true){return !foundation.includes(f.id)&&!!s.values[f.id]&&!s.values[f.id].kept&&isAllowed(f)&&(!f.wildcard||(s.settings.dialogueWildcards&&(!f.id.endsWith('2')||s.settings.dialogueCombine)));}
+function eligible(f,s,isAllowed=()=>true){return !foundation.includes(f.id)&&!!s.values[f.id]&&!s.values[f.id].kept&&(!root.Affinities||root.Affinities.available(f,s))&&isAllowed(f)&&(!f.wildcard||(s.settings.dialogueWildcards&&(!f.id.endsWith('2')||s.settings.dialogueCombine)));}
 function categoryFor(f){return categories.find(c=>c.matches(f));}
 function status(s,fields,isAllowed){const c=s.canvas,pool=fields.filter(f=>eligible(f,s,isAllowed)&&(c.category==='surprise'||categoryFor(f)?.id===c.category));
- if(!pool.length)return {kind:'empty',fields:[],message:'No eligible characteristics remain in this category. Choose another category or explore the section.'};
+ if(!pool.length){const key=root.Affinities?.keys.find(key=>root.Affinities.pages[key]===c.category);return {kind:'empty',fields:[],message:key&&!root.Affinities.active(s,key)?'This section is inactive. Explore the section to turn it on, or choose another category.':'No eligible characteristics remain in this category. Choose another category or explore the section.'};}
  const remaining=pool.filter(f=>!c.seen.includes(f.id));
  if(!remaining.length)return {kind:'cycle',fields:[],message:'You’ve considered every eligible field in this suggestion cycle. Start a new cycle, shuffle focus, or choose another category.'};
  const preferred=remaining.filter(f=>c.includeFaded||s.values[f.id].focused);

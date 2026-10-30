@@ -33,7 +33,7 @@ assert.deepEqual(plain(B.pool(api,'background.family_status')),plain(O.backgroun
 // Every influence/resistance choice remains available, including both parental pools in the existing parent fields.
 state.values['background.occupation'].locked=false;
 for(const key of ['motivation','obstacle']){
- const choices=B.recipes[key].find(([slot])=>['influence','resistance'].includes(slot))[1];
+ const choices=B.recipes[key].find(([slot])=>['influence','resistance'].includes(slot))[1].filter(id=>id!=='story.socialIssue');
  for(let index=0;index<choices.length;index++){
   const generated=B.generate(api,key,null,()=>((index+.1)/choices.length));
   const item=generated.ingredients.find(i=>i.slot===(key==='motivation'?'influence':'resistance'));

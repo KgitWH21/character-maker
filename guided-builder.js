@@ -5,7 +5,7 @@ const keys=['identity','motivation','obstacle'];
 const titles={identity:'Who are they?',motivation:'What do they want?',obstacle:'What gets in their way?'};
 const labels={identity:'Who they are',motivation:'What they want',obstacle:'What gets in their way'};
 const influence=['background.homeland','background.family_status','relationships.allies','relationships.enemies','relationships.organizations','PRIMARY_TRAUMATIC_EVENT','SECONDARY_TRAUMATIC_EVENT'];
-const resistance=['BASIC_EVENT','relationships.organizations','relationships.enemies','abilities.special_abilities','abilities.skills','mother','father','background.occupation','personality.motivations','personality.flaws'];
+const resistance=['BASIC_EVENT','relationships.organizations','relationships.enemies','abilities.special_abilities','abilities.skills','mother','father','background.occupation','personality.motivations','personality.flaws','story.socialIssue'];
 const recipes={identity:[['age',['birthday']],['heritage',['CHARACTER_NATIONAL_HERITAGE']],['trait',['trait.0']],['gender',['basic.gender']],['species',['basic.race']],['occupation',['background.occupation']]],motivation:[['motivation',['personality.motivations']],['trait',['trait.1']],['influence',influence],['event',['BASIC_EVENT']]],obstacle:[['descriptor',['STORY_DESCRIPTOR']],['trait',['trait.2']],['resistance',resistance]]};
 const clone=x=>JSON.parse(JSON.stringify(x));
 const clean=x=>String(x??'').slice(0,20000);
@@ -28,6 +28,7 @@ function migrate(s,raw=s.guided){
 }
 function field(api,id){return api.fields.find(f=>f.id===id);}
 function pool(api,id){
+ if(id==='story.socialIssue'&&root.StoryElements)return root.StoryElements.eligibleIssues(api.state).map(o=>o.value);
  // The requested family_status array is available alongside the newer family-connection pool.
  if(id==='background.family_status')return api.original.background.family_status;
  return field(api,id)?.pool||[];
@@ -52,7 +53,7 @@ function generate(api,key,previous=null,random=Math.random){
  const ingredients=recipes[key].map(([slot,ids])=>{
   const old=previous?.ingredients.find(x=>x.slot===slot);
   if(old&&(old.held||protectedValue(api,old.fieldId)!==null))return {...old,value:protectedValue(api,old.fieldId)??old.value};
-  const available=ids.filter(id=>id==='birthday'||pool(api,id).length);
+  const available=ids.filter(id=>(id!=='story.socialIssue'||old?.fieldId===id)&&(id==='birthday'||pool(api,id).length));
   const fieldId=pick(available,random);
   return {slot,fieldId,value:draw(api,fieldId,old?.fieldId===fieldId?old.value:undefined,random),held:false,custom:false};
  });
@@ -63,10 +64,11 @@ function next(g,key){if(!g.visited.includes(key))g.visited.push(key);const at=ke
 const article=value=>/^(?:honest|honor|hour|heir|8|11|18)/i.test(value)?'an':/^(?:uni[^nmd]|use|user|euro|one\b)/i.test(value)?'a':/^[aeiou]/i.test(value)?'an':'a';
 function lower(value){const s=clean(value).trim();return /^[A-Z][a-z]/.test(s)?s[0].toLowerCase()+s.slice(1):s;}
 const verbs=/^(?:to\s+|be\b|become\b|find\b|get\b|gain\b|protect\b|help\b|save\b|seek\b|win\b|prove\b|escape\b|avoid\b|discover\b|learn\b|make\b|build\b|create\b|destroy\b|control\s|take\b|give\b|keep\b|restore\b|avenge\b|earn\b|explore\b|understand\b|survive\b|hide\b|defend\b|serve\b|lead\b|follow\b|entertain\b|gamble\b|bargain\b|acquire\b|accumulate\b|achieve\s|impress\b|secure\b|establish\b|maintain\b|reunite\b|reconnect\b|challenge\b|experience\s|travel\b|satisfy\b|fulfill\b|resolve\b|overcome\b)/i;
-function parts(prompt,key,settings){
+function ingredientValue(api,item){return item.fieldId==='story.socialIssue'&&root.StoryElements?root.StoryElements.projection({id:item.fieldId},api.state,item.value):item.value;}
+function parts(prompt,key,settings,character){
  if(prompt.customText!==null)return [{text:prompt.customText}];
  const get=slot=>prompt.ingredients.find(x=>x.slot===slot);
- const raw=slot=>get(slot)?.value||'not established';
+ const raw=slot=>{const item=get(slot);return (item?(character?ingredientValue({state:character},item):item.value):'')||'not established';};
  const token=(slot,value=raw(slot))=>({slot,text:clean(value).trim().replace(/\s+/g,' ')});
  const text=value=>({text:value});
  if(key==='identity'){
@@ -84,10 +86,10 @@ function parts(prompt,key,settings){
   if(/TRAUMATIC_EVENT/.test(influence.fieldId))cause='an experience of ';
   return [text(action?'They want to ':'They seek '),token('motivation',action?lower(motive).replace(/^to\s+/i,''):lower(motive)),text(', shaped by their '),token('trait',lower(raw('trait'))),text(' side, '+cause+'“'),token('influence'),text('”, and '+article(raw('event'))+' '),token('event',lower(raw('event'))),text('.')];
  }
- const context={mother:'their maternal figure, described as ',father:'their paternal figure, described as ','relationships.organizations':'an organization, ','relationships.enemies':'an enemy, ','abilities.special_abilities':'an ability, ','abilities.skills':'a skill, ','background.occupation':'an occupation, ','personality.motivations':'a motivation, ','personality.flaws':'a flaw, ',BASIC_EVENT:'an event, '}[get('resistance').fieldId]||'';
+ const context={mother:'their maternal figure, described as ',father:'their paternal figure, described as ','relationships.organizations':'an organization, ','relationships.enemies':'an enemy, ','abilities.special_abilities':'an ability, ','abilities.skills':'a skill, ','background.occupation':'an occupation, ','personality.motivations':'a motivation, ','personality.flaws':'a flaw, ','story.socialIssue':'a social issue, ',BASIC_EVENT:'an event, '}[get('resistance').fieldId]||'';
  return [text(article(raw('descriptor'))[0].toUpperCase()+article(raw('descriptor')).slice(1)+' '),token('descriptor',lower(raw('descriptor'))),text(' complication involving '+context+'“'),token('resistance'),text('” challenges their '),token('trait',lower(raw('trait'))),text(' side.')];
 }
-function sentence(prompt,key,settings){return parts(prompt,key,settings).map(p=>p.text).join('');}
+function sentence(prompt,key,settings,character){return parts(prompt,key,settings,character).map(p=>p.text).join('');}
 function sync(s,id,value){
  for(const key of keys)for(const type of ['accepted','pending']){
   const p=s.guided[type][key];if(!p||p.customText!==null)continue;
@@ -95,5 +97,5 @@ function sync(s,id,value){
   for(const item of p.ingredients)if(item.fieldId===id)item.value=value;
  }
 }
-root.GuidedBuilder={keys,titles,labels,recipes,defaults,migrate,pool,field,draw,generate,ensure,next,parts,sentence,article,sync,clone};
+root.GuidedBuilder={keys,titles,labels,recipes,defaults,migrate,pool,field,draw,generate,ensure,next,parts,sentence,ingredientValue,article,sync,clone};
 })(typeof window==='undefined'?globalThis:window);

@@ -20,7 +20,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
     assert.equal(await page.locator('.detail-page-heading h2').textContent(),label);
     assert.equal(await page.locator('#viewMenu').inputValue(),id);
     const rendered=await page.locator('#results [data-field]').evaluateAll(cards=>cards.map(card=>card.dataset.field));
-    const expected=await page.evaluate(id=>CharacterApp.getFields().filter(CharacterCanvas.pages.find(p=>p.id===id).matches).filter(f=>CharacterLife.available(f,CharacterApp.getState())&&(!f.wildcard||CharacterApp.getState().settings.dialogueWildcards)).map(f=>f.id),id);
+    const expected=await page.evaluate(id=>CharacterApp.getFields().filter(CharacterCanvas.pages.find(p=>p.id===id).matches).filter(f=>CharacterLife.available(f,CharacterApp.getState())&&Affinities.available(f,CharacterApp.getState())&&(!f.wildcard||CharacterApp.getState().settings.dialogueWildcards)).map(f=>f.id),id);
     assert.deepEqual(rendered.slice().sort(),expected.slice().sort());assert.equal(new Set(rendered).size,rendered.length);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow on '+id+' at '+width);
     assert.deepEqual(await page.evaluate(()=>CharacterApp.getState().values),before);
@@ -49,6 +49,6 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
    if(width===390){await page.locator('#floatingActions summary').click();await page.screenshot({path:'/tmp/character-detail-actions-mobile.png',fullPage:false});}
    assert.deepEqual(errors,[]);await context.close();
   }
-  console.log('PASS: random six-module snapshots, preserved values, manual and automatic selection, snapshot reloads; all 12 pages through Browse, exact field coverage, mobile floating return, stable character data, related links, restored tabs, kept/candidate Explore targets, and overflow at 1440/390/320px.');
+  console.log('PASS: random six-module snapshots, preserved values, manual and automatic selection, snapshot reloads; all 14 pages through Browse, exact field coverage, mobile floating return, stable character data, related links, restored tabs, kept/candidate Explore targets, and overflow at 1440/390/320px.');
  }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1;});
