@@ -19,7 +19,7 @@ function definitions(original){
  edu('level','Overall education',D.educationLevels.map(x=>x.name));
  for(const [key,label]of [['college','College degree subject'],['graduate','Graduate degree subject'],['doctoral','Doctoral degree subject']])edu(key,label,[NONE,UNKNOWN,...D.subjects[key]]);
  edu('current','Current education status',D.studentStatus);edu('trade','Trade / specialty training',D.trades);edu('feeling','How they feel about their education',[...D.educationFeelings,...original.personality.traits]);
- const rel=(key,label,pool,options={})=>add('relationshipDetails.'+key,label,'Relationship details',pool,{minAge:13,...options});
+ const rel=(key,label,pool,options={})=>add('relationshipDetails.'+key,label,'Relationship details',pool,{minAge:11,...options});
  rel('longest','Longest relationship',null,{duration:true});
  rel('firstSex','Age of first sexual experience',['No sexual experience',UNKNOWN,...Array.from({length:95},(_,i)=>String(i+10))],{historyAge:10});
  rel('firstSerious','Age of first serious relationship',['No serious relationship yet',UNKNOWN,...Array.from({length:108},(_,i)=>String(i+10))],{historyAge:10});

@@ -6,6 +6,23 @@ function utc(y,m,d){const x=new Date(0);x.setUTCHours(12,0,0,0);x.setUTCFullYear
 function parseDate(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return null;const [y,m,d]=s.split('-').map(Number),x=utc(y,m,d);return y>=1&&y<=9999&&x.getUTCFullYear()===y&&x.getUTCMonth()===m-1&&x.getUTCDate()===d?{y,m,d,date:x}:null;}
 function iso(x){return String(x.getUTCFullYear()).padStart(4,'0')+'-'+String(x.getUTCMonth()+1).padStart(2,'0')+'-'+String(x.getUTCDate()).padStart(2,'0');}
 function ageAt(birthday,storyYear,storyDate){const b=parseDate(birthday),s=parseDate(storyDate);if(!b)return null;const y=s?s.y:Number(storyYear);if(!Number.isInteger(y)||y<1||y>9999)return null;let age=y-b.y;if(s&&(s.m<b.m||(s.m===b.m&&s.d<b.d)))age--;return age;}
+function snapshotBirthday(value){
+ const first=String(value??'').split('\n')[0].trim();if(parseDate(first))return first;
+ const match=/^([A-Za-z]+) (\d{1,2}), (\d{1,4})$/.exec(first);if(!match)return null;
+ const month=['January','February','March','April','May','June','July','August','September','October','November','December'].indexOf(match[1])+1;if(!month)return null;
+ const date=match[3].padStart(4,'0')+'-'+String(month).padStart(2,'0')+'-'+match[2].padStart(2,'0');return parseDate(date)?date:null;
+}
+function guidedBirthday(s){const p=s.guided?.accepted?.identity;return p?.customText===null?p.ingredients?.find(item=>item.fieldId==='birthday'&&parseDate(item.value))?.value||null:null;}
+function establishedBirthday(s){const v=s.values?.birthday;if(v?.kept)return (parseDate(v.keptBirthday)?v.keptBirthday:null)||snapshotBirthday(v.keptValue)||guidedBirthday(s)||(parseDate(v.value)?v.value:null);return guidedBirthday(s);}
+function formatBirthday(value,settings){const b=parseDate(value),age=ageAt(value,settings.storyYear,settings.storyDate);if(!b)return 'Choose a birth date';const date=new Intl.DateTimeFormat('en',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(b.date);return age===null?date:date+'\n'+(age<0?'Not yet born at this story date':settings.storyDate?`Age ${age} on ${settings.storyDate}`:`Turns ${age} in ${settings.storyYear}`);}
+function synchronizeBirthday(s){
+ const date=establishedBirthday(s),v=s.values?.birthday;if(!date||!v)return s;
+ v.value=date;
+ if(v.kept&&(parseDate(v.keptBirthday)||snapshotBirthday(v.keptValue)||guidedBirthday(s)))v.keptValue=formatBirthday(date,s.settings);
+ // An unaccepted birthday proposal remains editable until the author accepts it.
+ for(const p of Object.values(s.guided?.accepted||{}))if(p?.customText===null)for(const item of p.ingredients||[])if(item.fieldId==='birthday')item.value=date;
+ return s;
+}
 function birthForAge(age,storyYear,storyDate){const s=parseDate(storyDate);let y=(s?s.y:Number(storyYear))-age;if(y<1)throw Error('This age range needs an earlier birth year than year 1. Choose a later story year or a younger range.');let m=1+Math.floor(Math.random()*12);let d=1+Math.floor(Math.random()*utc(y,m+1,0).getUTCDate());if(s&&(m>s.m||(m===s.m&&d>s.d)))y--;if(y<1)throw Error('Choose a later story year or a younger age.');d=Math.min(d,utc(y,m+1,0).getUTCDate());return iso(utc(y,m,d));}
 const signs=[['Capricorn',120],['Aquarius',219],['Pisces',321],['Aries',420],['Taurus',521],['Gemini',621],['Cancer',723],['Leo',823],['Virgo',923],['Libra',1023],['Scorpio',1122],['Sagittarius',1222]];
 function zodiac(m,d){const n=m*100+d;for(const [name,until] of signs)if(n<until)return name;return 'Capricorn';}
@@ -33,5 +50,5 @@ add('birthSymbols','Birthday associations','Birthday & symbolism',null,false,'de
 function speciesValue(original,random=Math.random){const humans=original.basic.race.filter(value=>/^human$/i.test(value)),other=original.basic.race.filter(value=>!/^human$/i.test(value)),draw=random();if(!humans.length)return other[Math.min(other.length-1,Math.floor(draw*other.length))];if(!other.length)return humans[Math.min(humans.length-1,Math.floor(draw*humans.length))];return draw<.9?humans[Math.min(humans.length-1,Math.floor(draw/.9*humans.length))]:other[Math.min(other.length-1,Math.floor((draw-.9)/.1*other.length))];}
 function poolValue(f,original){if(f.id==='basic.race')return speciesValue(original);if(f.kind==='tarot')return tarot(pick(f.pool));if(f.kind==='arc'){const layout=pick(f.pool);const remaining=[...original.tarot_cards];return layout.name+'\n'+layout.slots.map(slot=>{const i=Math.floor(Math.random()*remaining.length);return slot+': '+tarot(remaining.splice(i,1)[0]);}).join('\n\n');}return pick(f.pool);}
 function originalCount(obj){if(Array.isArray(obj))return obj.length;return Object.values(obj).reduce((s,v)=>s+originalCount(v),0);}
-root.CharacterCore={speciesValue,pick,parseDate,iso,utc,ageAt,birthForAge,birthDetails,zodiac,definitions,poolValue,originalCount};
+root.CharacterCore={speciesValue,pick,parseDate,iso,utc,ageAt,snapshotBirthday,guidedBirthday,establishedBirthday,formatBirthday,synchronizeBirthday,birthForAge,birthDetails,zodiac,definitions,poolValue,originalCount};
 })(typeof window==='undefined'?globalThis:window);

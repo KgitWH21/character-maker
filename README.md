@@ -174,7 +174,7 @@ Playwright module and `CHROMIUM_EXECUTABLE` pointing to its Chromium binary if n
 Neither is a runtime dependency. Run `python3 package-app.py` to regenerate the downloadable
 ZIP from an explicit list of current files, excluding previous ZIPs and development files.
 
-The service worker uses scope-specific cache version `v33`, including both Right Now
+The service worker uses scope-specific cache version `v34`, including both Right Now
 files. To update an installed phone app, open it online and use **Check updates**.
 When the update notice appears, apply open field edits and tap **Update & reload**.
 Other app windows can remain open. No reinstall or storage clearing is needed.
@@ -1025,3 +1025,25 @@ Run `node verify-clothing.cjs` for mappings and persistence. Run
 `node verify-clothing-browser.cjs` for the full browser handoff; set `CLOTHING_PICKER_ROOT`
 to a checkout of the updated picker if it is not in the sibling `clothing-picker` directory.
 Browser checks use the standard Playwright/Chromium overrides described above.
+
+## Accepted birthday synchronization (v34)
+
+An accepted or kept birthday now remains the character's birthday during Roll character.
+Individual birthday rerolls are disabled while the date is established; use the normal
+Birth date editor to change it deliberately. Remove its kept mark and any composed identity
+that establishes it to allow a new birthday roll. Other fields retain their existing roll rules.
+
+Birthday edits update the actual date, accepted identity ingredients, age-dependent calculations,
+and the displayed date/age together. Accepted birthday edits use the date input instead of
+an unrelated free-text snapshot. Changing the story year or date recalculates age while
+preserving the birthday. Unaccepted age proposals remain editable until added to the character.
+
+New kept birthdays retain their ISO date alongside the displayed snapshot. Old drafts and
+backups recover an established date from their saved birthday snapshot or composed identity
+before dependent modules read age, repairing cases where the sketch said 42 while a rerolled
+background date was 20. Existing relationship values, locks, notes, and unrelated accepted
+facts are retained. The relationship parameter definitions and generators are unchanged.
+
+Run `node verify-birthday.cjs` and `node verify-birthday-browser.cjs` for the 42-year-old
+reroll regression, legacy repair, explicit edits, date boundaries, save/undo behavior,
+mobile layout, and offline reload. Browser checks accept the standard overrides.

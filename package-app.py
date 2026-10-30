@@ -7,7 +7,7 @@ files = ['index.html', 'style.css', 'guided.css', 'app.js', 'guided-builder.js',
          'character_elements.json', 'story_elements.json', 'social-issues-additions.json', 'game-genres.json',
          'story-data.js', 'game-genres-data.js', 'story-metadata.js', 'story-elements.js', 'affinity-data.js', 'character-affinities.js', 'clothing.js', 'manifest.webmanifest', 'sw.js',
          'icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'README.md',
-         'verify.cjs', 'verify-clothing.cjs', 'verify-clothing-browser.cjs', 'verify-story.cjs', 'verify-story-browser.cjs', 'verify-affinities.cjs', 'verify-affinities-browser.cjs', 'verify-life.cjs', 'verify-criminal.cjs', 'verify-criminal-browser.cjs', 'verify-life-browser.cjs', 'verify-guided.cjs', 'verify-guided-browser.cjs', 'verify-browser.cjs', 'verify-detail-pages-browser.cjs', 'verify-updates-browser.cjs', 'package-app.py']
+         'verify.cjs', 'verify-birthday.cjs', 'verify-birthday-browser.cjs', 'verify-clothing.cjs', 'verify-clothing-browser.cjs', 'verify-story.cjs', 'verify-story-browser.cjs', 'verify-affinities.cjs', 'verify-affinities-browser.cjs', 'verify-life.cjs', 'verify-criminal.cjs', 'verify-criminal-browser.cjs', 'verify-life-browser.cjs', 'verify-guided.cjs', 'verify-guided-browser.cjs', 'verify-browser.cjs', 'verify-detail-pages-browser.cjs', 'verify-updates-browser.cjs', 'package-app.py']
 base = Path(__file__).resolve().parent
 # The browser loads this wrapper, so every package must include the current JSON pools.
 elements = json.loads((base / 'character_elements.json').read_text(encoding='utf-8'))

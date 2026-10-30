@@ -35,7 +35,7 @@ function pool(api,id){
 }
 function pick(list,random=Math.random){return list[Math.min(list.length-1,Math.floor(random()*list.length))];}
 function different(list,previous,random){const alternatives=list.filter(value=>value!==previous);return pick(alternatives.length?alternatives:list,random);}
-function protectedValue(api,id){const v=api.state.values[id];return v?.kept?(id==='birthday'?v.value:v.keptValue):v?.locked?v.value:null;}
+function protectedValue(api,id){const v=api.state.values[id];if(id==='birthday')return root.CharacterCore.establishedBirthday(api.state)||(v?.locked?v.value:null);return v?.kept?v.keptValue:v?.locked?v.value:null;}
 function draw(api,id,previous,random=Math.random){
  const fixed=protectedValue(api,id);if(fixed!==null)return fixed;
  if(id==='birthday'){
