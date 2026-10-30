@@ -21,7 +21,7 @@ function definitions(original){
  edu('current','Current education status',D.studentStatus);edu('trade','Trade / specialty training',D.trades);edu('feeling','How they feel about their education',[...D.educationFeelings,...original.personality.traits]);
  const rel=(key,label,pool,options={})=>add('relationshipDetails.'+key,label,'Relationship details',pool,{minAge:13,...options});
  rel('longest','Longest relationship',null,{duration:true});
- rel('firstSex','Age of first sexual experience',['No sexual experience',UNKNOWN,...Array.from({length:95},(_,i)=>String(i+18))],{historyAge:18,adultOnly:true});
+ rel('firstSex','Age of first sexual experience',['No sexual experience',UNKNOWN,...Array.from({length:95},(_,i)=>String(i+10))],{historyAge:10});
  rel('firstSerious','Age of first serious relationship',['No serious relationship yet',UNKNOWN,...Array.from({length:108},(_,i)=>String(i+10))],{historyAge:10});
  rel('firstMarriage','Age of first marriage',['Never married',UNKNOWN,...Array.from({length:103},(_,i)=>String(i+18))],{historyAge:18});
  rel('firstDivorce','Age of first divorce',['Never divorced',UNKNOWN,...Array.from({length:103},(_,i)=>String(i+18))],{historyAge:18});
@@ -69,11 +69,11 @@ function generate(f,s,original,random=Math.random){
   if(key==='feeling')return random()<.8?choose(D.educationFeelings,random):choose(original.personality.traits,random);
  }
  const key=f.id.slice('relationshipDetails.'.length),first=historyAge(read(s,'relationshipDetails.firstMarriage')),ref=reference(s);
- if(key==='firstSex')return random()<.2?'No sexual experience':String(int(18,Math.min(a,25),random));
- if(key==='firstSerious')return random()<.2?'No serious relationship yet':String(int(13,Math.min(a,30),random));
- if(key==='firstMarriage')return ref&&random()<ref.everPartneredProbability?String(int(18,Math.min(a,45),random)):'Never married';
+ if(key==='firstSex')return random()<.2?'No sexual experience':String(int(10,Math.min(a,40),random));
+ if(key==='firstSerious')return random()<.2?'No serious relationship yet':String(int(10,Math.min(a,40),random));
+ if(key==='firstMarriage')return ref&&random()<ref.everPartneredProbability?String(int(16,Math.min(a,45),random)):'Never married';
  if(key==='firstDivorce')return first!==null&&ref&&random()<ref.divorcedAmongEverPartnered?String(int(first,a,random)):'Never divorced';
- if(key==='partners')return read(s,'relationshipDetails.firstSex')==='No sexual experience'?'0':random()<.04?'Too many to count':String(int(1,10,random));
+ if(key==='partners')return read(s,'relationshipDetails.firstSex')==='No sexual experience'?'0':random()<.04?'Too many to count':String(int(1,20,random));
  if(key==='status')return choose(statusPool(s,original),random)||UNKNOWN;
  if(key==='longest')return random()<.12?'No previous relationship':duration(s,['hours','days','years'],random);
  if(key==='currentLength')return currentKind(read(s,'relationshipDetails.status'))==='partnered'?duration(s,['hours','days','weeks','months','years'],random):currentKind(read(s,'relationshipDetails.status'))==='single'?NO_CURRENT:UNKNOWN;
